@@ -1,0 +1,1 @@
+G:\My work\DreamGraphicsAPI\FrontEnd\bin\Debug\net6.0-windows7.0\WinPixEventRuntime.dll

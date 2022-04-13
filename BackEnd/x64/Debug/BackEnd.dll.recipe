@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>G:\My work\DreamGraphicsAPI\FrontEnd\bin\Debug\net6.0-windows7.0\BackEnd.dll</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles>
+    <ContentFile>
+      <FullPath>G:\My work\DreamGraphicsAPI\FrontEnd\bin\Debug\net6.0-windows7.0\shader.cso</FullPath>
+    </ContentFile>
+  </ContentFiles>
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>

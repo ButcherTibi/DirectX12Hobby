@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="DirectX12">
+      <UniqueIdentifier>{d332fe3c-9bf1-4968-9529-d6fb21cbb9ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toolbox">
+      <UniqueIdentifier>{9812075a-74e3-4b41-8b37-b5213552024b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{314dd21c-bd67-4935-92e3-4a64ebe38aab}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="pch.hpp" />
+    <ClInclude Include="ButchersToolbox\Filesys\Filesys.hpp">
+      <Filter>Toolbox</Filter>
+    </ClInclude>
+    <ClInclude Include="ButchersToolbox\Windows\WindowsSpecific.hpp">
+      <Filter>Toolbox</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12.hpp">
+      <Filter>DirectX12</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Interface.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="ButchersToolbox\Filesys\Filesys.cpp">
+      <Filter>Toolbox</Filter>
+    </ClCompile>
+    <ClCompile Include="ButchersToolbox\Windows\WindowsSpecific.cpp">
+      <Filter>Toolbox</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12.cpp">
+      <Filter>DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="PIX_Debugger.cpp">
+      <Filter>DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Shader.cpp">
+      <Filter>DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>DirectX12</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "FrontEndWinUI (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "FrontEndWinUI (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
