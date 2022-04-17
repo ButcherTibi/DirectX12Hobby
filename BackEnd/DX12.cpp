@@ -2,8 +2,10 @@
 
 #include <algorithm>
 
+#include "App.hpp"
 
-HelloTriangle hello_world;
+
+Renderer renderer;
 
 
 void checkDX12(HRESULT result)
@@ -13,11 +15,8 @@ void checkDX12(HRESULT result)
 	}
 }
 
-void HelloTriangle::init()
+void Renderer::init()
 {
-	this->render_width = 1024;
-	this->render_height = 720;
-
 	beginPixCapture();
 	
 	// Debug Controller
@@ -99,25 +98,21 @@ void HelloTriangle::init()
 		D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(cmd_alloc.GetAddressOf()))
 	);
 
-	// Create Image
+	// Descriptor Heaps
 	{
-		createRenderTarget(render_width, render_height, DXGI_FORMAT_R8G8B8A8_UNORM, final_rtv);
+		cbv_srv_uav_heap.init(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+		rtv_heap.init(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	}
 
-	// Descriptor Heap
+	// Final Texture
 	{
-		// Describe and create a render target view (RTV) descriptor heap.
-		D3D12_DESCRIPTOR_HEAP_DESC info = {};
-		info.NumDescriptors = 1;
-		info.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		info.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-
-		checkDX12(dev->CreateDescriptorHeap(&info, IID_PPV_ARGS(rtv_heap.GetAddressOf())));
+		createRenderTarget(render_width, render_height, DXGI_FORMAT_R8G8B8A8_UNORM, final_rt);
+		final_rtv = rtv_heap.addRenderTargetView(final_rt);
 	}
 
-	// Render Target View
+	// Vertex sbuff
 	{
-		final_rtv.createRTV(rtv_heap->GetCPUDescriptorHandleForHeapStart());
+
 	}
 
 	// Create Root Signature
@@ -127,7 +122,7 @@ void HelloTriangle::init()
 		root_signature_desc.pParameters = nullptr;
 		root_signature_desc.NumStaticSamplers = 0;
 		root_signature_desc.pStaticSamplers = nullptr;
-		root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+		root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
 
 		ComPtr<ID3DBlob> blob;
 		ComPtr<ID3DBlob> err_blob;
@@ -146,22 +141,15 @@ void HelloTriangle::init()
 
 	// Shader
 	{
-		shader.createFromSourceCode(L"G:/My work/DreamGraphicsAPI/BackEnd/shader.hlsl");
+		shader.createFromSourceCode(L"G:/My work/DirectX12Hobby/BackEnd/shader.hlsl");
 	}
 
 	// Pipeline State Objects
 	{
-		D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-		};
-
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {};
 		desc.pRootSignature = root_sign.Get();
 		
 		// Input Layout
-		desc.InputLayout = { inputElementDescs, 2 };
 		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		desc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
 
@@ -249,7 +237,7 @@ void HelloTriangle::init()
 	{
 		checkDX12(
 			dev->CreateCommandList(0,
-				D3D12_COMMAND_LIST_TYPE_DIRECT, cmd_alloc.Get(), pipeline.Get(),
+				D3D12_COMMAND_LIST_TYPE_DIRECT, cmd_alloc.Get(), nullptr,
 				IID_PPV_ARGS(cmd_list.GetAddressOf())
 			)
 		);
@@ -257,24 +245,9 @@ void HelloTriangle::init()
 		cmd_list->Close();
 	}
 
-	struct Vertex
-	{
-		DirectX::XMFLOAT3 position;
-		DirectX::XMFLOAT4 color;
-	};
-
-	Vertex verts[] =
-	{
-		{ { 0.0f, 0.25f * 1, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-		{ { 0.25f, -0.25f * 1, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-		{ { -0.25f, -0.25f * 1, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
-	};
-
-	uint32_t vertex_buff_size = (uint32_t)sizeof(verts);
-
 	// Vertex Buffer
 	{
-		D3D12_HEAP_PROPERTIES heap_props = {};
+		/*D3D12_HEAP_PROPERTIES heap_props = {};
 		heap_props.Type = D3D12_HEAP_TYPE_UPLOAD;
 		heap_props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 		heap_props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
@@ -297,12 +270,12 @@ void HelloTriangle::init()
 			&res_desc,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(vbuff.GetAddressOf())));
+			IID_PPV_ARGS(vbuff.GetAddressOf())));*/
 	}
 
 	// Load data into vertex buffer
 	{
-		D3D12_RANGE no_read = {};
+		/*D3D12_RANGE no_read = {};
 		no_read.Begin = 0;
 		no_read.End = 0;
 
@@ -316,15 +289,15 @@ void HelloTriangle::init()
 		D3D12_RANGE write_all = {};
 		write_all.Begin = 0;
 		write_all.End = vertex_buff_size;
-		vbuff->Unmap(0, &write_all);
+		vbuff->Unmap(0, &write_all);*/
 	}
 
 	// Vertex Buffer View
 	{
-		vbuff_view = {};
+		/*vbuff_view = {};
 		vbuff_view.BufferLocation = vbuff->GetGPUVirtualAddress();
 		vbuff_view.StrideInBytes = sizeof(Vertex);
-		vbuff_view.SizeInBytes = vertex_buff_size;
+		vbuff_view.SizeInBytes = vertex_buff_size;*/
 	}
 
 	// Fence
@@ -332,9 +305,25 @@ void HelloTriangle::init()
 		checkDX12(dev->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(fence.GetAddressOf())));
 	}
 
+	render();
+
+	endPixCapture();
+}
+
+void Renderer::render()
+{
+	auto& mesh = app.mesh;
+
+	if (mesh.modified_verts.size() > mesh.verts.size()) {
+
+	}
+
+	// Command List
 	checkDX12(cmd_alloc->Reset());
-	checkDX12(cmd_list->Reset(cmd_alloc.Get(), pipeline.Get()));
+	checkDX12(cmd_list->Reset(cmd_alloc.Get(), nullptr));
 	{
+		cmd_list->SetPipelineState(pipeline.Get());
+
 		cmd_list->SetGraphicsRootSignature(root_sign.Get());
 
 		D3D12_VIEWPORT viewport = {};
@@ -364,7 +353,7 @@ void HelloTriangle::init()
 		}
 
 		std::array<D3D12_CPU_DESCRIPTOR_HANDLE, 1> tr = {
-			rtv_heap->GetCPUDescriptorHandleForHeapStart()
+			final_rtv.handle
 		};
 
 		cmd_list->OMSetRenderTargets(
@@ -375,10 +364,9 @@ void HelloTriangle::init()
 
 		// Record commands.
 		const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-		cmd_list->ClearRenderTargetView(rtv_heap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
+		cmd_list->ClearRenderTargetView(final_rtv.handle, clearColor, 0, nullptr);
 
 		cmd_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		cmd_list->IASetVertexBuffers(0, 1, &vbuff_view);
 		cmd_list->DrawInstanced(3, 1, 0, 0);
 	}
 	checkDX12(cmd_list->Close());
@@ -386,18 +374,10 @@ void HelloTriangle::init()
 	std::array<ID3D12CommandList*, 1> command_lists = {
 		cmd_list.Get()
 	};
-
 	cmd_queue->ExecuteCommandLists((uint32_t)command_lists.size(), command_lists.data());
-
-	endPixCapture();
 }
 
-void HelloTriangle::render()
-{
-	
-}
-
-void HelloTriangle::destroy()
+void Renderer::destroy()
 {
 	dev = nullptr;
 }

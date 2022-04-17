@@ -6,7 +6,7 @@
 #include "ButchersToolbox/Windows/WindowsSpecific.hpp"
 
 
-void HelloTriangle::initPix()
+void Renderer::initPix()
 {
 	if (PIXLoadLatestWinPixGpuCapturerLibrary() == nullptr) {
 		std::wstring last_error = win32::getLastError();
@@ -17,7 +17,7 @@ void HelloTriangle::initPix()
 	}
 }
 
-void HelloTriangle::beginPixCapture(std::wstring filename)
+void Renderer::beginPixCapture(std::wstring filename)
 {
 	if (is_pix_debugger_enabled) {
 
@@ -35,7 +35,7 @@ void HelloTriangle::beginPixCapture(std::wstring filename)
 	}
 }
 
-void HelloTriangle::endPixCapture()
+void Renderer::endPixCapture()
 {
 	if (is_pix_debugger_enabled) {
 

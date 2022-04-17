@@ -78,7 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)FrontEnd\bin\Debug\net6.0-windows7.0\</OutDir>
+    <OutDir>$(SolutionDir)FrontEnd\bin\Debug\net6.0-windows\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -141,8 +141,8 @@
       <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ForcedIncludeFiles>pch.hpp</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include\;$(WindowsSdkDir)Include\$(TargetPlatformVersion)\um\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>26812</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include\;$(WindowsSdkDir)Include\$(TargetPlatformVersion)\um\;$(ProjectDir)ThirdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>26812;4201</DisableSpecificWarnings>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -184,16 +184,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="App.hpp" />
     <ClInclude Include="ButchersToolbox\Filesys\Filesys.hpp" />
+    <ClInclude Include="ButchersToolbox\SparseVector.hpp" />
     <ClInclude Include="ButchersToolbox\Windows\WindowsSpecific.hpp" />
     <ClInclude Include="DX12.hpp" />
+    <ClInclude Include="Geometry.hpp" />
+    <ClInclude Include="GPU_ShaderTypes.hpp" />
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="pch.hpp" />
+    <ClInclude Include="SculptMesh.hpp" />
+    <ClInclude Include="StorageBuffer.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App.cpp" />
+    <ClCompile Include="DescriptorHeap.cpp" />
+    <ClCompile Include="EdgeOperations.cpp" />
+    <ClCompile Include="Geometry.cpp" />
+    <ClCompile Include="GPU_ShaderTYpes.cpp" />
+    <ClCompile Include="LowLevelPrimitiveOperations.cpp" />
+    <ClCompile Include="LowLevelPolyOperations.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MeshCreation.cpp" />
+    <ClCompile Include="MeshUpdate.cpp" />
+    <ClCompile Include="PolyOperations.cpp" />
+    <ClCompile Include="Primitives.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="StorageBuffer.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="VertexOperations.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="ButchersToolbox\Filesys\Filesys.cpp" />
     <ClCompile Include="ButchersToolbox\Windows\WindowsSpecific.cpp" />

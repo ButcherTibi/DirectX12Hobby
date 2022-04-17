@@ -1,10 +1,29 @@
-﻿  DX12.cpp
+﻿  compilation object save succeeded; see G:\My work\DirectX12Hobby\FrontEnd\bin\Debug\net6.0-windows\shader.cso
+  pch.cpp
+  App.cpp
+  DescriptorHeap.cpp
+  EdgeOperations.cpp
+  Geometry.cpp
+  GPU_ShaderTYpes.cpp
+  LowLevelPrimitiveOperations.cpp
+  LowLevelPolyOperations.cpp
+  main.cpp
+  MeshCreation.cpp
+  MeshUpdate.cpp
+  PolyOperations.cpp
+  Primitives.cpp
+  Shader.cpp
+  StorageBuffer.cpp
+  Texture.cpp
+  VertexOperations.cpp
+  Window.cpp
+  Filesys.cpp
+  WindowsSpecific.cpp
+  DX12.cpp
+  Generating Code...
+  Compiling...
   Interface.cpp
   PIX_Debugger.cpp
-  Shader.cpp
-  Texture.cpp
-  Window.cpp
-  main.cpp
   Generating Code...
-     Creating library G:\My work\DreamGraphicsAPI\FrontEnd\bin\Debug\net6.0-windows7.0\BackEnd.lib and object G:\My work\DreamGraphicsAPI\FrontEnd\bin\Debug\net6.0-windows7.0\BackEnd.exp
-  BackEnd.vcxproj -> G:\My work\DreamGraphicsAPI\FrontEnd\bin\Debug\net6.0-windows7.0\BackEnd.dll
+     Creating library G:\My work\DirectX12Hobby\FrontEnd\bin\Debug\net6.0-windows\BackEnd.lib and object G:\My work\DirectX12Hobby\FrontEnd\bin\Debug\net6.0-windows\BackEnd.exp
+  BackEnd.vcxproj -> G:\My work\DirectX12Hobby\FrontEnd\bin\Debug\net6.0-windows\BackEnd.dll

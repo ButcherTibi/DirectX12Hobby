@@ -10,10 +10,21 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{314dd21c-bd67-4935-92e3-4a64ebe38aab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SculptMesh">
+      <UniqueIdentifier>{27abc333-e1a8-41d9-bb68-4c11b1b2886b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{19bc4600-8a39-436e-9f56-84b009f9c01f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Precompiled Headers">
+      <UniqueIdentifier>{d12ae312-4387-4caa-8c40-72c8d7bbd42f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App">
+      <UniqueIdentifier>{ac410834-9f35-4781-acaf-668ca87c9ff0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Interface.hpp" />
-    <ClInclude Include="pch.hpp" />
     <ClInclude Include="ButchersToolbox\Filesys\Filesys.hpp">
       <Filter>Toolbox</Filter>
     </ClInclude>
@@ -23,10 +34,30 @@
     <ClInclude Include="DX12.hpp">
       <Filter>DirectX12</Filter>
     </ClInclude>
+    <ClInclude Include="SculptMesh.hpp">
+      <Filter>SculptMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="ButchersToolbox\SparseVector.hpp">
+      <Filter>Toolbox</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.hpp">
+      <Filter>Precompiled Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="App.hpp">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="StorageBuffer.hpp">
+      <Filter>DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="GPU_ShaderTypes.hpp">
+      <Filter>Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Interface.cpp" />
-    <ClCompile Include="pch.cpp" />
     <ClCompile Include="ButchersToolbox\Filesys\Filesys.cpp">
       <Filter>Toolbox</Filter>
     </ClCompile>
@@ -48,6 +79,48 @@
     </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="DescriptorHeap.cpp">
+      <Filter>DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Primitives.cpp">
+      <Filter>SculptMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexOperations.cpp">
+      <Filter>SculptMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="EdgeOperations.cpp">
+      <Filter>SculptMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="PolyOperations.cpp">
+      <Filter>SculptMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshUpdate.cpp">
+      <Filter>SculptMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="LowLevelPrimitiveOperations.cpp">
+      <Filter>SculptMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="LowLevelPolyOperations.cpp">
+      <Filter>SculptMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Precompiled Headers</Filter>
+    </ClCompile>
+    <ClCompile Include="App.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshCreation.cpp">
+      <Filter>SculptMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="StorageBuffer.cpp">
+      <Filter>DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="GPU_ShaderTYpes.cpp">
+      <Filter>Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

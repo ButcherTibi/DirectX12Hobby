@@ -16,13 +16,17 @@ using Microsoft::WRL::ComPtr;
 // DirectX 12
 #include <d3d12.h>
 #include <D3Dcompiler.h>
-#include <DirectXMath.h>
 
 // PIX Debugger
 #include <pix3.h>
 
 // Mine
 
+
+/* @TODO
+ - create load geometry for loading geometry when mesh has more stuff
+ - setup readback texture to print to screen
+*/
 
 void checkDX12(HRESULT result);
 
@@ -43,53 +47,88 @@ enum class ShaderStages : uint16_t {
 class Shader {
 public:
 	ComPtr<ID3DBlob> vertex_shader_cso = nullptr;
-	ComPtr<ID3DBlob> vertex_shader_errors;
-	ComPtr<ID3DBlob> pixel_shader_cso;
-	ComPtr<ID3DBlob> pixel_shader_errors;
+	ComPtr<ID3DBlob> vertex_shader_errors = nullptr;
+	ComPtr<ID3DBlob> pixel_shader_cso = nullptr;
+	ComPtr<ID3DBlob> pixel_shader_errors = nullptr;
 
 public:
 	void createFromSourceCode(std::wstring file_path,
 		uint16_t shader_stages = (uint16_t)ShaderStages::VERTEX | (uint16_t)ShaderStages::PIXEL);
 };
 
+
 class Texture {
 public:
 	ComPtr<ID3D12Resource> texture = nullptr;
-
-public:
-	void createRTV(D3D12_CPU_DESCRIPTOR_HANDLE dest_descriptor);
 };
 
 
-class HelloTriangle {
+struct CPU_DescriptorHandle {
+	D3D12_CPU_DESCRIPTOR_HANDLE handle;
+
+	CPU_DescriptorHandle() = default;
+	CPU_DescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE);
+};
+
+struct RTV_DescriptorHandle : public CPU_DescriptorHandle { };
+
+
+class DescriptorHeap {
+protected:
+	ComPtr<ID3D12DescriptorHeap> heap;
+	uint32_t used_count;
+
+protected:
+	CPU_DescriptorHandle at(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t index = 1);
+
+public:
+	void init(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t size = 128, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
+};
+
+
+class CBV_SRV_UAV_DescriptorHeap : public DescriptorHeap {
+public:
+
+};
+
+
+class RTV_DescriptorHeap : public DescriptorHeap {
+public:
+	RTV_DescriptorHandle addRenderTargetView(Texture& texture);
+};
+
+
+class Renderer {
 public:
 	// PIX
-	inline static bool is_pix_debugger_enabled = false;
+	bool is_pix_debugger_enabled = false;
 	bool pix_capture_started = false;
 
 	// Renderer
-	inline static std::vector<Adapter> adapters;
+	std::vector<Adapter> adapters;
 	inline static ComPtr<ID3D12Device> dev;
-	inline static ComPtr<ID3D12CommandQueue> cmd_queue;
-	inline static ComPtr<ID3D12CommandAllocator> cmd_alloc;
+	ComPtr<ID3D12CommandQueue> cmd_queue;
+	ComPtr<ID3D12CommandAllocator> cmd_alloc;
 
-	inline static ComPtr<ID3D12DescriptorHeap> rtv_heap;
+	CBV_SRV_UAV_DescriptorHeap cbv_srv_uav_heap;
+	RTV_DescriptorHeap rtv_heap;
 	ComPtr<ID3D12RootSignature> root_sign;
 	ComPtr<ID3D12PipelineState> pipeline;
 
 	Shader shader;
-	Texture final_rtv;
+
+	Texture final_rt;
+	RTV_DescriptorHandle final_rtv;
 	
-	// ComPtr<ID3D12Resource> texture;
-	ComPtr<ID3D12Resource> vbuff;
-	D3D12_VERTEX_BUFFER_VIEW vbuff_view;
+	// ComPtr<ID3D12Resource> vbuff;
+	// D3D12_VERTEX_BUFFER_VIEW vbuff_view;
 
 	ComPtr<ID3D12GraphicsCommandList> cmd_list;
 
 	ComPtr<ID3D12Fence> fence;
 
-	inline static uint32_t render_width;
-	inline static uint32_t render_height;
+	uint32_t render_width = 1024;
+	uint32_t render_height = 720;
 
 
 public:
@@ -109,4 +148,4 @@ public:
 
 	void destroy();
 };
-extern HelloTriangle hello_world;
+extern Renderer renderer;

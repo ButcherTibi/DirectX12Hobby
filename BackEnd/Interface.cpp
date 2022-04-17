@@ -1,21 +1,28 @@
-// Header
 #include "Interface.hpp"
 
+// Mine
+#include "App.hpp"
 #include "DX12.hpp"
 
 
 void _stdcall initPixDebugger()
 {
-	hello_world.initPix();
+	renderer.initPix();
 }
 
-void __stdcall initRender()
+void __stdcall init()
 {
 	// app.init();
 	try {
-		hello_world.init();
+		app.init();
+		renderer.init();
 	}
 	catch(...) {
 		__debugbreak();
 	}
+}
+
+void _stdcall render()
+{
+
 }

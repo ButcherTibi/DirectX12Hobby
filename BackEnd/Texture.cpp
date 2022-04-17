@@ -1,7 +1,7 @@
 #include "DX12.hpp"
 
 
-void HelloTriangle::createTexture(uint32_t width, uint32_t height, DXGI_FORMAT format,
+void Renderer::createTexture(uint32_t width, uint32_t height, DXGI_FORMAT format,
 	D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state, Texture& r_texture)
 {
 	D3D12_HEAP_PROPERTIES heap_props = {};
@@ -38,22 +38,9 @@ void HelloTriangle::createTexture(uint32_t width, uint32_t height, DXGI_FORMAT f
 		IID_PPV_ARGS(&r_texture.texture)));
 }
 
-void HelloTriangle::createRenderTarget(uint32_t width, uint32_t height, DXGI_FORMAT format, Texture& r_texture)
+void Renderer::createRenderTarget(uint32_t width, uint32_t height, DXGI_FORMAT format, Texture& r_texture)
 {
 	createTexture(width, height, format,
 		D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_RENDER_TARGET,
 		r_texture);
-}
-
-void Texture::createRTV(D3D12_CPU_DESCRIPTOR_HANDLE dest_descriptor)
-{
-	auto tex_desc = texture->GetDesc();
-
-	D3D12_RENDER_TARGET_VIEW_DESC desc = {};
-	desc.Format = tex_desc.Format;
-	desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-	desc.Texture2D.MipSlice = 0;
-	desc.Texture2D.PlaneSlice = 0;
-
-	hello_world.dev->CreateRenderTargetView(texture.Get(), &desc, dest_descriptor);
 }

@@ -175,7 +175,7 @@ public:
 		// Create new node
 		used_size++;
 
-		r_index = nodes.size();
+		r_index = (uint32_t)nodes.size();
 
 		DeferredVectorNode<T>& new_node = nodes.emplace_back();
 		return new_node.elem;

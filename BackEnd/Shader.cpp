@@ -12,7 +12,7 @@ void Shader::createFromSourceCode(std::wstring file_path, uint16_t shader_stages
 	path.readFile(source_code);
 
 	uint32_t flags;
-	if (HelloTriangle::is_pix_debugger_enabled) {
+	if (renderer.is_pix_debugger_enabled) {
 		flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 	}
 	else {
