@@ -15,6 +15,22 @@ void checkDX12(HRESULT result)
 	}
 }
 
+void Renderer::beginCommandList()
+{
+	checkDX12(cmd_alloc->Reset());
+	checkDX12(cmd_list->Reset(cmd_alloc.Get(), nullptr));
+}
+
+void Renderer::endCommandList()
+{
+	checkDX12(cmd_list->Close());
+
+	std::array<ID3D12CommandList*, 1> command_lists = {
+		cmd_list.Get()
+	};
+	cmd_queue->ExecuteCommandLists((uint32_t)command_lists.size(), command_lists.data());
+}
+
 void Renderer::init()
 {
 	beginPixCapture();
@@ -98,6 +114,14 @@ void Renderer::init()
 		D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(cmd_alloc.GetAddressOf()))
 	);
 
+	// Command List
+	checkDX12(dev->CreateCommandList(0,
+		D3D12_COMMAND_LIST_TYPE_DIRECT, cmd_alloc.Get(), nullptr,
+		IID_PPV_ARGS(cmd_list.GetAddressOf())
+	));
+
+	cmd_list->Close();
+
 	// Descriptor Heaps
 	{
 		cbv_srv_uav_heap.init(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
@@ -110,13 +134,15 @@ void Renderer::init()
 		final_rtv = rtv_heap.addRenderTargetView(final_rt);
 	}
 
-	// Vertex sbuff
-	{
-
-	}
-
 	// Create Root Signature
 	{
+		std::array<D3D12_ROOT_PARAMETER, 1> params;
+		{
+			params[0] = {};
+			params[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+			params[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		}
+
 		D3D12_ROOT_SIGNATURE_DESC root_signature_desc = {};
 		root_signature_desc.NumParameters = 0;
 		root_signature_desc.pParameters = nullptr;
@@ -233,73 +259,6 @@ void Renderer::init()
 		);
 	}
 
-	// Command List
-	{
-		checkDX12(
-			dev->CreateCommandList(0,
-				D3D12_COMMAND_LIST_TYPE_DIRECT, cmd_alloc.Get(), nullptr,
-				IID_PPV_ARGS(cmd_list.GetAddressOf())
-			)
-		);
-
-		cmd_list->Close();
-	}
-
-	// Vertex Buffer
-	{
-		/*D3D12_HEAP_PROPERTIES heap_props = {};
-		heap_props.Type = D3D12_HEAP_TYPE_UPLOAD;
-		heap_props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-		heap_props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-
-		D3D12_RESOURCE_DESC res_desc = {};
-		res_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		res_desc.Width = vertex_buff_size;
-		res_desc.Height = 1;
-		res_desc.DepthOrArraySize = 1;
-		res_desc.MipLevels = 1;
-		res_desc.Format = DXGI_FORMAT_UNKNOWN;
-		res_desc.SampleDesc.Count = 1;
-		res_desc.SampleDesc.Quality = 0;
-		res_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		res_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-		checkDX12(dev->CreateCommittedResource(
-			&heap_props,
-			D3D12_HEAP_FLAG_NONE,
-			&res_desc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(vbuff.GetAddressOf())));*/
-	}
-
-	// Load data into vertex buffer
-	{
-		/*D3D12_RANGE no_read = {};
-		no_read.Begin = 0;
-		no_read.End = 0;
-
-		void* gpu_vbuff_ptr;
-
-		checkDX12(vbuff->Map(0, &no_read, &gpu_vbuff_ptr));
-		{
-			std::memcpy(gpu_vbuff_ptr, verts, vertex_buff_size);
-		}
-
-		D3D12_RANGE write_all = {};
-		write_all.Begin = 0;
-		write_all.End = vertex_buff_size;
-		vbuff->Unmap(0, &write_all);*/
-	}
-
-	// Vertex Buffer View
-	{
-		/*vbuff_view = {};
-		vbuff_view.BufferLocation = vbuff->GetGPUVirtualAddress();
-		vbuff_view.StrideInBytes = sizeof(Vertex);
-		vbuff_view.SizeInBytes = vertex_buff_size;*/
-	}
-
 	// Fence
 	{
 		checkDX12(dev->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(fence.GetAddressOf())));
@@ -316,6 +275,7 @@ void Renderer::render()
 
 	if (mesh.modified_verts.size() > mesh.verts.size()) {
 
+
 	}
 
 	// Command List
@@ -323,7 +283,6 @@ void Renderer::render()
 	checkDX12(cmd_list->Reset(cmd_alloc.Get(), nullptr));
 	{
 		cmd_list->SetPipelineState(pipeline.Get());
-
 		cmd_list->SetGraphicsRootSignature(root_sign.Get());
 
 		D3D12_VIEWPORT viewport = {};
@@ -367,6 +326,7 @@ void Renderer::render()
 		cmd_list->ClearRenderTargetView(final_rtv.handle, clearColor, 0, nullptr);
 
 		cmd_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		// cmd_list->SetGraphicsRootShaderResourceView();
 		cmd_list->DrawInstanced(3, 1, 0, 0);
 	}
 	checkDX12(cmd_list->Close());

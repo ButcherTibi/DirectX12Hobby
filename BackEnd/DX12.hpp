@@ -142,6 +142,10 @@ public:
 		D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state, Texture& r_texture);
 	void createRenderTarget(uint32_t width, uint32_t height, DXGI_FORMAT format, Texture& r_texture);
 
+	// Command List
+	void beginCommandList();
+	void endCommandList();
+
 	// Render
 	void init();
 	void render();

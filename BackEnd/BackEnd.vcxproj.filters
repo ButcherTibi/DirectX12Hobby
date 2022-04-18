@@ -22,6 +22,12 @@
     <Filter Include="App">
       <UniqueIdentifier>{ac410834-9f35-4781-acaf-668ca87c9ff0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DirectX12\Containers">
+      <UniqueIdentifier>{699bab4c-231b-406f-8802-1ef3cc309821}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DirectX12\Context">
+      <UniqueIdentifier>{44c46df1-8152-41a0-94c2-803bedf6ec65}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Interface.hpp" />
@@ -49,11 +55,14 @@
     <ClInclude Include="App.hpp">
       <Filter>App</Filter>
     </ClInclude>
-    <ClInclude Include="StorageBuffer.hpp">
-      <Filter>DirectX12</Filter>
-    </ClInclude>
     <ClInclude Include="GPU_ShaderTypes.hpp">
       <Filter>Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources.hpp">
+      <Filter>DirectX12\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="Context.hpp">
+      <Filter>DirectX12\Context</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -116,11 +125,11 @@
     <ClCompile Include="MeshCreation.cpp">
       <Filter>SculptMesh</Filter>
     </ClCompile>
-    <ClCompile Include="StorageBuffer.cpp">
-      <Filter>DirectX12</Filter>
-    </ClCompile>
     <ClCompile Include="GPU_ShaderTYpes.cpp">
       <Filter>Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources.cpp">
+      <Filter>DirectX12\Containers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

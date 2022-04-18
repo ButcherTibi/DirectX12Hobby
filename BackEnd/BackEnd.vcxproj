@@ -188,13 +188,14 @@
     <ClInclude Include="ButchersToolbox\Filesys\Filesys.hpp" />
     <ClInclude Include="ButchersToolbox\SparseVector.hpp" />
     <ClInclude Include="ButchersToolbox\Windows\WindowsSpecific.hpp" />
+    <ClInclude Include="Context.hpp" />
     <ClInclude Include="DX12.hpp" />
     <ClInclude Include="Geometry.hpp" />
     <ClInclude Include="GPU_ShaderTypes.hpp" />
     <ClInclude Include="Interface.hpp" />
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="SculptMesh.hpp" />
-    <ClInclude Include="StorageBuffer.hpp" />
+    <ClInclude Include="Resources.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
@@ -210,7 +211,7 @@
     <ClCompile Include="PolyOperations.cpp" />
     <ClCompile Include="Primitives.cpp" />
     <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="StorageBuffer.cpp" />
+    <ClCompile Include="Resources.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VertexOperations.cpp" />
     <ClCompile Include="Window.cpp" />
