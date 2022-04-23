@@ -2,6 +2,7 @@
 
 // Standard
 #include <string>
+using namespace std::string_literals;
 #include <vector>
 #include <array>
 

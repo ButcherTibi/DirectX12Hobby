@@ -1,6 +1,3 @@
-﻿  Resources.cpp
-  VertexOperations.cpp
-  Interface.cpp
-  Generating Code...
-     Creating library G:\My work\DirectX12Hobby\FrontEnd\bin\Debug\net6.0-windows\BackEnd.lib and object G:\My work\DirectX12Hobby\FrontEnd\bin\Debug\net6.0-windows\BackEnd.exp
-  BackEnd.vcxproj -> G:\My work\DirectX12Hobby\FrontEnd\bin\Debug\net6.0-windows\BackEnd.dll
+﻿G:\My work\DirectX12Hobby\BackEnd\Shaders\vertex.hlsl(16,16-23): error X3004: undeclared identifier 'RootSign'
+  
+  compilation failed; no code produced

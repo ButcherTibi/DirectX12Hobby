@@ -22,31 +22,43 @@
     <Filter Include="App">
       <UniqueIdentifier>{ac410834-9f35-4781-acaf-668ca87c9ff0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="DirectX12\Containers">
-      <UniqueIdentifier>{699bab4c-231b-406f-8802-1ef3cc309821}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DirectX12\Context">
       <UniqueIdentifier>{44c46df1-8152-41a0-94c2-803bedf6ec65}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DirectX12\Shader">
+      <UniqueIdentifier>{0559d5c1-3d2c-4e80-b922-f1cba25fdbeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DirectX12\Resource">
+      <UniqueIdentifier>{699bab4c-231b-406f-8802-1ef3cc309821}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DirectX12\Resource\Texture">
+      <UniqueIdentifier>{bf72d045-76c9-4507-97a6-b3505595a127}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DirectX12\Resource\Buffer">
+      <UniqueIdentifier>{438dcca0-21b4-499b-bc33-f7e7a07e38ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{ee9f0567-97ff-4407-86f4-c09f77d5eb60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DirectX12\Descriptors">
+      <UniqueIdentifier>{8f11b4a1-5c5f-4645-b780-1190a4f6f4dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Interface.hpp" />
+    <ClInclude Include="DLL Exports\DLL_Exports.hpp" />
     <ClInclude Include="ButchersToolbox\Filesys\Filesys.hpp">
       <Filter>Toolbox</Filter>
     </ClInclude>
     <ClInclude Include="ButchersToolbox\Windows\WindowsSpecific.hpp">
       <Filter>Toolbox</Filter>
     </ClInclude>
-    <ClInclude Include="DX12.hpp">
-      <Filter>DirectX12</Filter>
-    </ClInclude>
-    <ClInclude Include="SculptMesh.hpp">
+    <ClInclude Include="Sculpt Mesh\SculptMesh.hpp">
       <Filter>SculptMesh</Filter>
     </ClInclude>
     <ClInclude Include="ButchersToolbox\SparseVector.hpp">
       <Filter>Toolbox</Filter>
     </ClInclude>
-    <ClInclude Include="Geometry.hpp">
+    <ClInclude Include="Math\Geometry.hpp">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="pch.hpp">
@@ -55,65 +67,60 @@
     <ClInclude Include="App.hpp">
       <Filter>App</Filter>
     </ClInclude>
-    <ClInclude Include="GPU_ShaderTypes.hpp">
+    <ClInclude Include="Shaders\GPU_ShaderTypes.hpp">
       <Filter>Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Resources.hpp">
-      <Filter>DirectX12\Containers</Filter>
-    </ClInclude>
-    <ClInclude Include="Context.hpp">
+    <ClInclude Include="DirectX12\Context\Context.hpp">
       <Filter>DirectX12\Context</Filter>
     </ClInclude>
+    <ClInclude Include="DirectX12\Shader\Shader.hpp">
+      <Filter>DirectX12\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectX12\Texture\Texture.hpp">
+      <Filter>DirectX12\Resource\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectX12\Resource\Resource.hpp">
+      <Filter>DirectX12\Resource\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Renderer.hpp">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectX12\Descriptors\Descriptors.hpp">
+      <Filter>DirectX12\Descriptors</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectX12\Drawcall\Drawcall.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Interface.cpp" />
+    <ClCompile Include="DLL Exports\DLL_Exports.cpp" />
     <ClCompile Include="ButchersToolbox\Filesys\Filesys.cpp">
       <Filter>Toolbox</Filter>
     </ClCompile>
     <ClCompile Include="ButchersToolbox\Windows\WindowsSpecific.cpp">
       <Filter>Toolbox</Filter>
     </ClCompile>
-    <ClCompile Include="DX12.cpp">
-      <Filter>DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="Window.cpp">
-      <Filter>DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="PIX_Debugger.cpp">
-      <Filter>DirectX12</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Shader.cpp">
-      <Filter>DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="DescriptorHeap.cpp">
-      <Filter>DirectX12</Filter>
-    </ClCompile>
-    <ClCompile Include="Geometry.cpp">
+    <ClCompile Include="Math\Geometry.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Primitives.cpp">
+    <ClCompile Include="Sculpt Mesh\Primitives.cpp">
       <Filter>SculptMesh</Filter>
     </ClCompile>
-    <ClCompile Include="VertexOperations.cpp">
+    <ClCompile Include="Sculpt Mesh\VertexOperations.cpp">
       <Filter>SculptMesh</Filter>
     </ClCompile>
-    <ClCompile Include="EdgeOperations.cpp">
+    <ClCompile Include="Sculpt Mesh\EdgeOperations.cpp">
       <Filter>SculptMesh</Filter>
     </ClCompile>
-    <ClCompile Include="PolyOperations.cpp">
+    <ClCompile Include="Sculpt Mesh\PolyOperations.cpp">
       <Filter>SculptMesh</Filter>
     </ClCompile>
-    <ClCompile Include="MeshUpdate.cpp">
+    <ClCompile Include="Sculpt Mesh\MeshUpdate.cpp">
       <Filter>SculptMesh</Filter>
     </ClCompile>
-    <ClCompile Include="LowLevelPrimitiveOperations.cpp">
+    <ClCompile Include="Sculpt Mesh\LowLevelPrimitiveOperations.cpp">
       <Filter>SculptMesh</Filter>
     </ClCompile>
-    <ClCompile Include="LowLevelPolyOperations.cpp">
+    <ClCompile Include="Sculpt Mesh\LowLevelPolyOperations.cpp">
       <Filter>SculptMesh</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -122,22 +129,42 @@
     <ClCompile Include="App.cpp">
       <Filter>App</Filter>
     </ClCompile>
-    <ClCompile Include="MeshCreation.cpp">
+    <ClCompile Include="Sculpt Mesh\MeshCreation.cpp">
       <Filter>SculptMesh</Filter>
     </ClCompile>
-    <ClCompile Include="GPU_ShaderTYpes.cpp">
+    <ClCompile Include="Shaders\GPU_ShaderTYpes.cpp">
       <Filter>Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="Resources.cpp">
-      <Filter>DirectX12\Containers</Filter>
+    <ClCompile Include="DirectX12\Context\Context.cpp">
+      <Filter>DirectX12\Context</Filter>
     </ClCompile>
+    <ClCompile Include="DirectX12\Context\PIX_Debugger.cpp">
+      <Filter>DirectX12\Context</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectX12\Shader\Shader.cpp">
+      <Filter>DirectX12\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectX12\Texture\Texture.cpp">
+      <Filter>DirectX12\Resource\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectX12\Resource\Resource.cpp">
+      <Filter>DirectX12\Resource\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Renderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectX12\Descriptors\Descriptors.cpp">
+      <Filter>DirectX12\Descriptors</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectX12\Drawcall\Drawcall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shader.hlsl">
+    <FxCompile Include="Shaders\vertex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\pixel.hlsl" />
   </ItemGroup>
 </Project>

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "SculptMesh.hpp"
+// #include "SculptMesh.hpp"
 
 
 class App {
 public:
-	scme::SculptMesh mesh;
+	// scme::SculptMesh mesh;
 
 public:
 	void init();

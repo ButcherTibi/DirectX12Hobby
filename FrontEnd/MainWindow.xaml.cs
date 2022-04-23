@@ -23,6 +23,12 @@ namespace FrontEnd {
 		{
 			InitializeComponent();
 
+			//var process = new System.Diagnostics.Process();
+			//process.StartInfo.FileName = "cmd.exe";
+			//process.StartInfo.Arguments = "/c " + "mkdir foo";
+			//process.StartInfo.WorkingDirectory = @"F:\";
+			//process.Start();
+			//process.WaitForExit();
 			BackEnd.initPixDebugger();
 		}
 

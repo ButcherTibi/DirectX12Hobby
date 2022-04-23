@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BackEnd", "BackEnd\BackEnd.vcxproj", "{0E98357B-92C4-4B33-A6E2-23E58D7EB53A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrontEnd", "FrontEnd\FrontEnd.csproj", "{33805908-0B79-419A-8936-50E5C65DB483}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0E98357B-92C4-4B33-A6E2-23E58D7EB53A} = {0E98357B-92C4-4B33-A6E2-23E58D7EB53A}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,8 +36,7 @@ Global
 		{0E98357B-92C4-4B33-A6E2-23E58D7EB53A}.Release|arm64.Build.0 = Release|x64
 		{0E98357B-92C4-4B33-A6E2-23E58D7EB53A}.Release|x64.ActiveCfg = Release|x64
 		{0E98357B-92C4-4B33-A6E2-23E58D7EB53A}.Release|x64.Build.0 = Release|x64
-		{0E98357B-92C4-4B33-A6E2-23E58D7EB53A}.Release|x86.ActiveCfg = Release|Win32
-		{0E98357B-92C4-4B33-A6E2-23E58D7EB53A}.Release|x86.Build.0 = Release|Win32
+		{0E98357B-92C4-4B33-A6E2-23E58D7EB53A}.Release|x86.ActiveCfg = Release|x64
 		{33805908-0B79-419A-8936-50E5C65DB483}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{33805908-0B79-419A-8936-50E5C65DB483}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33805908-0B79-419A-8936-50E5C65DB483}.Debug|arm64.ActiveCfg = Debug|Any CPU

@@ -5,5 +5,5 @@ App app;
 
 void App::init()
 {
-	mesh.createAsTriangle(1);
+	// mesh.createAsTriangle(1);
 }
