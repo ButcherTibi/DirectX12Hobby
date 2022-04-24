@@ -1,6 +1,5 @@
 # Folders
 .vs/
-obj/
-BackEnd/x64/Debug/
-packages/
-**/packages/
+BackEnd/x64/**
+FrontEnd/obj/**
+packages/**
