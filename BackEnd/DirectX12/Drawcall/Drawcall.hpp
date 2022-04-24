@@ -24,19 +24,16 @@ class Drawcall {
 	ComPtr<ID3D12PipelineState> pipeline;
 
 	// Commands
-	ID3D12GraphicsCommandList* cmd_list;
+	ID3D12GraphicsCommandList* cmd_list = nullptr;
 
 	D3D12_VIEWPORT viewport;
 	D3D12_RECT scissor;
 
-	bool is_indexed = false;
-	uint32_t vertex_count = 0xFFFF'FFFF;
-	uint32_t instance_count;
-
 	// State
 
 private:
-	void build();
+	void assertCmdListUnset();
+	void assertCmdListSet();
 
 public:
 	void init();
@@ -47,20 +44,20 @@ public:
 
 	void setPixelShader(PixelShader* pixel_shader);
 
-	void draw(uint32_t new_vertex_count, uint32_t new_instance_count = 1);
-
+	void build();
 
 	/* Commands ******************************************************************************/
 
-	void beginCmd(ID3D12GraphicsCommandList* cmd_list);
+	void CMD_bind(ID3D12GraphicsCommandList* cmd_list);
 
-	void setShaderResourceViewCmd(uint32_t shader_register, Resource* resource);
+	void CMD_setShaderResourceView(uint32_t shader_register, Resource* resource);
 
-	void setViewportSizeCmd(float width, float height);
+	void CMD_setViewportSize(float width, float height);
+	void CMD_setViewportSize(uint32_t width, uint32_t height);
 
-	void setRenderTargets(std::vector<DescriptorHandle>& render_targets);
+	void CMD_setRenderTargets(std::vector<DescriptorHandle> render_targets);
 
-	void clearRenderTarget(DescriptorHandle render_target, float red, float green, float blue, float alpha);
+	void CMD_clearRenderTarget(DescriptorHandle render_target, float red = 0, float green = 0, float blue = 0, float alpha = 0);
 
-	void endCmd();
+	void CMD_draw(uint32_t new_vertex_count, uint32_t new_instance_count = 1);
 };

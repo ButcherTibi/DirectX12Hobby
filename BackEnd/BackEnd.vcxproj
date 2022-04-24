@@ -52,22 +52,21 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;BACKEND_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ForcedIncludeFiles>pch.hpp</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(VULKAN_SDK)\Include\;$(WindowsSdkDir)Include\$(TargetPlatformVersion)\um\;$(ProjectDir)ThirdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(WindowsSdkDir)Include\$(TargetPlatformVersion)\um\;$(ProjectDir)ThirdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>26812;4201</DisableSpecificWarnings>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib\;$(WindowsSdkDir)Lib\$(TargetPlatformVersion)\um\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;D3d12.lib;D3DCompiler.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)Lib\$(TargetPlatformVersion)\um\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>D3d12.lib;D3DCompiler.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
@@ -122,6 +121,7 @@
     <ClCompile Include="DirectX12\Context\Context.cpp" />
     <ClCompile Include="DirectX12\Descriptors\Descriptors.cpp" />
     <ClCompile Include="DirectX12\Drawcall\Drawcall.cpp" />
+    <ClCompile Include="DirectX12\Drawcall\DrawcallCommands.cpp" />
     <ClCompile Include="Sculpt Mesh\EdgeOperations.cpp" />
     <ClCompile Include="Math\Geometry.cpp" />
     <ClCompile Include="Shaders\GPU_ShaderTYpes.cpp" />
@@ -150,16 +150,18 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\pixel.hlsl">
+    <Text Include="Shaders\pixel.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="Shaders\vertex.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="Shaders\vertex.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </EntryPointName>
-    </FxCompile>
+      <FileType>Document</FileType>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

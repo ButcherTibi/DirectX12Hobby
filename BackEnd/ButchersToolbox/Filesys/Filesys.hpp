@@ -20,11 +20,11 @@ namespace filesys {
 	template<typename T = char>
 #endif
 	class Path {
-	public:
 		using string = std::basic_string<T>;
 
 		std::vector<string> entries;
 
+	private:
 		void _pushPathToEntries(const string& path)
 		{
 			uint32_t i = 0;
@@ -52,6 +52,41 @@ namespace filesys {
 
 				i++;
 			}
+		}
+
+		void createFileHandle(win32::Handle& r_file_handle, size_t& r_file_size)
+		{
+			if constexpr (std::is_same<T, wchar_t>()) {
+				r_file_handle = CreateFileW(toString().c_str(),
+					GENERIC_READ, // desired acces
+					0,  // share mode
+					NULL,  // security atributes
+					OPEN_EXISTING,  // disposition
+					FILE_FLAG_SEQUENTIAL_SCAN, // flags and atributes
+					NULL  // template
+				);
+			}
+			else if constexpr (std::is_same<T, char>() || std::is_same<T, char8_t>()) {
+				r_file_handle = CreateFileA(toString().c_str(),
+					GENERIC_READ, // desired acces
+					0,  // share mode
+					NULL,  // security atributes
+					OPEN_EXISTING,  // disposition
+					FILE_FLAG_SEQUENTIAL_SCAN, // flags and atributes
+					NULL  // template
+				);
+			}
+
+			if (r_file_handle.isValid() == false) {
+				__debugbreak();
+			}
+
+			// find file size
+			LARGE_INTEGER file_size;
+			if (GetFileSizeEx(r_file_handle.handle, &file_size) == false) {
+				__debugbreak();
+			}
+			r_file_size = file_size.QuadPart;
 		}
 
 	public:
@@ -98,25 +133,12 @@ namespace filesys {
 		// File Read
 		void readFile(std::vector<uint8_t>& r_bytes)
 		{
-			win32::Handle file_handle = CreateFile(toString().c_str(),
-				GENERIC_READ, // desired acces
-				0,  // share mode
-				NULL,  // security atributes
-				OPEN_EXISTING,  // disposition
-				FILE_FLAG_SEQUENTIAL_SCAN, // flags and atributes
-				NULL  // template
-			);
+			win32::Handle file_handle;
+			size_t file_size;
 
-			if (file_handle.isValid() == false) {
-				__debugbreak();
-			}
+			createFileHandle(file_handle, file_size);
 
-			// find file size
-			LARGE_INTEGER file_size;
-			if (GetFileSizeEx(file_handle.handle, &file_size) == false) {
-				__debugbreak();
-			}
-			r_bytes.resize(file_size.QuadPart);
+			r_bytes.resize(file_size);
 
 			// read file
 			DWORD bytes_read;
@@ -124,7 +146,32 @@ namespace filesys {
 			auto result = ReadFile(
 				file_handle.handle,
 				r_bytes.data(),
-				(DWORD)file_size.QuadPart,
+				(DWORD)file_size,
+				&bytes_read,
+				NULL
+			);
+
+			if (result == false) {
+				__debugbreak();
+			}
+		}
+
+		void readFile(std::string& r_text)
+		{
+			win32::Handle file_handle;
+			size_t file_size;
+
+			createFileHandle(file_handle, file_size);
+
+			r_text.resize(file_size);
+
+			// read file
+			DWORD bytes_read;
+
+			auto result = ReadFile(
+				file_handle.handle,
+				r_text.data(),
+				(DWORD)file_size,
 				&bytes_read,
 				NULL
 			);
@@ -137,14 +184,28 @@ namespace filesys {
 		// File Write
 		void writeFile(std::vector<uint8_t>& bytes)
 		{
-			win32::Handle file_handle = CreateFile(toString().c_str(),
-				GENERIC_WRITE, // desired acces
-				0,  // share mode
-				NULL,  // security atributes
-				OPEN_ALWAYS,  // disposition
-				FILE_FLAG_SEQUENTIAL_SCAN, // flags and atributes
-				NULL  // template
-			);
+			win32::Handle file_handle;
+
+			if constexpr (std::is_same<T, wchar_t>()) {
+				file_handle = CreateFileW(toString().c_str(),
+					GENERIC_WRITE, // desired acces
+					0,  // share mode
+					NULL,  // security atributes
+					OPEN_ALWAYS,  // disposition
+					FILE_FLAG_SEQUENTIAL_SCAN, // flags and atributes
+					NULL  // template
+				);
+			}
+			else if constexpr (std::is_same<T, char>() || std::is_same<T, char8_t>()) {
+				file_handle = CreateFileA(toString().c_str(),
+					GENERIC_WRITE, // desired acces
+					0,  // share mode
+					NULL,  // security atributes
+					OPEN_ALWAYS,  // disposition
+					FILE_FLAG_SEQUENTIAL_SCAN, // flags and atributes
+					NULL  // template
+				);
+			}
 
 			if (file_handle.isValid() == false) {
 				__debugbreak();

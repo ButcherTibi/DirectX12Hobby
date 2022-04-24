@@ -1,5 +1,0 @@
-G:\My work\DreamGraphicsAPI\FrontEnd\bin\Debug\net6.0-windows7.0\WinPixEventRuntime.dll
-G:\My work\DirectX12Hobby\FrontEnd\bin\Debug\net6.0-windows7.0\WinPixEventRuntime.dll
-G:\My work\DirectX12Hobby\Library\bin\Debug\net6.0\WinPixEventRuntime.dll
-G:\My work\DirectX12Hobby\BackEndWrapper\bin\Debug\net6.0\WinPixEventRuntime.dll
-G:\My work\DirectX12Hobby\FrontEnd\bin\Debug\net6.0-windows\WinPixEventRuntime.dll

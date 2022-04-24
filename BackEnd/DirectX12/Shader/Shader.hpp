@@ -4,7 +4,7 @@
 
 
 class Shader {
-	std::vector<uint8_t> source_code;
+	std::string source_code;
 	std::string file_path;  // used to resolving includes
 	std::string target;
 
@@ -21,9 +21,11 @@ public:
 };
 
 class VertexShader : public Shader {
+public:
 	void createFromSourceCodeFile(std::string file_path);
 };
 
 class PixelShader : public Shader {
+public:
 	void createFromSourceCodeFile(std::string file_path);
 };

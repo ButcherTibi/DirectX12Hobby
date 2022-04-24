@@ -157,14 +157,15 @@
       <Filter>DirectX12\Descriptors</Filter>
     </ClCompile>
     <ClCompile Include="DirectX12\Drawcall\Drawcall.cpp" />
+    <ClCompile Include="DirectX12\Drawcall\DrawcallCommands.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\vertex.hlsl">
+    <Text Include="Shaders\pixel.hlsl" />
+    <Text Include="Shaders\vertex.hlsl">
       <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\pixel.hlsl" />
+    </Text>
   </ItemGroup>
 </Project>
