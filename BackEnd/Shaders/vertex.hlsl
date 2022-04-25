@@ -14,8 +14,7 @@ struct Vertex
 StructuredBuffer<Vertex> vertices : register(t0);
 
 //RootSignature
-VertexOut main(
-    uint vertex_idx : SV_VertexID)
+VertexOut main(uint vertex_idx : SV_VertexID)
 {
     VertexOut result;
     result.position.xyz = vertices[vertex_idx].position;

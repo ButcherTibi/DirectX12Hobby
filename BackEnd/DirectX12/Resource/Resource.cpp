@@ -76,7 +76,7 @@ void Resource::resize(size_t new_size)
 	}
 }
 
-void createStagingBuffer(ComPtr<ID3D12Resource>& r_staging_buff, size_t new_size)
+void createUploadBuffer(ComPtr<ID3D12Resource>& r_staging_buff, size_t new_size)
 {
 	D3D12_HEAP_PROPERTIES heap_props = {};
 	heap_props.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -133,20 +133,20 @@ void loadIntoMappable(ID3D12Resource* mappable_res, void* mem, size_t size)
 
 void copy(ID3D12Resource* dest, ID3D12Resource* source)
 {
-	auto source_desc = source->GetDesc();
+	auto dest_desc = dest->GetDesc();
 
 	Context::beginCommandList();
 	{
 		Context::cmd_list->CopyBufferRegion(
 			dest, 0,
 			source, 0,
-			source_desc.Width
+			dest_desc.Width
 		);
 	}
 	Context::endAndWaitForCommandList();
 }
 
-void Resource::load(void* mem, size_t size)
+void Resource::upload(void* mem, size_t size)
 {
 	resizeDiscard(size);
 
@@ -158,16 +158,16 @@ void Resource::load(void* mem, size_t size)
 	}
 	case D3D12_HEAP_TYPE_DEFAULT: {
 		
-		if (staging_buff == nullptr) {
-			createStagingBuffer(staging_buff, size);
+		if (upload_buff == nullptr) {
+			createUploadBuffer(upload_buff, size);
 		}
-		else if (staging_buff->GetDesc().Width < size) {
-			staging_buff = nullptr;
-			createStagingBuffer(staging_buff, size);
+		else if (upload_buff->GetDesc().Width < size) {
+			upload_buff = nullptr;
+			createUploadBuffer(upload_buff, size);
 		}
 
-		loadIntoMappable(staging_buff.Get(), mem, size);
-		copy(resource.Get(), staging_buff.Get());
+		loadIntoMappable(upload_buff.Get(), mem, size);
+		copy(resource.Get(), upload_buff.Get());
 		break;
 	}
 	default: __debugbreak();
@@ -182,4 +182,39 @@ ID3D12Resource* Resource::get()
 D3D12_GPU_VIRTUAL_ADDRESS Resource::gpu_adress()
 {
 	return resource->GetGPUVirtualAddress();
+}
+
+void IndexBuffer::init()
+{
+	heap_props.Type = D3D12_HEAP_TYPE_DEFAULT;
+	heap_props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heap_props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+
+	desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	desc.Width = 0;
+	desc.Height = 1;
+	desc.DepthOrArraySize = 1;
+	desc.MipLevels = 1;
+	desc.Format = DXGI_FORMAT_UNKNOWN;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+	states = D3D12_RESOURCE_STATE_COMMON;
+}
+
+void IndexBuffer::upload(std::vector<uint32_t>& indexes)
+{
+	Resource::upload(indexes.data(), indexes.size() * sizeof(uint32_t));
+}
+
+uint32_t IndexBuffer::count()
+{
+	return (uint32_t)(desc.Width / sizeof(uint32_t));
+}
+
+uint32_t IndexBuffer::mem_size()
+{
+	return (uint32_t)(desc.Width);
 }

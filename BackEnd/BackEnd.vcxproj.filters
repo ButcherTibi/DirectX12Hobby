@@ -157,7 +157,8 @@
       <Filter>DirectX12\Descriptors</Filter>
     </ClCompile>
     <ClCompile Include="DirectX12\Drawcall\Drawcall.cpp" />
-    <ClCompile Include="DirectX12\Drawcall\DrawcallCommands.cpp" />
+    <ClCompile Include="DirectX12\Drawcall\CallBase.cpp" />
+    <ClCompile Include="DirectX12\Drawcall\DispatchCall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -167,5 +168,6 @@
     <Text Include="Shaders\vertex.hlsl">
       <Filter>Shaders</Filter>
     </Text>
+    <Text Include="Shaders\compute.hlsl" />
   </ItemGroup>
 </Project>

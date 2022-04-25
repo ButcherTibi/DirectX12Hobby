@@ -120,8 +120,9 @@
     <ClCompile Include="App.cpp" />
     <ClCompile Include="DirectX12\Context\Context.cpp" />
     <ClCompile Include="DirectX12\Descriptors\Descriptors.cpp" />
+    <ClCompile Include="DirectX12\Drawcall\DispatchCall.cpp" />
     <ClCompile Include="DirectX12\Drawcall\Drawcall.cpp" />
-    <ClCompile Include="DirectX12\Drawcall\DrawcallCommands.cpp" />
+    <ClCompile Include="DirectX12\Drawcall\CallBase.cpp" />
     <ClCompile Include="Sculpt Mesh\EdgeOperations.cpp" />
     <ClCompile Include="Math\Geometry.cpp" />
     <ClCompile Include="Shaders\GPU_ShaderTYpes.cpp" />
@@ -160,6 +161,11 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </EntryPointName>
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Shaders\compute.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

@@ -54,3 +54,8 @@ void PixelShader::createFromSourceCodeFile(std::string new_file_path)
 {
 	loadSourceCode(new_file_path, "ps_5_0");
 }
+
+void ComputeShader::createFromSourceCodeFile(std::string new_file_path)
+{
+	loadSourceCode(new_file_path, "cs_5_0");
+}

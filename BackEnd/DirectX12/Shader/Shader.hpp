@@ -29,3 +29,8 @@ class PixelShader : public Shader {
 public:
 	void createFromSourceCodeFile(std::string file_path);
 };
+
+class ComputeShader : public Shader {
+public:
+	void createFromSourceCodeFile(std::string file_path);
+};

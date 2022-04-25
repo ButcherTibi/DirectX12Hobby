@@ -20,6 +20,9 @@ using Microsoft::WRL::ComPtr;
 // PIX Debugger
 #include <pix3.h>
 
+// Mine
+#include <ButchersToolbox/Windows/WindowsSpecific.hpp>
+
 
 void checkDX12(HRESULT result);
 
@@ -42,6 +45,8 @@ public:
 	inline static ComPtr<ID3D12CommandQueue> cmd_queue;
 	inline static ComPtr<ID3D12CommandAllocator> cmd_alloc;
 	inline static ComPtr<ID3D12GraphicsCommandList> cmd_list;
+	inline static ComPtr<ID3D12Fence> cmd_fence;
+	// inline static win32::Handle complete_event;
 
 public:
 	// PIX Debugger

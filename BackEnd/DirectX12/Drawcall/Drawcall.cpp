@@ -3,93 +3,8 @@
 #include <format>
 
 
-void Drawcall::build()
-{
-	assertCmdListUnset();
-
-	// Build Root Signature
-	{
-		D3D12_ROOT_SIGNATURE_DESC root_signature_desc = {};
-		root_signature_desc.NumParameters = (uint32_t)params.size();
-		root_signature_desc.pParameters = params.data();
-		root_signature_desc.NumStaticSamplers = 0;
-		root_signature_desc.pStaticSamplers = nullptr;
-		root_signature_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
-		ComPtr<ID3DBlob> blob;
-		ComPtr<ID3DBlob> err_blob;
-
-		checkDX12(D3D12SerializeRootSignature(
-			&root_signature_desc,
-			D3D_ROOT_SIGNATURE_VERSION_1_0,
-			blob.GetAddressOf(),
-			err_blob.GetAddressOf()
-		));
-
-		checkDX12(Context::dev->CreateRootSignature(0,
-			blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(root_signature.GetAddressOf())
-		));
-	}
-
-	// Generate Root Signature
-	{
-		hlsl_root_signature = "[RootSignature(\"";
-
-		for (uint32_t i = 0; i < params.size(); i++) {
-
-			auto& param = params[i];
-
-			switch (param.ParameterType) {
-			case D3D12_ROOT_PARAMETER_TYPE_SRV: {
-				hlsl_root_signature += std::format("SRV(t{})", param.Descriptor.ShaderRegister);
-				break;
-			}
-			default: __debugbreak();
-			}
-
-			if (i != params.size() - 1) {
-				hlsl_root_signature += ", \n";
-			}
-		}
-
-		hlsl_root_signature += "\")]";
-
-		vertex_shader->compile(hlsl_root_signature);
-		pixel_shader->compile(hlsl_root_signature);
-	}
-
-	// Pipeline
-	{
-		pipe_desc.pRootSignature = root_signature.Get();
-		pipe_desc.VS.BytecodeLength = vertex_shader->cso->GetBufferSize();
-		pipe_desc.VS.pShaderBytecode = vertex_shader->cso->GetBufferPointer();
-		pipe_desc.PS.BytecodeLength = pixel_shader->cso->GetBufferSize();
-		pipe_desc.PS.pShaderBytecode = pixel_shader->cso->GetBufferPointer();
-
-		checkDX12(
-			Context::dev->CreateGraphicsPipelineState(&pipe_desc, IID_PPV_ARGS(pipeline.GetAddressOf()))
-		);
-	}
-}
-
-void Drawcall::assertCmdListUnset()
-{
-	if (cmd_list != nullptr) {
-		__debugbreak();
-	}
-}
-
-void Drawcall::assertCmdListSet()
-{
-	if (cmd_list == nullptr) {
-		__debugbreak();
-	}
-}
-
 void Drawcall::init()
 {
-	assertCmdListUnset();
-
 	// Pipeline
 	{
 		pipe_desc = {};
@@ -160,7 +75,7 @@ void Drawcall::init()
 		pipe_desc.CachedPSO.CachedBlobSizeInBytes = 0;
 		pipe_desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 	}
-	
+
 	// Viewport
 	{
 		viewport = {};
@@ -178,25 +93,145 @@ void Drawcall::init()
 	}
 }
 
-void Drawcall::setShaderResourceViewParam(uint32_t shader_register, D3D12_SHADER_VISIBILITY shader_visibility)
-{
-	assertCmdListUnset();
-
-	auto& new_param = params.emplace_back();
-	new_param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-	new_param.Descriptor.ShaderRegister = shader_register;
-	new_param.Descriptor.RegisterSpace = 0;
-	new_param.ShaderVisibility = shader_visibility;
-}
-
 void Drawcall::setVertexShader(VertexShader* new_vertex_shader)
 {
-	assertCmdListUnset();
 	this->vertex_shader = new_vertex_shader;
 }
 
 void Drawcall::setPixelShader(PixelShader* new_pixel_shader)
 {
-	assertCmdListUnset();
 	this->pixel_shader = new_pixel_shader;
+}
+
+void Drawcall::build()
+{
+	// Generate Root Signature
+	{
+		std::string hlsl_root_signature = CallBase::buildRootSiganture();
+
+		vertex_shader->compile(hlsl_root_signature);
+		pixel_shader->compile(hlsl_root_signature);
+	}
+
+	// Pipeline
+	{
+		pipe_desc.pRootSignature = root_signature.Get();
+		pipe_desc.VS.BytecodeLength = vertex_shader->cso->GetBufferSize();
+		pipe_desc.VS.pShaderBytecode = vertex_shader->cso->GetBufferPointer();
+		pipe_desc.PS.BytecodeLength = pixel_shader->cso->GetBufferSize();
+		pipe_desc.PS.pShaderBytecode = pixel_shader->cso->GetBufferPointer();
+
+		checkDX12(
+			Context::dev->CreateGraphicsPipelineState(&pipe_desc, IID_PPV_ARGS(pipeline.GetAddressOf()))
+		);
+	}
+}
+
+void Drawcall::CMD_bind()
+{
+	Context::cmd_list->SetGraphicsRootSignature(root_signature.Get());
+	Context::cmd_list->SetPipelineState(pipeline.Get());
+}
+
+void Drawcall::CMD_setShaderResourceView(uint32_t shader_register, Resource* resource)
+{
+	for (uint32_t i = 0; i < params.size(); i++) {
+		auto& param = params[i];
+
+		if (param.ParameterType == D3D12_ROOT_PARAMETER_TYPE_SRV &&
+			param.Descriptor.ShaderRegister == shader_register)
+		{
+			Context::cmd_list->SetGraphicsRootShaderResourceView(i, resource->gpu_adress());
+			return;
+		}
+	}
+
+	__debugbreak();
+}
+
+void Drawcall::CMD_setIndexBuffer(IndexBuffer& index_buffer)
+{
+	D3D12_INDEX_BUFFER_VIEW view = {};
+	view.BufferLocation = index_buffer.gpu_adress();
+	view.SizeInBytes = index_buffer.mem_size();
+	view.Format = DXGI_FORMAT_R32_UINT;
+
+	Context::cmd_list->IASetIndexBuffer(&view);
+
+	this->index_buff_count = index_buffer.count();
+}
+
+void Drawcall::CMD_setViewportSize(float width, float height)
+{
+	viewport.Width = width;
+	viewport.Height = height;
+}
+
+void Drawcall::CMD_setViewportSize(uint32_t width, uint32_t height)
+{
+	CMD_setViewportSize((float)width, (float)height);
+}
+
+void Drawcall::CMD_setRenderTargets(std::vector<DescriptorHandle> render_targets)
+{
+	std::array<D3D12_CPU_DESCRIPTOR_HANDLE, 8> handles;
+
+	for (uint32_t i = 0; i < render_targets.size(); i++) {
+		handles[i] = render_targets[i].cpu_handle;
+	}
+
+	Context::cmd_list->OMSetRenderTargets((uint32_t)render_targets.size(), handles.data(), false, nullptr);
+}
+
+void Drawcall::CMD_clearRenderTarget(DescriptorHandle render_target, float red, float green, float blue, float alpha)
+{
+	const float clearColor[] = { red, green, blue, alpha };
+	Context::cmd_list->ClearRenderTargetView(render_target.cpu_handle, clearColor, 0, nullptr);
+}
+
+void Drawcall::CMD_draw(uint32_t vertex_count, uint32_t instance_count)
+{
+	// Input Assembly
+	Context::cmd_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Viewport
+	Context::cmd_list->RSSetViewports(1, &viewport);
+
+	// Scissors
+	{
+		if (scissor.right == 0xFFFF'FFFF) {
+			scissor.right = (uint32_t)viewport.Width;
+			scissor.bottom = (uint32_t)viewport.Height;
+		}
+
+		Context::cmd_list->RSSetScissorRects(1, &scissor);
+	}
+
+	Context::cmd_list->DrawInstanced(vertex_count, instance_count, 0, 0);
+}
+
+void Drawcall::CMD_drawIndexed(uint32_t instance_count)
+{
+	// Input Assembly
+	Context::cmd_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Viewport
+	Context::cmd_list->RSSetViewports(1, &viewport);
+
+	// Scissors
+	{
+		if (scissor.right == 0xFFFF'FFFF) {
+			scissor.right = (uint32_t)viewport.Width;
+			scissor.bottom = (uint32_t)viewport.Height;
+		}
+
+		Context::cmd_list->RSSetScissorRects(1, &scissor);
+	}
+
+	if (index_buff_count != 0xFFFF'FFFF) {
+		Context::cmd_list->DrawIndexedInstanced(index_buff_count, instance_count, 0, 0, 0);
+	}
+	else {
+		__debugbreak();
+	}
 }

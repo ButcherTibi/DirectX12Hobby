@@ -14,13 +14,17 @@ class Renderer {
 public:
 	_static VertexShader vertex_shader;
 	_static PixelShader pixel_shader;
+	_static ComputeShader compute_shader;
 
 	_static CBV_SRV_UAV_DescriptorHeap cbv_srv_uav_heap;
 	_static RTV_DescriptorHeap rtv_heap;
 
+	_static StorageBuffer<GPU_Vertex> verts;
+	_static IndexBuffer indexes;
 	_static Drawcall drawcall;
 
-	_static StorageBuffer<GPU_Vertex> verts_sbuff;
+	_static StorageBuffer<GPU_VertexPositionUpdateGroup> pos_updates;
+	_static DispatchCall dispatch;
 
 	_static Texture final_rt;
 	_static RTV_DescriptorHandle final_rtv;

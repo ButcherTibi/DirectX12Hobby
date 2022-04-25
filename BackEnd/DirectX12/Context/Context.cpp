@@ -2,8 +2,7 @@
 
 // Standard
 #include <algorithm>
-
-#include <ButchersToolbox/Windows/WindowsSpecific.hpp>
+#include <format>
 
 
 void checkDX12(HRESULT result)
@@ -23,22 +22,17 @@ void Context::endAndWaitForCommandList()
 {
 	checkDX12(cmd_list->Close());
 
+	checkDX12(cmd_fence->Signal(0));
+
 	std::array<ID3D12CommandList*, 1> command_lists = {
 		cmd_list.Get()
 	};
 	cmd_queue->ExecuteCommandLists((uint32_t)command_lists.size(), command_lists.data());
+	
+	checkDX12(cmd_queue->Signal(cmd_fence.Get(), 1));
 
-	// wait for queue
-	ComPtr<ID3D12Fence> fence;
-	checkDX12(dev->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+	while (cmd_fence->GetCompletedValue() == 0) {
 
-	cmd_queue->Signal(fence.Get(), 1);
-
-	win32::Handle on_complete = CreateEvent(0, false, false, L"queue_complete");
-
-	if (fence->GetCompletedValue() != 1) {
-		fence->SetEventOnCompletion(1, on_complete.handle); // CHECK HRESULT
-		WaitForSingleObject(on_complete.handle, 0xFFFF'FFFF);
 	}
 }
 
@@ -126,10 +120,17 @@ void Context::init()
 	);
 
 	// Command List
-	checkDX12(dev->CreateCommandList(0,
-		D3D12_COMMAND_LIST_TYPE_DIRECT, cmd_alloc.Get(), nullptr,
-		IID_PPV_ARGS(&cmd_list)
-	));
+	{
+		checkDX12(dev->CreateCommandList(0,
+			D3D12_COMMAND_LIST_TYPE_DIRECT, cmd_alloc.Get(), nullptr,
+			IID_PPV_ARGS(&cmd_list)
+		));
 
-	cmd_list->Close();  // not sure if usefull
+		cmd_list->Close();
+	}
+
+	// Sync
+	{
+		checkDX12(dev->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&cmd_fence)));
+	}
 }
