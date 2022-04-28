@@ -12,6 +12,8 @@
 
 class Renderer {
 public:
+	_static Context context;
+
 	_static VertexShader vertex_shader;
 	_static PixelShader pixel_shader;
 	_static ComputeShader compute_shader;
@@ -28,6 +30,8 @@ public:
 
 	_static Texture final_rt;
 	_static RTV_DescriptorHandle final_rtv;
+
+	_static Texture readback_tex;
 
 	_static uint32_t render_width = 1024;
 	_static uint32_t render_height = 720;

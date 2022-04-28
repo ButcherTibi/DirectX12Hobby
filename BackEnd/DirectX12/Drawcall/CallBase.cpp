@@ -24,7 +24,7 @@ std::string CallBase::buildRootSiganture()
 			err_blob.GetAddressOf()
 		));
 
-		checkDX12(Context::dev->CreateRootSignature(0,
+		checkDX12(context->dev->CreateRootSignature(0,
 			blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(root_signature.GetAddressOf())
 		));
 	}

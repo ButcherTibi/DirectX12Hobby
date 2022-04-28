@@ -22,13 +22,14 @@ struct RTV_DescriptorHandle : public DescriptorHandle { };
 
 class DescriptorHeap {
 protected:
+	Context* context = nullptr;
 	ComPtr<ID3D12DescriptorHeap> heap;
 
 protected:
 	DescriptorHandle at(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t index);
 
 public:
-	void init(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t size = 128, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	void create(Context* context, D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t size = 128, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 
 	ID3D12DescriptorHeap* get();
 };
@@ -36,7 +37,7 @@ public:
 
 class CBV_SRV_UAV_DescriptorHeap : public DescriptorHeap {
 public:
-	void init(uint32_t size = 128, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	void create(Context* context, uint32_t size = 128, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 
 	template<typename T>
 	SRV_DescriptorHandle createShaderResourceView(uint32_t index, StorageBuffer<T>& sbuff)
@@ -61,7 +62,7 @@ public:
 
 class RTV_DescriptorHeap : public DescriptorHeap {
 public:
-	void init(uint32_t size = 128);
+	void create(Context* context, uint32_t size = 128);
 
 	RTV_DescriptorHandle createRenderTargetView(uint32_t index, Texture& texture);
 };

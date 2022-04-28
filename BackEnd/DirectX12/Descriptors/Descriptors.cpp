@@ -13,14 +13,16 @@ SRV_DescriptorHandle::SRV_DescriptorHandle(DescriptorHandle new_handle)
 	this->gpu_handle = new_handle.gpu_handle;
 }
 
-void DescriptorHeap::init(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t size, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
+void DescriptorHeap::create(Context* new_context, D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t size, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
 {
+	context = new_context;
+
 	D3D12_DESCRIPTOR_HEAP_DESC info = {};
 	info.NumDescriptors = size;
 	info.Type = type;
 	info.Flags = flags;
 
-	checkDX12(Context::dev->CreateDescriptorHeap(&info, IID_PPV_ARGS(heap.GetAddressOf())));
+	checkDX12(context->dev->CreateDescriptorHeap(&info, IID_PPV_ARGS(heap.GetAddressOf())));
 }
 
 ID3D12DescriptorHeap* DescriptorHeap::get()
@@ -30,7 +32,7 @@ ID3D12DescriptorHeap* DescriptorHeap::get()
 
 DescriptorHandle DescriptorHeap::at(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t index)
 {
-	uint32_t size = Context::dev->GetDescriptorHandleIncrementSize(type);
+	uint32_t size = context->dev->GetDescriptorHandleIncrementSize(type);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle = heap->GetCPUDescriptorHandleForHeapStart();
 	cpu_handle.ptr += size * index;
@@ -41,14 +43,14 @@ DescriptorHandle DescriptorHeap::at(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t in
 	return DescriptorHandle(cpu_handle, gpu_handle);
 }
 
-void CBV_SRV_UAV_DescriptorHeap::init(uint32_t size, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
+void CBV_SRV_UAV_DescriptorHeap::create(Context* new_context, uint32_t size, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
 {
-	DescriptorHeap::init(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, size, flags);
+	DescriptorHeap::create(new_context, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, size, flags);
 }
 
-void RTV_DescriptorHeap::init(uint32_t size)
+void RTV_DescriptorHeap::create(Context* new_context, uint32_t size)
 {
-	DescriptorHeap::init(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, size, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
+	DescriptorHeap::create(new_context, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, size, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 }
 
 RTV_DescriptorHandle RTV_DescriptorHeap::createRenderTargetView(uint32_t index, Texture& tex)
@@ -62,7 +64,7 @@ RTV_DescriptorHandle RTV_DescriptorHeap::createRenderTargetView(uint32_t index, 
 	RTV_DescriptorHandle rtv_handle;
 	rtv_handle.cpu_handle = at(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, index).cpu_handle;
 	rtv_handle.gpu_handle = at(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, index).gpu_handle;
-	Context::dev->CreateRenderTargetView(tex.get(), &desc, rtv_handle.cpu_handle);
+	context->dev->CreateRenderTargetView(tex.get(), &desc, rtv_handle.cpu_handle);
 
 	return rtv_handle;
 }

@@ -3,7 +3,7 @@
 
 void Renderer::init()
 {
-	Context::init();
+	context.create();
 
 	// Shaders
 	{
@@ -14,33 +14,33 @@ void Renderer::init()
 
 	// Descriptor Heaps
 	{
-		cbv_srv_uav_heap.init();
-		rtv_heap.init();
+		cbv_srv_uav_heap.create(&context);
+		rtv_heap.create(&context);
 	}
 
 	// Vertices
 	{
-		verts.init(D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		verts.create(&context, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
 		std::vector<GPU_Vertex> gpu_verts(3);
 		gpu_verts[0].pos = { 0.0f, 0.25f, 0.0f };
 		gpu_verts[1].pos = { 0.25f, -0.25f, 0.0f };
 		gpu_verts[2].pos = { -0.25f, -0.25f, 0.0f };
 
-		verts.upload(gpu_verts);
+		verts.upload(std::span{gpu_verts});
 	}
 
 	// Indexes
 	{
-		indexes.init();
+		indexes.create(&context);
 
 		std::vector<uint32_t> gpu_indexes = { 0, 1, 2 };
-		indexes.upload(gpu_indexes);
+		indexes.upload(std::span{gpu_indexes});
 	}
 
 	// Position Updates
 	{
-		pos_updates.init();
+		pos_updates.create(&context);
 
 		std::vector<GPU_VertexPositionUpdateGroup> updates(1);
 		updates[0].vertex_id[0] = 0;
@@ -50,19 +50,25 @@ void Renderer::init()
 			updates[0].vertex_id[i] = 0xFFFF'FFFF;
 		}
 
-		pos_updates.upload(updates);
+		pos_updates.upload(std::span{updates});
 	}
 
 	// Final Texture
 	{
-		final_rt.createRenderTarget(render_width, render_height, DXGI_FORMAT_R8G8B8A8_UNORM);
+		final_rt.createRenderTarget(&context, render_width, render_height, DXGI_FORMAT_R8G8B8A8_UNORM);
 
 		final_rtv = rtv_heap.createRenderTargetView(0, final_rt);
 	}
 
+	// Readback Texture
+	{
+		
+		// final_rt.download();
+	}
+
 	// Drawcall
 	{
-		drawcall.init();
+		drawcall.create(&context);
 		drawcall.setShaderResourceViewParam(0);
 		drawcall.setVertexShader(&vertex_shader);
 		drawcall.setPixelShader(&pixel_shader);
@@ -71,7 +77,7 @@ void Renderer::init()
 
 	// Dispatch
 	{
-		dispatch.init();
+		dispatch.create(&context);
 		dispatch.setShaderResourceViewParam(0);
 		dispatch.setUnorderedAccessViewParam(0);
 		dispatch.setComputeShader(&compute_shader);
@@ -86,20 +92,28 @@ void Renderer::init()
 void Renderer::render()
 {
 	// Command List
-	Context::beginCommandList();
+	context.beginCommandList();
 	{
-		/*drawcall.CMD_bind();
+		drawcall.CMD_bind();
 		drawcall.CMD_setIndexBuffer(indexes);
 		drawcall.CMD_setShaderResourceView(0, &verts);
 		drawcall.CMD_setViewportSize(render_width, render_height);
 		drawcall.CMD_clearRenderTarget(final_rtv);
 		drawcall.CMD_setRenderTargets({ final_rtv });
-		drawcall.CMD_drawIndexed();*/
+		drawcall.CMD_drawIndexed();
 
 		dispatch.CMD_bind();
 		dispatch.CMD_setShaderResourceView(0, &pos_updates);
 		dispatch.CMD_setUnorderedAccessView(0, &verts);
 		dispatch.CMD_dispatch();
+
+		drawcall.CMD_bind();
+		drawcall.CMD_setIndexBuffer(indexes);
+		drawcall.CMD_setShaderResourceView(0, &verts);
+		drawcall.CMD_setViewportSize(render_width, render_height);
+		drawcall.CMD_clearRenderTarget(final_rtv);
+		drawcall.CMD_setRenderTargets({ final_rtv });
+		drawcall.CMD_drawIndexed();
 	}
-	Context::endAndWaitForCommandList();
+	context.endAndWaitForCommandList();
 }

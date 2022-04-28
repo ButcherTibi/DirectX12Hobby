@@ -5,8 +5,12 @@
 
 class Texture : public Resource {
 public:
-	void createTexture(uint32_t width, uint32_t height, DXGI_FORMAT format,
-		D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state);
+	void createTexture(Context* context, uint32_t width, uint32_t height, DXGI_FORMAT format,
+		D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state,
+		std::array<float, 4>& clear_color, float clear_depth, uint8_t clear_stencil);
 
-	void createRenderTarget(uint32_t width, uint32_t height, DXGI_FORMAT format);
+	void createRenderTarget(Context* context,
+		uint32_t width, uint32_t height, DXGI_FORMAT format,
+		std::array<float, 4> clear_color = {0.f, 0.f, 0.f, 0.f},
+		float clear_depth = 0.f, uint8_t clear_stencil = 0);
 };

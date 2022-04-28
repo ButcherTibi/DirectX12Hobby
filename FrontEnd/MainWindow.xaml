@@ -6,7 +6,10 @@
   xmlns:local="clr-namespace:FrontEnd"
   mc:Ignorable="d"
   Title="MainWindow" Height="450" Width="800">
-  <Grid>
+  <StackPanel>
     <Button Click="render">Render</Button>
-  </Grid>
+    <Button Click="setImage">Test image</Button>
+    <Image Name="test_image" Width="250" Height="250" />
+    <!--<SwapChainPanel />-->
+  </StackPanel>
 </Window>

@@ -5,8 +5,8 @@ struct GPU_VertexPositionUpdateGroup {
 StructuredBuffer<GPU_VertexPositionUpdateGroup> updates;
 
 struct Vertex {
-    float3 pos;
-    float3 normal;
+   float3 pos;
+   float3 normal;
 };
 RWStructuredBuffer<Vertex> verts;
 

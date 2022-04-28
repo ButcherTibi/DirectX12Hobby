@@ -119,6 +119,7 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="DirectX12\Context\Context.cpp" />
+    <ClCompile Include="DirectX12\Context\Test.cpp" />
     <ClCompile Include="DirectX12\Descriptors\Descriptors.cpp" />
     <ClCompile Include="DirectX12\Drawcall\DispatchCall.cpp" />
     <ClCompile Include="DirectX12\Drawcall\Drawcall.cpp" />

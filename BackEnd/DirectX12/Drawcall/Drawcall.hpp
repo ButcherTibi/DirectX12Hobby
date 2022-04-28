@@ -8,6 +8,7 @@
 
 class CallBase {
 protected:
+	Context* context = nullptr;
 	std::vector<D3D12_ROOT_PARAMETER> params;
 	ComPtr<ID3D12RootSignature> root_signature;
 
@@ -34,7 +35,7 @@ class Drawcall : public CallBase {
 	// State
 
 public:
-	void init();
+	void create(Context* context);
 
 	void setVertexShader(VertexShader* vertex_shader);
 
@@ -69,7 +70,7 @@ class DispatchCall : public CallBase {
 	ComPtr<ID3D12PipelineState> pipeline;
 
 public:
-	void init();
+	void create(Context* context);
 
 	void setComputeShader(ComputeShader* compute_shader);
 

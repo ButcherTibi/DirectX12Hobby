@@ -159,6 +159,7 @@
     <ClCompile Include="DirectX12\Drawcall\Drawcall.cpp" />
     <ClCompile Include="DirectX12\Drawcall\CallBase.cpp" />
     <ClCompile Include="DirectX12\Drawcall\DispatchCall.cpp" />
+    <ClCompile Include="DirectX12\Context\Test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

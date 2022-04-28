@@ -1,4 +1,4 @@
-#include <DirectX12/Resource/Resource.hpp>
+#include "Resource.hpp"
 
 
 void Resource::resizeDiscard(size_t new_size)
@@ -7,7 +7,7 @@ void Resource::resizeDiscard(size_t new_size)
 
 		desc.Width = new_size;
 
-		checkDX12(Context::dev->CreateCommittedResource(
+		checkDX12(context->dev->CreateCommittedResource(
 			&heap_props,
 			heap_flags,
 			&desc,
@@ -22,7 +22,7 @@ void Resource::resizeDiscard(size_t new_size)
 
 		desc.Width = new_size;
 
-		checkDX12(Context::dev->CreateCommittedResource(
+		checkDX12(context->dev->CreateCommittedResource(
 			&heap_props,
 			heap_flags,
 			&desc,
@@ -40,7 +40,7 @@ void Resource::resize(size_t new_size)
 
 		desc.Width = new_size;
 
-		checkDX12(Context::dev->CreateCommittedResource(
+		checkDX12(context->dev->CreateCommittedResource(
 			&heap_props,
 			heap_flags,
 			&desc,
@@ -57,7 +57,7 @@ void Resource::resize(size_t new_size)
 			D3D12_RESOURCE_DESC new_res_desc = desc;
 			new_res_desc.Width = new_size;
 
-			checkDX12(Context::dev->CreateCommittedResource(
+			checkDX12(context->dev->CreateCommittedResource(
 				&heap_props,
 				heap_flags,
 				&new_res_desc,
@@ -67,7 +67,7 @@ void Resource::resize(size_t new_size)
 			);
 		}
 
-		copy(new_resource.Get(), resource.Get());
+		context->copy(new_resource.Get(), resource.Get());
 
 		resource = nullptr;
 		resource = new_resource;
@@ -76,7 +76,7 @@ void Resource::resize(size_t new_size)
 	}
 }
 
-void createUploadBuffer(ComPtr<ID3D12Resource>& r_staging_buff, size_t new_size)
+void createUploadBuffer(Context* context, ComPtr<ID3D12Resource>& r_staging_buff, size_t new_size)
 {
 	D3D12_HEAP_PROPERTIES heap_props = {};
 	heap_props.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -99,7 +99,7 @@ void createUploadBuffer(ComPtr<ID3D12Resource>& r_staging_buff, size_t new_size)
 
 	D3D12_RESOURCE_STATES states = D3D12_RESOURCE_STATE_GENERIC_READ | D3D12_RESOURCE_STATE_COPY_SOURCE;
 
-	checkDX12(Context::dev->CreateCommittedResource(
+	checkDX12(context->dev->CreateCommittedResource(
 		&heap_props,
 		flags,
 		&desc,
@@ -131,21 +131,6 @@ void loadIntoMappable(ID3D12Resource* mappable_res, void* mem, size_t size)
 	mappable_res->Unmap(0, &write_all);
 }
 
-void copy(ID3D12Resource* dest, ID3D12Resource* source)
-{
-	auto dest_desc = dest->GetDesc();
-
-	Context::beginCommandList();
-	{
-		Context::cmd_list->CopyBufferRegion(
-			dest, 0,
-			source, 0,
-			dest_desc.Width
-		);
-	}
-	Context::endAndWaitForCommandList();
-}
-
 void Resource::upload(void* mem, size_t size)
 {
 	resizeDiscard(size);
@@ -158,20 +143,85 @@ void Resource::upload(void* mem, size_t size)
 	}
 	case D3D12_HEAP_TYPE_DEFAULT: {
 		
-		if (upload_buff == nullptr) {
-			createUploadBuffer(upload_buff, size);
+		if (context->upload_buff == nullptr) {
+			createUploadBuffer(context, context->upload_buff, size);
 		}
-		else if (upload_buff->GetDesc().Width < size) {
-			upload_buff = nullptr;
-			createUploadBuffer(upload_buff, size);
+		else if (context->upload_buff->GetDesc().Width < size) {
+			context->upload_buff = nullptr;
+			createUploadBuffer(context, context->upload_buff, size);
 		}
 
-		loadIntoMappable(upload_buff.Get(), mem, size);
-		copy(resource.Get(), upload_buff.Get());
+		loadIntoMappable(context->upload_buff.Get(), mem, size);
+		context->copy(resource.Get(), context->upload_buff.Get());
 		break;
 	}
 	default: __debugbreak();
 	}
+}
+
+size_t Resource::download(void* r_mem)
+{
+	size_t download_size = mem_size();
+
+	if (context->download_buff == nullptr) {
+		createDownloadBuffer(download_size);
+	}
+	else if (context->download_buff->GetDesc().Width < download_size) {
+		context->download_buff = nullptr;
+		createDownloadBuffer(download_size);
+	}
+
+	context->copy(context->download_buff.Get(), resource.Get());
+
+	D3D12_RANGE read_all = {};
+	read_all.Begin = 0;
+	read_all.End = download_size;
+
+	void* gpu_mem_ptr;
+	checkDX12(resource->Map(0, &read_all, &gpu_mem_ptr));
+	{
+		std::memcpy(r_mem, gpu_mem_ptr, download_size);
+	}
+
+	D3D12_RANGE no_write = {};
+	no_write.Begin = 1;
+	no_write.End = 0;
+	resource->Unmap(0, &no_write);
+
+	return download_size;
+}
+
+void Resource::createDownloadBuffer(size_t size)
+{
+	D3D12_HEAP_PROPERTIES d_heap_props = {};
+	d_heap_props.Type = D3D12_HEAP_TYPE_READBACK;
+	d_heap_props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	d_heap_props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+
+	D3D12_HEAP_FLAGS d_flags = D3D12_HEAP_FLAG_CREATE_NOT_ZEROED;
+
+	D3D12_RESOURCE_DESC d_desc = {};
+	d_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	d_desc.Width = size;
+	d_desc.Height = 1;
+	d_desc.DepthOrArraySize = 1;
+	d_desc.MipLevels = 1;
+	d_desc.Format = DXGI_FORMAT_UNKNOWN;
+	d_desc.SampleDesc.Count = 1;
+	d_desc.SampleDesc.Quality = 0;
+	d_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	d_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+	D3D12_RESOURCE_STATES d_states = D3D12_RESOURCE_STATE_COPY_DEST;
+
+	checkDX12(context->dev->CreateCommittedResource(
+		&d_heap_props,
+		d_flags,
+		&d_desc,
+		d_states,
+		nullptr,
+		IID_PPV_ARGS(context->download_buff.GetAddressOf()))
+	);
 }
 
 ID3D12Resource* Resource::get()
@@ -184,8 +234,20 @@ D3D12_GPU_VIRTUAL_ADDRESS Resource::gpu_adress()
 	return resource->GetGPUVirtualAddress();
 }
 
-void IndexBuffer::init()
+size_t Resource::mem_size()
 {
+	size_t total_size;
+
+	context->dev->GetCopyableFootprints(&desc, 0, 0, 0,
+		nullptr, nullptr, nullptr, &total_size);
+
+	return total_size;
+}
+
+void IndexBuffer::create(Context* new_context)
+{
+	context = new_context;
+
 	heap_props.Type = D3D12_HEAP_TYPE_DEFAULT;
 	heap_props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 	heap_props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
@@ -202,11 +264,6 @@ void IndexBuffer::init()
 	desc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 	states = D3D12_RESOURCE_STATE_COMMON;
-}
-
-void IndexBuffer::upload(std::vector<uint32_t>& indexes)
-{
-	Resource::upload(indexes.data(), indexes.size() * sizeof(uint32_t));
 }
 
 uint32_t IndexBuffer::count()

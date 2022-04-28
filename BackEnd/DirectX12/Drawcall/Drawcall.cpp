@@ -3,8 +3,10 @@
 #include <format>
 
 
-void Drawcall::init()
+void Drawcall::create(Context* new_context)
 {
+	context = new_context;
+
 	// Pipeline
 	{
 		pipe_desc = {};
@@ -122,15 +124,15 @@ void Drawcall::build()
 		pipe_desc.PS.pShaderBytecode = pixel_shader->cso->GetBufferPointer();
 
 		checkDX12(
-			Context::dev->CreateGraphicsPipelineState(&pipe_desc, IID_PPV_ARGS(pipeline.GetAddressOf()))
+			context->dev->CreateGraphicsPipelineState(&pipe_desc, IID_PPV_ARGS(pipeline.GetAddressOf()))
 		);
 	}
 }
 
 void Drawcall::CMD_bind()
 {
-	Context::cmd_list->SetGraphicsRootSignature(root_signature.Get());
-	Context::cmd_list->SetPipelineState(pipeline.Get());
+	context->cmd_list->SetGraphicsRootSignature(root_signature.Get());
+	context->cmd_list->SetPipelineState(pipeline.Get());
 }
 
 void Drawcall::CMD_setShaderResourceView(uint32_t shader_register, Resource* resource)
@@ -141,7 +143,7 @@ void Drawcall::CMD_setShaderResourceView(uint32_t shader_register, Resource* res
 		if (param.ParameterType == D3D12_ROOT_PARAMETER_TYPE_SRV &&
 			param.Descriptor.ShaderRegister == shader_register)
 		{
-			Context::cmd_list->SetGraphicsRootShaderResourceView(i, resource->gpu_adress());
+			context->cmd_list->SetGraphicsRootShaderResourceView(i, resource->gpu_adress());
 			return;
 		}
 	}
@@ -156,7 +158,7 @@ void Drawcall::CMD_setIndexBuffer(IndexBuffer& index_buffer)
 	view.SizeInBytes = index_buffer.mem_size();
 	view.Format = DXGI_FORMAT_R32_UINT;
 
-	Context::cmd_list->IASetIndexBuffer(&view);
+	context->cmd_list->IASetIndexBuffer(&view);
 
 	this->index_buff_count = index_buffer.count();
 }
@@ -180,22 +182,22 @@ void Drawcall::CMD_setRenderTargets(std::vector<DescriptorHandle> render_targets
 		handles[i] = render_targets[i].cpu_handle;
 	}
 
-	Context::cmd_list->OMSetRenderTargets((uint32_t)render_targets.size(), handles.data(), false, nullptr);
+	context->cmd_list->OMSetRenderTargets((uint32_t)render_targets.size(), handles.data(), false, nullptr);
 }
 
 void Drawcall::CMD_clearRenderTarget(DescriptorHandle render_target, float red, float green, float blue, float alpha)
 {
 	const float clearColor[] = { red, green, blue, alpha };
-	Context::cmd_list->ClearRenderTargetView(render_target.cpu_handle, clearColor, 0, nullptr);
+	context->cmd_list->ClearRenderTargetView(render_target.cpu_handle, clearColor, 0, nullptr);
 }
 
 void Drawcall::CMD_draw(uint32_t vertex_count, uint32_t instance_count)
 {
 	// Input Assembly
-	Context::cmd_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	context->cmd_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Viewport
-	Context::cmd_list->RSSetViewports(1, &viewport);
+	context->cmd_list->RSSetViewports(1, &viewport);
 
 	// Scissors
 	{
@@ -204,19 +206,19 @@ void Drawcall::CMD_draw(uint32_t vertex_count, uint32_t instance_count)
 			scissor.bottom = (uint32_t)viewport.Height;
 		}
 
-		Context::cmd_list->RSSetScissorRects(1, &scissor);
+		context->cmd_list->RSSetScissorRects(1, &scissor);
 	}
 
-	Context::cmd_list->DrawInstanced(vertex_count, instance_count, 0, 0);
+	context->cmd_list->DrawInstanced(vertex_count, instance_count, 0, 0);
 }
 
 void Drawcall::CMD_drawIndexed(uint32_t instance_count)
 {
 	// Input Assembly
-	Context::cmd_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	context->cmd_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Viewport
-	Context::cmd_list->RSSetViewports(1, &viewport);
+	context->cmd_list->RSSetViewports(1, &viewport);
 
 	// Scissors
 	{
@@ -225,11 +227,11 @@ void Drawcall::CMD_drawIndexed(uint32_t instance_count)
 			scissor.bottom = (uint32_t)viewport.Height;
 		}
 
-		Context::cmd_list->RSSetScissorRects(1, &scissor);
+		context->cmd_list->RSSetScissorRects(1, &scissor);
 	}
 
 	if (index_buff_count != 0xFFFF'FFFF) {
-		Context::cmd_list->DrawIndexedInstanced(index_buff_count, instance_count, 0, 0, 0);
+		context->cmd_list->DrawIndexedInstanced(index_buff_count, instance_count, 0, 0, 0);
 	}
 	else {
 		__debugbreak();

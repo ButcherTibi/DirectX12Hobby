@@ -1,5 +1,15 @@
 # Folders
 .vs/
+
+# BackEnd
 BackEnd/x64/**
+
+# FrontEnd
 FrontEnd/obj/**
+FrontEnd/obj/**
+
+# FrontEnd 2
+FrontEnd2/bin/**
+FrontEnd2/obj/**
+
 packages/**

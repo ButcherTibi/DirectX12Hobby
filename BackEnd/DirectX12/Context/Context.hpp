@@ -41,12 +41,23 @@ public:
 
 	// Renderer
 	inline static std::vector<Adapter> adapters;
-	inline static ComPtr<ID3D12Device> dev;
-	inline static ComPtr<ID3D12CommandQueue> cmd_queue;
-	inline static ComPtr<ID3D12CommandAllocator> cmd_alloc;
-	inline static ComPtr<ID3D12GraphicsCommandList> cmd_list;
-	inline static ComPtr<ID3D12Fence> cmd_fence;
+	ComPtr<ID3D12Device> dev;
+	ComPtr<ID3D12DebugDevice> debug_device;
+	ComPtr<ID3D12CommandQueue> cmd_queue;
+	ComPtr<ID3D12CommandAllocator> cmd_alloc;
+	ComPtr<ID3D12GraphicsCommandList> cmd_list;
+	ComPtr<ID3D12Fence> cmd_fence;
 	// inline static win32::Handle complete_event;
+
+	/// <summary>
+	/// Used by <c>Resource</c> for uploading
+	/// </summary>
+	ComPtr<ID3D12Resource> upload_buff = nullptr;
+
+	/// <summary>
+	/// Used by <c>Resource</c> for downloading
+	/// </summary>
+	ComPtr<ID3D12Resource> download_buff = nullptr;
 
 public:
 	// PIX Debugger
@@ -54,8 +65,17 @@ public:
 	static void beginPixCapture(std::wstring filename = L"ProgramaticPixCapture");
 	static void endPixCapture();
 
-	static void init();
 
-	static void beginCommandList();
-	static void endAndWaitForCommandList();
+	/* API */
+
+	void create();
+
+	void beginCommandList();
+	void endAndWaitForCommandList();
+	void copy(ID3D12Resource* dest, ID3D12Resource* source);
+
+
+	/* Debug */
+	
+	void reportLiveObjects();
 };

@@ -36,5 +36,34 @@ namespace FrontEnd {
 		{
 			BackEnd.init();
 		}
+
+		private void setImage(object sender, RoutedEventArgs e)
+		{
+			PixelFormat pf = PixelFormats.Rgb24;
+			int width = 250;
+			int height = 250;
+			byte[] rawImage = new byte[width * height * 3];
+
+			for (uint row = 0; row < height; row += 2) {
+				for (uint col = 0; col < width; col++) {
+					rawImage[row * (width * 3) + col * 3] = 0xFF;
+				}
+			}
+
+			for (uint row = 1; row < height; row += 2) {
+				for (uint col = 0; col < width; col++) {
+					rawImage[row * (width * 3) + col * 3 + 2] = 0xFF;
+				}
+			}
+
+			// Create a BitmapSource.
+			BitmapSource bitmap = BitmapSource.Create(
+				width, height,
+				0, 0, pf, null,
+				rawImage, width * 3
+			);
+
+			test_image.Source = bitmap;
+		}
 	}
 }

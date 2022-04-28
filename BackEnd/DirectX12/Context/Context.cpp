@@ -12,34 +12,8 @@ void checkDX12(HRESULT result)
 	}
 }
 
-void Context::beginCommandList()
+void Context::create()
 {
-	checkDX12(cmd_alloc->Reset());
-	checkDX12(cmd_list->Reset(cmd_alloc.Get(), nullptr));
-}
-
-void Context::endAndWaitForCommandList()
-{
-	checkDX12(cmd_list->Close());
-
-	checkDX12(cmd_fence->Signal(0));
-
-	std::array<ID3D12CommandList*, 1> command_lists = {
-		cmd_list.Get()
-	};
-	cmd_queue->ExecuteCommandLists((uint32_t)command_lists.size(), command_lists.data());
-	
-	checkDX12(cmd_queue->Signal(cmd_fence.Get(), 1));
-
-	while (cmd_fence->GetCompletedValue() == 0) {
-
-	}
-}
-
-void Context::init()
-{
-	// beginPixCapture();
-
 	// Debug Controller
 	ComPtr<ID3D12Debug> debug_controller;
 	{
@@ -53,12 +27,12 @@ void Context::init()
 	// Factory
 	ComPtr<IDXGIFactory6> factory;
 	{
-		ComPtr<IDXGIFactory> factory_1;
-		if (CreateDXGIFactory(IID_PPV_ARGS(factory_1.GetAddressOf())) != S_OK) {
+		ComPtr<IDXGIFactory2> factory_2;
+		if (CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(factory_2.GetAddressOf())) != S_OK) {
 			__debugbreak();
 		}
 
-		if (factory_1->QueryInterface(factory.GetAddressOf()) != S_OK) {
+		if (factory_2->QueryInterface(factory.GetAddressOf()) != S_OK) {
 			__debugbreak();
 		}
 	}
@@ -78,16 +52,20 @@ void Context::init()
 		}
 
 		std::sort(adapters.begin(), adapters.end(), [](Adapter& left, Adapter& right) -> bool {
-			return left.desc.DedicatedVideoMemory < right.desc.DedicatedVideoMemory;
+			return left.desc.DedicatedVideoMemory > right.desc.DedicatedVideoMemory;
 		});
 	}
 	auto& adapter = adapters.front().adapter;
 
 	// Device
-	if (D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&dev)) != S_OK) {
-		__debugbreak();
+	{
+		if (D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(dev.GetAddressOf())) != S_OK) {
+			__debugbreak();
+		}
+		dev->SetName(L"Device");
+		dev->QueryInterface(IID_PPV_ARGS(&debug_device));
 	}
-
+	
 	// Info Queue
 	//ComPtr<ID3D12InfoQueue> info_queue;
 	//{
@@ -111,7 +89,7 @@ void Context::init()
 		desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-		checkDX12(dev->CreateCommandQueue(&desc, IID_PPV_ARGS(&cmd_queue)));
+		checkDX12(dev->CreateCommandQueue(&desc, IID_PPV_ARGS(cmd_queue.GetAddressOf())));
 	}
 
 	// Command Allocator
@@ -133,4 +111,48 @@ void Context::init()
 	{
 		checkDX12(dev->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&cmd_fence)));
 	}
+}
+
+void Context::beginCommandList()
+{
+	checkDX12(cmd_alloc->Reset());
+	checkDX12(cmd_list->Reset(cmd_alloc.Get(), nullptr));
+}
+
+void Context::endAndWaitForCommandList()
+{
+	checkDX12(cmd_list->Close());
+
+	checkDX12(cmd_fence->Signal(0));
+
+	std::array<ID3D12CommandList*, 1> command_lists = {
+		cmd_list.Get()
+	};
+	cmd_queue->ExecuteCommandLists((uint32_t)command_lists.size(), command_lists.data());
+
+	checkDX12(cmd_queue->Signal(cmd_fence.Get(), 1));
+
+	while (cmd_fence->GetCompletedValue() == 0) {
+
+	}
+}
+
+void Context::copy(ID3D12Resource* dest, ID3D12Resource* source)
+{
+	auto dest_desc = dest->GetDesc();
+
+	beginCommandList();
+	{
+		cmd_list->CopyBufferRegion(
+			dest, 0,
+			source, 0,
+			dest_desc.Width
+		);
+	}
+	endAndWaitForCommandList();
+}
+
+void Context::reportLiveObjects()
+{
+	checkDX12(debug_device->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL));
 }
