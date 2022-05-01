@@ -1,16 +1,18 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 
 public class BackEnd {
 
-	public static void foo()
-	{
-		System.Console.WriteLine("");
-	}
+	[DllImport("BackEnd.dll")]
+	public static extern
+	void initPixDebugger();
 
 	[DllImport("BackEnd.dll")]
-	public static extern void initPixDebugger();
+	public static extern
+	void init();
 
 	[DllImport("BackEnd.dll")]
-	public static extern void init();
+	public static extern unsafe
+	void render(uint width, uint height, byte* r_pixels);
 }

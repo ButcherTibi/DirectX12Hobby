@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Include\SimpleX12\SimpleX12.hpp" />
+    <ClCompile Include="Include\SimpleX12\ButchersToolbox\Filesys\Filesys.cpp" />
+    <ClCompile Include="Include\SimpleX12\ButchersToolbox\Windows\WindowsSpecific.cpp" />
+    <ClCompile Include="Include\SimpleX12\Context\PIX_Debugger.cpp" />
+    <ClCompile Include="Include\SimpleX12\Context\Context.cpp" />
+    <ClCompile Include="Include\SimpleX12\Resource\Resource.cpp" />
+    <ClCompile Include="Include\SimpleX12\Shader\Shader.cpp" />
+    <ClCompile Include="Include\SimpleX12\Texture\Texture.cpp" />
+    <ClCompile Include="Include\SimpleX12\Descriptors\Descriptors.cpp" />
+    <ClCompile Include="Include\SimpleX12\Drawcall\CallBase.cpp" />
+    <ClCompile Include="Include\SimpleX12\Drawcall\DispatchCall.cpp" />
+    <ClCompile Include="Include\SimpleX12\Drawcall\Drawcall.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.hpp" />
+    <ClInclude Include="Include\SimpleX12\ButchersToolbox\Filesys\Filesys.hpp" />
+    <ClInclude Include="Include\SimpleX12\ButchersToolbox\Windows\WindowsSpecific.hpp" />
+    <ClInclude Include="Include\SimpleX12\Context\Context.hpp" />
+    <ClInclude Include="Include\SimpleX12\Resource\Resource.hpp" />
+    <ClInclude Include="Include\SimpleX12\Shader\Shader.hpp" />
+    <ClInclude Include="Include\SimpleX12\Texture\Texture.hpp" />
+    <ClInclude Include="Include\SimpleX12\Descriptors\Descriptors.hpp" />
+    <ClInclude Include="Include\SimpleX12\Drawcall\Drawcall.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>

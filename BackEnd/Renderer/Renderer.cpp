@@ -1,6 +1,8 @@
 #include "Renderer.hpp"
 
 
+Renderer renderer;
+
 void Renderer::init()
 {
 	context.create();
@@ -53,25 +55,13 @@ void Renderer::init()
 		pos_updates.upload(std::span{updates});
 	}
 
-	// Final Texture
-	{
-		final_rt.createRenderTarget(&context, render_width, render_height, DXGI_FORMAT_R8G8B8A8_UNORM);
-
-		final_rtv = rtv_heap.createRenderTargetView(0, final_rt);
-	}
-
-	// Readback Texture
-	{
-		
-		// final_rt.download();
-	}
-
 	// Drawcall
 	{
 		drawcall.create(&context);
 		drawcall.setShaderResourceViewParam(0);
 		drawcall.setVertexShader(&vertex_shader);
 		drawcall.setPixelShader(&pixel_shader);
+		drawcall.setRenderTargetFormats(DXGI_FORMAT_B8G8R8A8_UNORM);
 		drawcall.build();
 	}
 
@@ -83,14 +73,23 @@ void Renderer::init()
 		dispatch.setComputeShader(&compute_shader);
 		dispatch.build();
 	}
-
-	Context::beginPixCapture();
-	render();
-	Context::endPixCapture();
 }
 
-void Renderer::render()
+void Renderer::render(uint32_t new_width, uint32_t new_height, uint8_t* r_pixels)
 {
+	// Resize assets
+	if (render_width != new_width || render_height != new_height) {
+
+		// Final texture
+		final_rt.createRenderTarget(&context, new_width, new_height, DXGI_FORMAT_B8G8R8A8_UNORM);
+		final_rtv = rtv_heap.createRenderTargetView(0, final_rt);
+
+		render_width = new_width;
+		render_height = new_height;
+	}
+
+	Context::beginPixCapture();
+
 	// Command List
 	context.beginCommandList();
 	{
@@ -102,18 +101,29 @@ void Renderer::render()
 		drawcall.CMD_setRenderTargets({ final_rtv });
 		drawcall.CMD_drawIndexed();
 
-		dispatch.CMD_bind();
-		dispatch.CMD_setShaderResourceView(0, &pos_updates);
-		dispatch.CMD_setUnorderedAccessView(0, &verts);
-		dispatch.CMD_dispatch();
+		//dispatch.CMD_bind();
+		//dispatch.CMD_setShaderResourceView(0, &pos_updates);
+		//dispatch.CMD_setUnorderedAccessView(0, &verts);
+		//dispatch.CMD_dispatch();
 
-		drawcall.CMD_bind();
-		drawcall.CMD_setIndexBuffer(indexes);
-		drawcall.CMD_setShaderResourceView(0, &verts);
-		drawcall.CMD_setViewportSize(render_width, render_height);
-		drawcall.CMD_clearRenderTarget(final_rtv);
-		drawcall.CMD_setRenderTargets({ final_rtv });
-		drawcall.CMD_drawIndexed();
+		//drawcall.CMD_bind();
+		//drawcall.CMD_setIndexBuffer(indexes);
+		//drawcall.CMD_setShaderResourceView(0, &verts);
+		//drawcall.CMD_setViewportSize(render_width, render_height);
+		//drawcall.CMD_clearRenderTarget(final_rtv);
+		//drawcall.CMD_setRenderTargets({ final_rtv });
+		//drawcall.CMD_drawIndexed();
 	}
 	context.endAndWaitForCommandList();
+
+	final_rt.download(r_pixels);
+
+	Context::endPixCapture();
+
+	/*for (uint32_t row = 0; row < render_height; row++) {
+		for (uint32_t col = 0; col < render_width; col++) {
+			r_pixels[row * (render_width * 4) + (col * 4) + 0] = 0xFF;
+			r_pixels[row * (render_width * 4) + (col * 4) + 3] = 0xFF;
+		}
+	}*/
 }

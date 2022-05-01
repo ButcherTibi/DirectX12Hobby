@@ -11,7 +11,7 @@
 
 // Mine
 #include <Math/Geometry.hpp>
-#include <DirectX12/Resource/Resource.hpp>
+#include <SimpleX12/Resource/Resource.hpp>
 #include <Shaders/GPU_ShaderTypes.hpp>
 
 

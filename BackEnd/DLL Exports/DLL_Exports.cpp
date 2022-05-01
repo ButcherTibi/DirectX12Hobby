@@ -12,16 +12,10 @@ void _stdcall initPixDebugger()
 
 void __stdcall init()
 {
-	// app.init();
-	try {
-		Renderer::init();
-	}
-	catch(...) {
-		__debugbreak();
-	}
+	renderer.init();
 }
 
-void _stdcall render()
+void _stdcall render(uint32_t width, uint32_t height, uint8_t* r_pixels)
 {
-
+	renderer.render(width, height, r_pixels);
 }

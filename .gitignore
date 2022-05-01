@@ -5,11 +5,15 @@
 BackEnd/x64/**
 
 # FrontEnd
-FrontEnd/obj/**
+FrontEnd/bin/**
 FrontEnd/obj/**
 
 # FrontEnd 2
 FrontEnd2/bin/**
 FrontEnd2/obj/**
 
+# SimpleX 12
+SimpleX12/x64/**
+
 packages/**
+x64/**

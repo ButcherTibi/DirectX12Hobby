@@ -8,13 +8,15 @@ extern "C" {
 	/// <summary>
 	/// Call to load Pix Debugger and enable GPU captures
 	/// </summary>
-	/// <returns></returns>
 	__declspec(dllexport)
 	void _stdcall initPixDebugger();
 
+	/// <summary>
+	/// Initialize the backend
+	/// </summary>
 	__declspec(dllexport)
 	void _stdcall init();
 
 	__declspec(dllexport)
-	void _stdcall render();
+	void _stdcall render(uint32_t width, uint32_t height, uint8_t* r_pixels);
 } 

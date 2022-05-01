@@ -2,6 +2,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include "Windows.h"
 
+// #include <Renderer/Renderer.hpp>
+
 
 BOOL WINAPI DllMain(
     HINSTANCE,  // handle to DLL module
@@ -25,7 +27,7 @@ BOOL WINAPI DllMain(
         break;
 
     case DLL_PROCESS_DETACH:
-        // Perform any necessary cleanup.  
+        // Perform any necessary cleanup.
         break;
     }
     return TRUE;  // Successful DLL_PROCESS_ATTACH.

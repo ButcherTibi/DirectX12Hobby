@@ -1,42 +1,41 @@
 #pragma once
 
-#include <DirectX12/Shader/Shader.hpp>
-#include <DirectX12/Descriptors/Descriptors.hpp>
-#include <DirectX12/Drawcall/Drawcall.hpp>
+#include <SimpleX12/SimpleX12.hpp>
 #include <Shaders/GPU_ShaderTypes.hpp>
 
 #include "App.hpp"
 
-#define _static static inline
-
 
 class Renderer {
 public:
-	_static Context context;
+	Context context;
 
-	_static VertexShader vertex_shader;
-	_static PixelShader pixel_shader;
-	_static ComputeShader compute_shader;
+	VertexShader vertex_shader;
+	PixelShader pixel_shader;
+	ComputeShader compute_shader;
 
-	_static CBV_SRV_UAV_DescriptorHeap cbv_srv_uav_heap;
-	_static RTV_DescriptorHeap rtv_heap;
+	CBV_SRV_UAV_DescriptorHeap cbv_srv_uav_heap;
+	RTV_DescriptorHeap rtv_heap;
 
-	_static StorageBuffer<GPU_Vertex> verts;
-	_static IndexBuffer indexes;
-	_static Drawcall drawcall;
+	StorageBuffer<GPU_Vertex> verts;
+	IndexBuffer indexes;
+	Drawcall drawcall;
 
-	_static StorageBuffer<GPU_VertexPositionUpdateGroup> pos_updates;
-	_static DispatchCall dispatch;
+	StorageBuffer<GPU_VertexPositionUpdateGroup> pos_updates;
+	DispatchCall dispatch;
 
-	_static Texture final_rt;
-	_static RTV_DescriptorHandle final_rtv;
+	Texture final_rt;
+	RTV_DescriptorHandle final_rtv;
 
-	_static Texture readback_tex;
-
-	_static uint32_t render_width = 1024;
-	_static uint32_t render_height = 720;
+	uint32_t render_width = 0;
+	uint32_t render_height = 0;
 
 public:
-	static void init();
-	static void render();
+	void init();
+
+	void render(uint32_t width, uint32_t height, uint8_t* r_pixels);
+
+	// static void destroy();
 };
+
+extern Renderer renderer;

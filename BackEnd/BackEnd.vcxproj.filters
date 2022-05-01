@@ -70,25 +70,9 @@
     <ClInclude Include="Shaders\GPU_ShaderTypes.hpp">
       <Filter>Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="DirectX12\Context\Context.hpp">
-      <Filter>DirectX12\Context</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX12\Shader\Shader.hpp">
-      <Filter>DirectX12\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX12\Texture\Texture.hpp">
-      <Filter>DirectX12\Resource\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX12\Resource\Resource.hpp">
-      <Filter>DirectX12\Resource\Buffer</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\Renderer.hpp">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="DirectX12\Descriptors\Descriptors.hpp">
-      <Filter>DirectX12\Descriptors</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX12\Drawcall\Drawcall.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DLL Exports\DLL_Exports.cpp" />
@@ -135,31 +119,9 @@
     <ClCompile Include="Shaders\GPU_ShaderTYpes.cpp">
       <Filter>Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="DirectX12\Context\Context.cpp">
-      <Filter>DirectX12\Context</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectX12\Context\PIX_Debugger.cpp">
-      <Filter>DirectX12\Context</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectX12\Shader\Shader.cpp">
-      <Filter>DirectX12\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectX12\Texture\Texture.cpp">
-      <Filter>DirectX12\Resource\Texture</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectX12\Resource\Resource.cpp">
-      <Filter>DirectX12\Resource\Buffer</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\Renderer.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="DirectX12\Descriptors\Descriptors.cpp">
-      <Filter>DirectX12\Descriptors</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectX12\Drawcall\Drawcall.cpp" />
-    <ClCompile Include="DirectX12\Drawcall\CallBase.cpp" />
-    <ClCompile Include="DirectX12\Drawcall\DispatchCall.cpp" />
-    <ClCompile Include="DirectX12\Context\Test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

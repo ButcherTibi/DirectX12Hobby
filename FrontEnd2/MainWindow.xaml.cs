@@ -25,7 +25,7 @@ namespace FrontEnd2
 	{
 		public MainWindow()
 		{
-			this.InitializeComponent();
+			InitializeComponent();
 		}
 
 		private void myButton_Click(object sender, RoutedEventArgs e)
