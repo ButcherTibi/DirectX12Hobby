@@ -110,23 +110,27 @@ void Drawcall::setRenderTargetFormats(DXGI_FORMAT rtv_format_0)
 	pipe_desc.RTVFormats[0] = rtv_format_0;
 }
 
-void Drawcall::build()
+void Drawcall::rebuild()
 {
-	// Generate Root Signature
-	{
-		std::string hlsl_root_signature = CallBase::buildRootSiganture();
-
-		vertex_shader->compile(hlsl_root_signature);
-		pixel_shader->compile(hlsl_root_signature);
+	if (hlsl_root_signature.size() == 0) {
+		hlsl_root_signature = CallBase::buildRootSiganture();
 	}
 
-	// Pipeline
-	{
+	bool recreate_pipeline_state = false;
+
+	if (vertex_shader->reload(hlsl_root_signature)) {
+		recreate_pipeline_state = true;
+	}
+
+	if (pixel_shader->reload(hlsl_root_signature)) {
+		recreate_pipeline_state = true;
+	}
+
+	if (recreate_pipeline_state) {
+
 		pipe_desc.pRootSignature = root_signature.Get();
-		pipe_desc.VS.BytecodeLength = vertex_shader->cso->GetBufferSize();
-		pipe_desc.VS.pShaderBytecode = vertex_shader->cso->GetBufferPointer();
-		pipe_desc.PS.BytecodeLength = pixel_shader->cso->GetBufferSize();
-		pipe_desc.PS.pShaderBytecode = pixel_shader->cso->GetBufferPointer();
+		pipe_desc.VS = vertex_shader->getByteCode();
+		pipe_desc.PS = pixel_shader->getByteCode();
 
 		checkDX12(
 			context->dev->CreateGraphicsPipelineState(&pipe_desc, IID_PPV_ARGS(pipeline.GetAddressOf()))

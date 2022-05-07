@@ -26,6 +26,12 @@ inline void assert_cond(bool condition, const char* fail_msg) {
 	" fn = " + __func__ + \
 	" in file " + __FILE__).c_str()
 
+void win32::check(BOOL function_call_value)
+{
+	if (function_call_value == false) {
+		__debugbreak();
+	}
+}
 
 std::wstring win32::getLastError()
 {
@@ -55,15 +61,14 @@ Handle::Handle()
 
 Handle::Handle(HANDLE ms_handle)
 {
+	close();
 	this->handle = ms_handle;
 }
 
 Handle& Handle::operator=(HANDLE ms_handle)
 {
-	assert_cond(this->handle == INVALID_HANDLE_VALUE);
-
+	close();
 	this->handle = ms_handle;
-
 	return *this;
 }
 
@@ -81,11 +86,16 @@ bool Handle::isValid()
 	return true;
 }
 
-Handle::~Handle()
+void Handle::close()
 {
 	if (isValid()) {
 		CloseHandle(handle);
 	}
+}
+
+Handle::~Handle()
+{
+	close();
 }
 
 void win32::printToOutput(std::wstring message)

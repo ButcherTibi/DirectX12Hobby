@@ -46,12 +46,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DLL Exports\DLL_Exports.hpp" />
-    <ClInclude Include="ButchersToolbox\Filesys\Filesys.hpp">
-      <Filter>Toolbox</Filter>
-    </ClInclude>
-    <ClInclude Include="ButchersToolbox\Windows\WindowsSpecific.hpp">
-      <Filter>Toolbox</Filter>
-    </ClInclude>
     <ClInclude Include="Sculpt Mesh\SculptMesh.hpp">
       <Filter>SculptMesh</Filter>
     </ClInclude>
@@ -76,12 +70,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DLL Exports\DLL_Exports.cpp" />
-    <ClCompile Include="ButchersToolbox\Filesys\Filesys.cpp">
-      <Filter>Toolbox</Filter>
-    </ClCompile>
-    <ClCompile Include="ButchersToolbox\Windows\WindowsSpecific.cpp">
-      <Filter>Toolbox</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math\Geometry.cpp">
       <Filter>Utils</Filter>

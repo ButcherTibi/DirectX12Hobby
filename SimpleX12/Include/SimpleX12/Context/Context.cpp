@@ -94,6 +94,12 @@ void Context::create()
 	{
 		checkDX12(dev->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&cmd_fence)));
 	}
+
+	// HLSL Compiler
+	{
+		checkDX12(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&hlsl_utils)));
+		checkDX12(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&hlsl_compiler)));
+	}
 }
 
 void Context::beginCommandList()

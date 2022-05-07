@@ -10,6 +10,8 @@
 
 namespace win32 {
 
+	void check(BOOL function_call_value);
+
 	// Win32's GetLastError but as a human readable string
 	std::wstring getLastError();
 
@@ -26,6 +28,8 @@ namespace win32 {
 		Handle& operator=(HANDLE ms_handle);
 
 		bool isValid();
+
+		void close();
 
 		~Handle();
 	};

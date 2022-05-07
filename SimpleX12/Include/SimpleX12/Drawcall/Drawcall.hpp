@@ -9,6 +9,7 @@ protected:
 	Context* context = nullptr;
 	std::vector<D3D12_ROOT_PARAMETER> params;
 	ComPtr<ID3D12RootSignature> root_signature;
+	std::string hlsl_root_signature;
 
 protected:
 	std::string buildRootSiganture();
@@ -41,7 +42,7 @@ public:
 
 	void setRenderTargetFormats(DXGI_FORMAT rtv_format_0);
 
-	void build();
+	void rebuild();
 
 
 	/* Commands ******************************************************************************/
@@ -74,7 +75,7 @@ public:
 
 	void setComputeShader(ComputeShader* compute_shader);
 
-	void build();
+	void rebuild();
 
 
 	/* Commands ******************************************************************************/

@@ -30,7 +30,6 @@ std::string CallBase::buildRootSiganture()
 	}
 
 	// Create Root Signature
-	std::string hlsl_root_signature;
 	{
 		hlsl_root_signature = "[RootSignature(\"";
 

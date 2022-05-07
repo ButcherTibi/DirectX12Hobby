@@ -9,9 +9,9 @@ void Renderer::init()
 
 	// Shaders
 	{
-		vertex_shader.createFromSourceCodeFile("G:/My work/DirectX12Hobby/BackEnd/Shaders/vertex.hlsl");
-		pixel_shader.createFromSourceCodeFile("G:/My work/DirectX12Hobby/BackEnd/Shaders/pixel.hlsl");
-		compute_shader.createFromSourceCodeFile("G:/My work/DirectX12Hobby/BackEnd/Shaders/compute.hlsl");
+		vertex_shader.createFromSourceCodeFile(&context, L"G:/My work/DirectX12Hobby/BackEnd/Shaders/vertex.hlsl");
+		pixel_shader.createFromSourceCodeFile(&context, L"G:/My work/DirectX12Hobby/BackEnd/Shaders/pixel.hlsl");
+		compute_shader.createFromSourceCodeFile(&context, L"G:/My work/DirectX12Hobby/BackEnd/Shaders/compute.hlsl");
 	}
 
 	// Descriptor Heaps
@@ -62,7 +62,6 @@ void Renderer::init()
 		drawcall.setVertexShader(&vertex_shader);
 		drawcall.setPixelShader(&pixel_shader);
 		drawcall.setRenderTargetFormats(DXGI_FORMAT_B8G8R8A8_UNORM);
-		drawcall.build();
 	}
 
 	// Dispatch
@@ -71,7 +70,7 @@ void Renderer::init()
 		dispatch.setShaderResourceViewParam(0);
 		dispatch.setUnorderedAccessViewParam(0);
 		dispatch.setComputeShader(&compute_shader);
-		dispatch.build();
+		dispatch.rebuild();
 	}
 }
 
@@ -87,6 +86,8 @@ void Renderer::render(uint32_t new_width, uint32_t new_height, uint8_t* r_pixels
 		render_width = new_width;
 		render_height = new_height;
 	}
+
+	drawcall.rebuild();
 
 	Context::beginPixCapture();
 

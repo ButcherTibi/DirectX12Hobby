@@ -16,19 +16,24 @@ void DispatchCall::setComputeShader(ComputeShader* compute_shader)
 	shader = compute_shader;
 }
 
-void DispatchCall::build()
+void DispatchCall::rebuild()
 {
 	// Create Root Signature
-	{
-		std::string hlsl_root_signature = CallBase::buildRootSiganture();
-		shader->compile(hlsl_root_signature);
+	if (hlsl_root_signature.size() == 0) {
+		hlsl_root_signature = CallBase::buildRootSiganture();
+		;
+	}
+
+	bool recreate_pipeline = false;
+
+	if (shader->reload(hlsl_root_signature)) {
+		recreate_pipeline = true;
 	}
 
 	// Pipeline
-	{
+	if (recreate_pipeline) {
 		pipe_desc.pRootSignature = root_signature.Get();
-		pipe_desc.CS.pShaderBytecode = shader->cso->GetBufferPointer();
-		pipe_desc.CS.BytecodeLength = shader->cso->GetBufferSize();
+		pipe_desc.CS = shader->getByteCode();
 
 		checkDX12(
 			context->dev->CreateComputePipelineState(&pipe_desc, IID_PPV_ARGS(&pipeline))

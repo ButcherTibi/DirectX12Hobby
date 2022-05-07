@@ -1,36 +1,48 @@
 #pragma once
 
 #include "../Context/Context.hpp"
+#include "../ButchersToolbox/Filesys/Filesys.hpp"
+
+#undef min
+#undef max
 
 
 class Shader {
+	Context* ctx = nullptr;
+	std::wstring file_path;  // used to resolving includes
+	std::wstring hlsl_target;
+
 	std::string source_code;
-	std::string file_path;  // used to resolving includes
-	std::string target;
+	std::string root_signature;
 
-	ComPtr<ID3DBlob> errors = nullptr;
+	ComPtr<IDxcResult> compilation_result;
+	ComPtr<IDxcBlob> bytecode;
 
-public:
-	ComPtr<ID3DBlob> cso = nullptr;
+	using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
+	TimePoint last_check = TimePoint::min();
+	TimePoint modified_time = TimePoint::min();
 
 protected:
-	void loadSourceCode(std::string file_path, std::string target);
+	void createFromSourceCodeFile(Context* context, std::wstring file_path, std::wstring hlsl_target);
 	
 public:
-	void compile(std::string root_signature);
+	bool reload(std::string& root_signature);
+
+	D3D12_SHADER_BYTECODE getByteCode();
 };
+
 
 class VertexShader : public Shader {
 public:
-	void createFromSourceCodeFile(std::string file_path);
+	void createFromSourceCodeFile(Context* context, std::wstring file_path);
 };
 
 class PixelShader : public Shader {
 public:
-	void createFromSourceCodeFile(std::string file_path);
+	void createFromSourceCodeFile(Context* context, std::wstring file_path);
 };
 
 class ComputeShader : public Shader {
 public:
-	void createFromSourceCodeFile(std::string file_path);
+	void createFromSourceCodeFile(Context* context, std::wstring file_path);
 };

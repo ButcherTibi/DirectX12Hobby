@@ -15,7 +15,6 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{0e98357b-92c4-4b33-a6e2-23e58d7eb53a}</ProjectGuid>
     <RootNamespace>BackEnd</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -63,14 +62,14 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SimpleX12.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;shell32.lib;ole32.lib;SimpleX12.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)$(Platform)\$(Configuration)\" "$(SolutionDir)FrontEnd\bin\$(Configuration)\net6.0-windows\" /d</Command>
+      <Command>xcopy "$(SolutionDir)$(Platform)\$(Configuration)\" "$(SolutionDir)FrontEnd\bin\$(Configuration)\net6.0-windows\" /d /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -101,9 +100,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp" />
-    <ClInclude Include="ButchersToolbox\Filesys\Filesys.hpp" />
     <ClInclude Include="ButchersToolbox\SparseVector.hpp" />
-    <ClInclude Include="ButchersToolbox\Windows\WindowsSpecific.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
     <ClInclude Include="Math\Geometry.hpp" />
     <ClInclude Include="Shaders\GPU_ShaderTypes.hpp" />
@@ -124,8 +121,6 @@
     <ClCompile Include="Sculpt Mesh\PolyOperations.cpp" />
     <ClCompile Include="Sculpt Mesh\Primitives.cpp" />
     <ClCompile Include="Sculpt Mesh\VertexOperations.cpp" />
-    <ClCompile Include="ButchersToolbox\Filesys\Filesys.cpp" />
-    <ClCompile Include="ButchersToolbox\Windows\WindowsSpecific.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="DLL Exports\DLL_Exports.cpp" />
     <ClCompile Include="pch.cpp">

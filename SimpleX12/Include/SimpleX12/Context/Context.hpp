@@ -15,7 +15,10 @@ using Microsoft::WRL::ComPtr;
 
 // DirectX 12
 #include <d3d12.h>
-#include <D3Dcompiler.h>
+
+// HLSL Compiler
+// #include <DXC/include/dxcapi.h>
+#include <dxcapi.h>
 
 
 void checkDX12(HRESULT result);
@@ -33,7 +36,7 @@ public:
 	inline static bool is_pix_debugger_enabled = false;
 	inline static bool pix_capture_started = false;
 
-	// Renderer
+	// DirectX 12
 	std::vector<Adapter> adapters;
 	ComPtr<ID3D12Device> dev = nullptr;
 	ComPtr<ID3D12DebugDevice> debug_device;
@@ -52,6 +55,10 @@ public:
 	/// Used by <c>Resource</c> for downloading
 	/// </summary>
 	ComPtr<ID3D12Resource> download_buff = nullptr;
+
+	// HLSL
+	ComPtr<IDxcUtils> hlsl_utils;
+	ComPtr<IDxcCompiler3> hlsl_compiler;
 
 public:
 	// PIX Debugger
