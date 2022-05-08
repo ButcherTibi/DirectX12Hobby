@@ -52,7 +52,7 @@ void Texture::createRenderTarget(Context* new_context,
 		new_clear_color, new_clear_depth, new_clear_stencil);
 }
 
-void Texture::download(uint8_t* r_mem)
+void Texture::download(byte* r_mem)
 {
 	// GPU likes to round up textures so it may copy
 	// with extra padding added to the row size

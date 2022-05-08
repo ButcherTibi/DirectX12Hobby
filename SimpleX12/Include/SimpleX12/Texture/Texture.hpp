@@ -18,7 +18,7 @@ public:
 	/// Download GPU texture memory into CPU memory.
 	/// </summary>
 	/// <remarks>Will strip any padding when copying over.</remarks>
-	void download(uint8_t* r_mem);
+	void download(byte* r_mem);
 
 	/// <summary>
 	/// Gets the size of each pixel in bytes.

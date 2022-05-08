@@ -2,9 +2,17 @@
 
 #include <SimpleX12/SimpleX12.hpp>
 #include <Shaders/GPU_ShaderTypes.hpp>
+#include <CommonTypes.hpp>
 
 #include "App.hpp"
 
+
+struct RenderWorkload {
+	u32 width;
+	u32 height;
+
+	bool capture_frame;
+};
 
 class Renderer {
 public:
@@ -33,9 +41,11 @@ public:
 public:
 	void init();
 
-	void render(uint32_t width, uint32_t height, uint8_t* r_pixels);
+	void waitForRendering();
 
-	// static void destroy();
+	void downloadRender(u32& r_width, u32& r_height, std::vector<byte>& r_pixels);
+
+	void render(RenderWorkload& workload);
 };
 
 extern Renderer renderer;

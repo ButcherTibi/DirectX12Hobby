@@ -59,6 +59,8 @@ namespace filesys {
 	private:
 		static void createForRead(string file_path, win32::Handle& r_file_handle);
 
+		static void createForRead(string file_path, uint32_t share_mode, win32::Handle& r_file_handle);
+
 	public:
 		/* Creation */
 
@@ -177,12 +179,12 @@ namespace filesys {
 	}
 
 	template<typename T>
-	void File<T>::createForRead(string file_path, win32::Handle& result)
+	void File<T>::createForRead(string file_path, uint32_t share_mode, win32::Handle& result)
 	{
 		if constexpr (std::is_same<T, wchar_t>()) {
 			result.handle = CreateFileW(file_path.c_str(),
 				GENERIC_READ, // desired acces
-				0,  // share mode
+				share_mode,  // share mode
 				NULL,  // security atributes
 				OPEN_EXISTING,  // disposition
 				FILE_FLAG_SEQUENTIAL_SCAN, // flags and atributes
@@ -192,7 +194,7 @@ namespace filesys {
 		else if constexpr (std::is_same<T, char>() || std::is_same<T, char8_t>()) {
 			result.handle = CreateFileA(file_path.c_str(),
 				GENERIC_READ, // desired acces
-				0,  // share mode
+				share_mode,  // share mode
 				NULL,  // security atributes
 				OPEN_EXISTING,  // disposition
 				FILE_FLAG_SEQUENTIAL_SCAN, // flags and atributes
@@ -207,6 +209,12 @@ namespace filesys {
 			win32::printToOutput(win32::getLastError());
 			__debugbreak();
 		}
+	}
+
+	template<typename T>
+	void File<T>::createForRead(string file_path, win32::Handle& r_file_handle)
+	{
+		createForRead(file_path, FILE_SHARE_READ | FILE_SHARE_WRITE, r_file_handle);
 	}
 
 	template<typename T>

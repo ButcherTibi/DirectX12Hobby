@@ -67,6 +67,7 @@
     <ClInclude Include="Renderer\Renderer.hpp">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="CommonTypes.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DLL Exports\DLL_Exports.cpp" />

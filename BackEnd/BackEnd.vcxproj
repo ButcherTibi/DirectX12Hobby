@@ -101,6 +101,7 @@
   <ItemGroup>
     <ClInclude Include="App.hpp" />
     <ClInclude Include="ButchersToolbox\SparseVector.hpp" />
+    <ClInclude Include="CommonTypes.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
     <ClInclude Include="Math\Geometry.hpp" />
     <ClInclude Include="Shaders\GPU_ShaderTypes.hpp" />

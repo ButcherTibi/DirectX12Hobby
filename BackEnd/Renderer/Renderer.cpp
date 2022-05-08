@@ -74,22 +74,43 @@ void Renderer::init()
 	}
 }
 
-void Renderer::render(uint32_t new_width, uint32_t new_height, uint8_t* r_pixels)
+void Renderer::waitForRendering()
 {
-	// Resize assets
-	if (render_width != new_width || render_height != new_height) {
+	context.waitForCommandList();
+}
 
-		// Final texture
-		final_rt.createRenderTarget(&context, new_width, new_height, DXGI_FORMAT_B8G8R8A8_UNORM);
-		final_rtv = rtv_heap.createRenderTargetView(0, final_rt);
-
-		render_width = new_width;
-		render_height = new_height;
+void Renderer::downloadRender(u32& r_width, u32& r_height, std::vector<byte>& r_pixels)
+{
+	if (final_rt.desc.Width == 0) {
+		return;
 	}
 
-	drawcall.rebuild();
+	r_width = (u32)final_rt.desc.Width;
+	r_height = (u32)final_rt.desc.Height;
 
-	Context::beginPixCapture();
+	r_pixels.resize(r_width * r_height * 4);
+	final_rt.download(r_pixels.data());
+}
+
+void Renderer::render(RenderWorkload& w)
+{
+	if (w.capture_frame) {
+		Context::beginPixCapture();
+	}
+
+	// Change Resolution
+	if (render_width != w.width || render_height != w.height) {
+
+		// Final texture
+		final_rt.createRenderTarget(&context, w.width, w.height, DXGI_FORMAT_B8G8R8A8_UNORM);
+		final_rtv = rtv_heap.createRenderTargetView(0, final_rt);
+
+		render_width = w.width;
+		render_height = w.height;
+	}
+
+	// Build the objects
+	drawcall.rebuild();
 
 	// Command List
 	context.beginCommandList();
@@ -115,16 +136,12 @@ void Renderer::render(uint32_t new_width, uint32_t new_height, uint8_t* r_pixels
 		//drawcall.CMD_setRenderTargets({ final_rtv });
 		//drawcall.CMD_drawIndexed();
 	}
-	context.endAndWaitForCommandList();
+	context.endCommandList();
 
-	final_rt.download(r_pixels);
+	
 
-	Context::endPixCapture();
-
-	/*for (uint32_t row = 0; row < render_height; row++) {
-		for (uint32_t col = 0; col < render_width; col++) {
-			r_pixels[row * (render_width * 4) + (col * 4) + 0] = 0xFF;
-			r_pixels[row * (render_width * 4) + (col * 4) + 3] = 0xFF;
-		}
-	}*/
+	if (w.capture_frame) {
+		waitForRendering();
+		Context::endPixCapture();
+	}
 }

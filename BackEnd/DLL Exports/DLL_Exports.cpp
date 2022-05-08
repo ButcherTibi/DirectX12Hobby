@@ -12,10 +12,15 @@ void _stdcall initPixDebugger()
 
 void __stdcall init()
 {
-	renderer.init();
+	app.init();
 }
 
-void _stdcall render(uint32_t width, uint32_t height, uint8_t* r_pixels)
+void _stdcall captureFrame()
 {
-	renderer.render(width, height, r_pixels);
+	app.captureFrame();
+}
+
+void _stdcall tryCopyLastRender(uint32_t width, uint32_t height, uint8_t* r_pixels)
+{
+	app.tryCopyLastRender(width, height, r_pixels);
 }

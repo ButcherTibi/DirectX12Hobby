@@ -35,52 +35,54 @@ namespace FrontEnd {
 			viewport_img.Source = viewport_bitmap;
 		}
 
-		private void changeColor(object? obj)
-		{
-			Dispatcher.Invoke(() => {
+		//private void changeColor(object? obj)
+		//{
+		//	Dispatcher.Invoke(() => {
 
-				Random random = new Random();
-				int red = random.Next(0, 255);
-				int blue = random.Next(0, 255);
+		//		Random random = new Random();
+		//		int red = random.Next(0, 255);
+		//		int blue = random.Next(0, 255);
 
-				int width = 250;
-				int height = 250;
+		//		int width = 250;
+		//		int height = 250;
 
-				if (viewport_bitmap.TryLock(Duration.Forever)) {
+		//		if (viewport_bitmap.TryLock(Duration.Forever)) {
 
-					unsafe {
-						byte* mem = (byte*)viewport_bitmap.BackBuffer.ToPointer();
+		//			unsafe {
+		//				byte* mem = (byte*)viewport_bitmap.BackBuffer.ToPointer();
 
-						for (int row = 0; row < height; row += 2) {
-							for (int col = 0; col < width; col++) {
-								mem[row * (width * 4) + col * 4 + 0] = 0;
-								mem[row * (width * 4) + col * 4 + 1] = 0;
-								mem[row * (width * 4) + col * 4 + 2] = (byte)red;
-								mem[row * (width * 4) + col * 4 + 3] = 0xFF;
-							}
-						}
+		//				for (int row = 0; row < height; row += 2) {
+		//					for (int col = 0; col < width; col++) {
+		//						mem[row * (width * 4) + col * 4 + 0] = 0;
+		//						mem[row * (width * 4) + col * 4 + 1] = 0;
+		//						mem[row * (width * 4) + col * 4 + 2] = (byte)red;
+		//						mem[row * (width * 4) + col * 4 + 3] = 0xFF;
+		//					}
+		//				}
 
-						for (int row = 1; row < height; row += 2) {
-							for (int col = 0; col < width; col++) {
-								mem[row * (width * 4) + col * 4 + 0] = (byte)blue;
-								mem[row * (width * 4) + col * 4 + 1] = 0;
-								mem[row * (width * 4) + col * 4 + 2] = 0;
-								mem[row * (width * 4) + col * 4 + 3] = 0xFF;
-							}
-						}
-					}
-					viewport_bitmap.AddDirtyRect(new Int32Rect(0, 0, width, height));
-					viewport_bitmap.Unlock();
-				}
-			});
-		}
+		//				for (int row = 1; row < height; row += 2) {
+		//					for (int col = 0; col < width; col++) {
+		//						mem[row * (width * 4) + col * 4 + 0] = (byte)blue;
+		//						mem[row * (width * 4) + col * 4 + 1] = 0;
+		//						mem[row * (width * 4) + col * 4 + 2] = 0;
+		//						mem[row * (width * 4) + col * 4 + 3] = 0xFF;
+		//					}
+		//				}
+		//			}
+		//			viewport_bitmap.AddDirtyRect(new Int32Rect(0, 0, width, height));
+		//			viewport_bitmap.Unlock();
+		//		}
+		//	});
+		//}
 
 		private void render(object sender, RoutedEventArgs e)
 		{
+			// BackEnd.captureFrame();
+
 			viewport_bitmap.Lock();
 
 			unsafe {
-				BackEnd.render(
+				BackEnd.tryCopyLastRender(
 					(uint)viewport_bitmap.PixelWidth,
 					(uint)viewport_bitmap.PixelHeight,
 					(byte*)viewport_bitmap.BackBuffer.ToPointer()

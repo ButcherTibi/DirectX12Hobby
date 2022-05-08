@@ -72,6 +72,8 @@ public:
 	void create();
 
 	void beginCommandList();
+	void endCommandList();
+	void waitForCommandList();
 	void endAndWaitForCommandList();
 	void copyBuffer(ID3D12Resource* dest, ID3D12Resource* source);
 

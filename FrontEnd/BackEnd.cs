@@ -13,6 +13,10 @@ public class BackEnd {
 	void init();
 
 	[DllImport("BackEnd.dll")]
+	public static extern
+	void captureFrame();
+
+	[DllImport("BackEnd.dll")]
 	public static extern unsafe
-	void render(uint width, uint height, byte* r_pixels);
+	bool tryCopyLastRender(uint width, uint height, byte* r_pixels);
 }

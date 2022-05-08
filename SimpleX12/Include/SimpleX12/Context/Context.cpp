@@ -110,24 +110,36 @@ void Context::beginCommandList()
 	is_cmd_list_recording = true;
 }
 
-void Context::endAndWaitForCommandList()
+void Context::endCommandList()
 {
 	checkDX12(cmd_list->Close());
 
+	// reset the fence
 	checkDX12(cmd_fence->Signal(0));
 
 	std::array<ID3D12CommandList*, 1> command_lists = {
 		cmd_list.Get()
 	};
 	cmd_queue->ExecuteCommandLists((uint32_t)command_lists.size(), command_lists.data());
+}
 
+void Context::waitForCommandList()
+{
+	// make the command queue set the fence to 1 when done
 	checkDX12(cmd_queue->Signal(cmd_fence.Get(), 1));
 
+	// check for curent fence value
 	while (cmd_fence->GetCompletedValue() == 0) {
 
 	}
 
 	is_cmd_list_recording = false;
+}
+
+void Context::endAndWaitForCommandList()
+{
+	endCommandList();
+	waitForCommandList();
 }
 
 void Context::copyBuffer(ID3D12Resource* dest, ID3D12Resource* source)
