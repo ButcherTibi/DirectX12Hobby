@@ -99,7 +99,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="App.hpp" />
+    <ClInclude Include="App\App.hpp" />
     <ClInclude Include="ButchersToolbox\SparseVector.hpp" />
     <ClInclude Include="CommonTypes.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
@@ -110,7 +110,7 @@
     <ClInclude Include="Sculpt Mesh\SculptMesh.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="App.cpp" />
+    <ClCompile Include="App\AppSyncMethods.cpp" />
     <ClCompile Include="Sculpt Mesh\EdgeOperations.cpp" />
     <ClCompile Include="Math\Geometry.cpp" />
     <ClCompile Include="Shaders\GPU_ShaderTYpes.cpp" />

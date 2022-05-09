@@ -58,7 +58,7 @@
     <ClInclude Include="pch.hpp">
       <Filter>Precompiled Headers</Filter>
     </ClInclude>
-    <ClInclude Include="App.hpp">
+    <ClInclude Include="App\App.hpp">
       <Filter>App</Filter>
     </ClInclude>
     <ClInclude Include="Shaders\GPU_ShaderTypes.hpp">
@@ -99,7 +99,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>Precompiled Headers</Filter>
     </ClCompile>
-    <ClCompile Include="App.cpp">
+    <ClCompile Include="App\AppSyncMethods.cpp">
       <Filter>App</Filter>
     </ClCompile>
     <ClCompile Include="Sculpt Mesh\MeshCreation.cpp">

@@ -9,7 +9,7 @@
   
   Title="MainWindow" Height="450" Width="800">
   <StackPanel Background="Black">
-    <Button Click="render">Render</Button>
+    <Button Click="capture">Capture Frame</Button>
     <Image Name="viewport_img" Width="250" Height="250" Margin="5" />
   </StackPanel>
 </Window>

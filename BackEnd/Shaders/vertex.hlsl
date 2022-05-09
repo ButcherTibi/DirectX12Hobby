@@ -19,7 +19,7 @@ VertexOut main(uint vertex_idx : SV_VertexID)
     VertexOut result;
     result.position.xyz = vertices[vertex_idx].position;
     result.position.w = 0.5;
-    result.color = float4(1.0f, 1.0f, 0.0f, 1.0f);
+    result.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
 
     return result;
 }

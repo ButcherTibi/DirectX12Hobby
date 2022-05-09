@@ -6,6 +6,8 @@ BackEnd/x64/**
 
 # FrontEnd
 FrontEnd/obj/**
+FrontEnd/bin/Debug/net6.0-windows/BackEnd.*
+FrontEnd/bin/Debug/net6.0-windows/FrontEnd.*
 
 # SimpleX 12
 SimpleX12/x64/**

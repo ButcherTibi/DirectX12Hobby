@@ -79,17 +79,14 @@ void Renderer::waitForRendering()
 	context.waitForCommandList();
 }
 
-void Renderer::downloadRender(u32& r_width, u32& r_height, std::vector<byte>& r_pixels)
+bool Renderer::tryDownloadRender(u32 dest_width, u32 dest_height, byte* r_pixels)
 {
-	if (final_rt.desc.Width == 0) {
-		return;
+	if (final_rt.desc.Width != dest_width || final_rt.desc.Height != dest_height) {
+		return false;
 	}
 
-	r_width = (u32)final_rt.desc.Width;
-	r_height = (u32)final_rt.desc.Height;
-
-	r_pixels.resize(r_width * r_height * 4);
-	final_rt.download(r_pixels.data());
+	final_rt.download(r_pixels);
+	return true;
 }
 
 void Renderer::render(RenderWorkload& w)

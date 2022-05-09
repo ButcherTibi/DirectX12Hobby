@@ -4,7 +4,7 @@
 #include <Shaders/GPU_ShaderTypes.hpp>
 #include <CommonTypes.hpp>
 
-#include "App.hpp"
+#include <App/App.hpp>
 
 
 struct RenderWorkload {
@@ -43,7 +43,7 @@ public:
 
 	void waitForRendering();
 
-	void downloadRender(u32& r_width, u32& r_height, std::vector<byte>& r_pixels);
+	bool tryDownloadRender(u32 dest_width, u32 dest_height, byte* r_pixels);
 
 	void render(RenderWorkload& workload);
 };
