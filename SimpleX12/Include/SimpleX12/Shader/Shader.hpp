@@ -11,16 +11,13 @@ class Shader {
 	using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
 
 	Context* ctx = nullptr;
-	std::wstring file_path;  // used to resolving includes
-	std::wstring hlsl_target;
+	std::wstring file_path;
+	std::wstring hlsl_target;  // vs_6_0, ps_6_0, cs_6_0
 
-	std::string source_code;
-	std::string root_signature;
-
-	ComPtr<IDxcResult> compilation_result;
-	ComPtr<IDxcBlob> bytecode;
+	ComPtr<IDxcBlob> bytecode = nullptr;
 
 	// Shader Hot Reloading
+	ComPtr<IDxcBlobUtf8> last_errors = nullptr;
 	TimePoint last_check = TimePoint::min();
 	TimePoint modified_time = TimePoint::min();
 

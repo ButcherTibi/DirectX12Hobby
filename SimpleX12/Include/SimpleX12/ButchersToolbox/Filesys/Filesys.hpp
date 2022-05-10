@@ -57,9 +57,9 @@ namespace filesys {
 		using time_point = std::chrono::time_point<std::chrono::system_clock>;
 
 	private:
-		static void createForRead(string file_path, win32::Handle& r_file_handle);
-
-		static void createForRead(string file_path, uint32_t share_mode, win32::Handle& r_file_handle);
+		static void createFile(string file_path,
+			uint32_t access_flags, uint32_t share_mode, uint32_t disposition, uint32_t flags_and_atributes,
+			win32::Handle& r_file_handle);
 
 	public:
 		/* Creation */
@@ -74,7 +74,7 @@ namespace filesys {
 
 
 		// File Write
-		// void write(std::vector<uint8_t>& bytes);
+		static void write(string file_path, size_t mem_size, void* mem);
 
 
 		/* Read Atributes */
@@ -179,25 +179,27 @@ namespace filesys {
 	}
 
 	template<typename T>
-	void File<T>::createForRead(string file_path, uint32_t share_mode, win32::Handle& result)
+	void File<T>::createFile(string file_path,
+		uint32_t access_flags, uint32_t share_mode, uint32_t disposition, uint32_t flags_and_atributes,
+		win32::Handle& r_file)
 	{
 		if constexpr (std::is_same<T, wchar_t>()) {
-			result.handle = CreateFileW(file_path.c_str(),
-				GENERIC_READ, // desired acces
+			r_file.handle = CreateFileW(file_path.c_str(),
+				access_flags, // desired acces
 				share_mode,  // share mode
 				NULL,  // security atributes
-				OPEN_EXISTING,  // disposition
-				FILE_FLAG_SEQUENTIAL_SCAN, // flags and atributes
+				disposition,  // disposition
+				flags_and_atributes, // flags and atributes
 				NULL  // template
 			);
 		}
 		else if constexpr (std::is_same<T, char>() || std::is_same<T, char8_t>()) {
-			result.handle = CreateFileA(file_path.c_str(),
-				GENERIC_READ, // desired acces
+			r_file.handle = CreateFileA(file_path.c_str(),
+				access_flags, // desired acces
 				share_mode,  // share mode
 				NULL,  // security atributes
-				OPEN_EXISTING,  // disposition
-				FILE_FLAG_SEQUENTIAL_SCAN, // flags and atributes
+				disposition,  // disposition
+				flags_and_atributes, // flags and atributes
 				NULL  // template
 			);
 		}
@@ -205,16 +207,10 @@ namespace filesys {
 			__debugbreak();
 		}
 
-		if (result.isValid() == false) {
+		if (r_file.isValid() == false) {
 			win32::printToOutput(win32::getLastError());
 			__debugbreak();
 		}
-	}
-
-	template<typename T>
-	void File<T>::createForRead(string file_path, win32::Handle& r_file_handle)
-	{
-		createForRead(file_path, FILE_SHARE_READ | FILE_SHARE_WRITE, r_file_handle);
 	}
 
 	template<typename T>
@@ -223,7 +219,13 @@ namespace filesys {
 		uint32_t file_size = (uint32_t)size(file_path);
 
 		win32::Handle file_handle;
-		createForRead(file_path, file_handle);
+		createFile(file_path,
+			GENERIC_READ,
+			FILE_SHARE_READ | FILE_SHARE_WRITE,
+			OPEN_EXISTING,
+			FILE_FLAG_SEQUENTIAL_SCAN,
+			file_handle
+		);
 
 		auto result = ReadFile(
 			file_handle.handle,
@@ -252,54 +254,36 @@ namespace filesys {
 		read(file_path, r_text.data());
 	}
 
-	//template<typename T>
-	//void Path<T>::writeFile(std::vector<uint8_t>& bytes)
-	//{
-	//	if constexpr (std::is_same<T, wchar_t>()) {
-	//		file_handle = CreateFileW(toString().c_str(),
-	//			GENERIC_WRITE, // desired acces
-	//			0,  // share mode
-	//			NULL,  // security atributes
-	//			OPEN_ALWAYS,  // disposition
-	//			FILE_FLAG_SEQUENTIAL_SCAN, // flags and atributes
-	//			NULL  // template
-	//		);
-	//	}
-	//	else if constexpr (std::is_same<T, char>() || std::is_same<T, char8_t>()) {
-	//		file_handle = CreateFileA(toString().c_str(),
-	//			GENERIC_WRITE, // desired acces
-	//			0,  // share mode
-	//			NULL,  // security atributes
-	//			OPEN_ALWAYS,  // disposition
-	//			FILE_FLAG_SEQUENTIAL_SCAN, // flags and atributes
-	//			NULL  // template
-	//		);
-	//	}
+	template<typename T>
+	void File<T>::write(string file_path, size_t mem_size, void* mem)
+	{
+		win32::Handle file;
 
-	//	if (file_handle.isValid() == false) {
-	//		__debugbreak();
-	//	}
+		createFile(file_path, GENERIC_WRITE, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, file);
 
-	//	DWORD bytes_writen;
+		auto result = WriteFile(
+			file.handle,
+			mem,
+			(uint32_t)mem_size,
+			nullptr, nullptr
+		);
 
-	//	auto result = WriteFile(
-	//		file_handle.handle,
-	//		bytes.data(),
-	//		(DWORD)bytes.size(),
-	//		&bytes_writen,
-	//		NULL  // overllaped
-	//	);
-
-	//	if (result == false) {
-	//		__debugbreak();
-	//	}
-	//}
+		if (result == false) {
+			__debugbreak();
+		}
+	}
 
 	template<typename T>
 	size_t File<T>::size(string file_path)
 	{
 		win32::Handle file_handle;
-		createForRead(file_path, file_handle);
+		createFile(file_path,
+			GENERIC_READ,
+			FILE_SHARE_READ | FILE_SHARE_WRITE,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL,
+			file_handle
+		);
 
 		LARGE_INTEGER file_size;
 		if (GetFileSizeEx(file_handle.handle, &file_size) == false) {
@@ -313,7 +297,13 @@ namespace filesys {
 	std::chrono::time_point<std::chrono::system_clock> File<T>::lastModifiedTime(string file_path)
 	{
 		win32::Handle file_handle;
-		createForRead(file_path, file_handle);
+		createFile(file_path,
+			GENERIC_READ,
+			FILE_SHARE_READ | FILE_SHARE_WRITE,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL,
+			file_handle
+		);
 
 		FILETIME filetime;
 		win32::check(GetFileTime(file_handle.handle, nullptr, nullptr, &filetime));
