@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrontEnd", "FrontEnd\FrontE
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleX12", "SimpleX12\SimpleX12.vcxproj", "{BF78222C-62D5-4075-BE8A-E853FCB29890}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinUIApp", "WinUIApp\WinUIApp.csproj", "{258F2EE1-C972-4CE1-8327-9755EEB50C21}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,30 @@ Global
 		{BF78222C-62D5-4075-BE8A-E853FCB29890}.Release|x64.Build.0 = Release|x64
 		{BF78222C-62D5-4075-BE8A-E853FCB29890}.Release|x86.ActiveCfg = Release|Win32
 		{BF78222C-62D5-4075-BE8A-E853FCB29890}.Release|x86.Build.0 = Release|Win32
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Debug|Any CPU.Build.0 = Debug|x64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Debug|Any CPU.Deploy.0 = Debug|x64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Debug|arm64.ActiveCfg = Debug|arm64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Debug|arm64.Build.0 = Debug|arm64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Debug|arm64.Deploy.0 = Debug|arm64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Debug|x64.ActiveCfg = Debug|x64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Debug|x64.Build.0 = Debug|x64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Debug|x64.Deploy.0 = Debug|x64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Debug|x86.ActiveCfg = Debug|x86
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Debug|x86.Build.0 = Debug|x86
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Debug|x86.Deploy.0 = Debug|x86
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Release|Any CPU.ActiveCfg = Release|x64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Release|Any CPU.Build.0 = Release|x64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Release|Any CPU.Deploy.0 = Release|x64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Release|arm64.ActiveCfg = Release|arm64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Release|arm64.Build.0 = Release|arm64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Release|arm64.Deploy.0 = Release|arm64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Release|x64.ActiveCfg = Release|x64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Release|x64.Build.0 = Release|x64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Release|x64.Deploy.0 = Release|x64
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Release|x86.ActiveCfg = Release|x86
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Release|x86.Build.0 = Release|x86
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

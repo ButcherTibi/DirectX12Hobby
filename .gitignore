@@ -10,12 +10,14 @@ BackEnd/x64/**
 # FrontEnd
 FrontEnd/obj/**
 FrontEnd/bin/**
-!FrontEnd/bin/dxil.dll
+
+# FrontEnd 2
+WinUIApp/obj/**
+WinUIApp/bin/**
 
 # SimpleX 12
 SimpleX12/x64/**
 
 packages/**
 x64/**
-
 !x64/Debug/dxil.dll

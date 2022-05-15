@@ -18,6 +18,14 @@ using System.Windows.Shapes;
 
 namespace FrontEnd {
 
+	class F
+	{
+		public void create()
+		{
+
+		}
+	}
+
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
@@ -81,45 +89,15 @@ namespace FrontEnd {
 			}
 		}
 
-		//private void changeColor(object? obj)
-		//{
-		//	Dispatcher.Invoke(() => {
+		void createControls(object sender, RoutedEventArgs e)
+		{
+			//var menu = new Menu();
 
-		//		Random random = new Random();
-		//		int red = random.Next(0, 255);
-		//		int blue = random.Next(0, 255);
+			//var menu_item = new MenuItem();
+			//menu_item.ToolTip
 
-		//		int width = 250;
-		//		int height = 250;
-
-		//		if (viewport_bitmap.TryLock(Duration.Forever)) {
-
-		//			unsafe {
-		//				byte* mem = (byte*)viewport_bitmap.BackBuffer.ToPointer();
-
-		//				for (int row = 0; row < height; row += 2) {
-		//					for (int col = 0; col < width; col++) {
-		//						mem[row * (width * 4) + col * 4 + 0] = 0;
-		//						mem[row * (width * 4) + col * 4 + 1] = 0;
-		//						mem[row * (width * 4) + col * 4 + 2] = (byte)red;
-		//						mem[row * (width * 4) + col * 4 + 3] = 0xFF;
-		//					}
-		//				}
-
-		//				for (int row = 1; row < height; row += 2) {
-		//					for (int col = 0; col < width; col++) {
-		//						mem[row * (width * 4) + col * 4 + 0] = (byte)blue;
-		//						mem[row * (width * 4) + col * 4 + 1] = 0;
-		//						mem[row * (width * 4) + col * 4 + 2] = 0;
-		//						mem[row * (width * 4) + col * 4 + 3] = 0xFF;
-		//					}
-		//				}
-		//			}
-		//			viewport_bitmap.AddDirtyRect(new Int32Rect(0, 0, width, height));
-		//			viewport_bitmap.Unlock();
-		//		}
-		//	});
-		//}
+			//menu.Items.Add
+		}
 
 		void capture(object sender, RoutedEventArgs e)
 		{
