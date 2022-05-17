@@ -6,15 +6,18 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
+
 
 namespace WinUIApp
 {
@@ -24,41 +27,13 @@ namespace WinUIApp
 	public sealed partial class MainWindow : Window
 	{
 		bool is_webview_init = false;
-		FileSystemWatcher file_watch;
 
 		public MainWindow()
 		{
 			this.InitializeComponent();
 
 #if DEBUG
-			file_watch = new FileSystemWatcher();
-			file_watch.BeginInit();
-
-			file_watch.Path = DevGlobals.client_side_src;
-			file_watch.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.CreationTime;
-			file_watch.IncludeSubdirectories = true;
-			file_watch.EnableRaisingEvents = true;
-
-			var copy_over_file = (object sender, FileSystemEventArgs e) => {
-
-				string relative_path = e.FullPath.Split(DevGlobals.client_side_src)[1];
-				string dest_filepath = Path.Combine(DevGlobals.client_side_dest, relative_path);
-
-				if (File.Exists(dest_filepath) == false) {
-					System.Diagnostics.Debugger.Break();
-				}
-
-				File.Copy(e.FullPath, dest_filepath, true);
-
-				DispatcherQueue.TryEnqueue(() => {
-					webview.Reload();
-				});
-			};
-
-			file_watch.Changed += new FileSystemEventHandler(copy_over_file);
-			file_watch.Created += new FileSystemEventHandler(copy_over_file);
-
-			file_watch.EndInit();
+			DevGlobals.initHotReload(this, webview);
 #endif
 		}
 
@@ -88,9 +63,9 @@ namespace WinUIApp
 			webview.Source = new Uri("http://app.invalid/index.html");
 		}
 
-		private void myButton_Click(object sender, RoutedEventArgs e)
-		{
-			myButton.Content = "Clicked";
-		}
+		//private void myButton_Click(object sender, RoutedEventArgs e)
+		//{
+		//	myButton.Content = "Clicked";
+		//}
 	}
 }
