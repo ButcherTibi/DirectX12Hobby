@@ -1,1 +1,47 @@
-﻿
+
+.main-menu,
+.main-menu menu {
+	margin: 0px;
+	padding: 0px;
+}
+
+.main-menu {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+
+.main-menu .title-item {
+	position: relative;
+}
+
+.main-menu .title-item > menu {
+	position: absolute;
+	top: 14px;
+
+	width: 100px;
+
+	background-color: aquamarine;
+}
+
+.main-menu .normal-item {
+	position: relative;
+}
+
+.main-menu .normal-item > menu {
+	position: absolute;
+	top: 0px;
+	left: 100px;
+
+	width: 100px;
+
+	background-color: aqua;
+}
+
+.main-menu li {
+	list-style-type: none;
+}
+
+.main-menu .hide {
+	display: none;
+}

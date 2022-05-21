@@ -1,5 +1,6 @@
 # Folders
 .vs/
+node_modules/
 
 # Files
 *.pdb

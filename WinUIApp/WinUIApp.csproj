@@ -14,8 +14,6 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="ClientSide\main.css" />
-    <None Remove="ClientSide\MainMenu\MainMenu.css" />
-    <None Remove="ClientSide\MainMenu\MainMenu.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,12 +25,6 @@
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <Content Include="ClientSide\main.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="ClientSide\MainMenu\MainMenu.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="ClientSide\MainMenu\MainMenu.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -58,6 +50,9 @@
     </None>
     <None Update="ClientSide\index.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ClientSide\MainMenu\MainMenu.css">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 </Project>

@@ -1,5 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Threading;
+using System.Collections.Generic;
 using WebView2 = Microsoft.UI.Xaml.Controls.WebView2;
 
 
@@ -13,7 +17,9 @@ public static class DevGlobals
 
 	static WinUIApp.MainWindow main_window;
 	static WebView2 main_webview;
-	static FileSystemWatcher client_side_watcher;
+
+	static Thread hot_reload_thread;
+	static Dictionary<string, FileCopyStatus> copied_files;
 
 
 	static DevGlobals() {
@@ -25,75 +31,151 @@ public static class DevGlobals
 		));
 
 		string client_dir_name = "ClientSide";
-		client_side_src = Path.Combine(project_dir, client_dir_name);
-		client_side_dest = Path.Combine(output_dir, client_dir_name);
+		client_side_src = Path.Join(project_dir, client_dir_name);
+		client_side_dest = Path.Join(output_dir, client_dir_name);
+
+		copied_files = new Dictionary<string, FileCopyStatus>();
 	}
 
-	public static void initHotReload(WinUIApp.MainWindow new_window, WebView2 new_webview)
+	public static void init(WinUIApp.MainWindow new_window, WebView2 new_webview)
 	{
 		main_window = new_window;
 		main_webview = new_webview;
-		client_side_watcher = new FileSystemWatcher();
+	}
 
-		var watcher = client_side_watcher;
+	public static bool reloadWebView()
+	{
+		return main_window.DispatcherQueue.TryEnqueue(() => {
+			main_webview.Reload();
+		});
+	}
 
-		watcher.BeginInit();
+	//public static void configureTypeScriptOutDir()
+	//{
+	//	string ts_config_path = Path.Join(client_side_src, "tsconfig.json");
+	//	string ts_config = File.ReadAllText(ts_config_path);
 
-		watcher.Path = client_side_src;
-		watcher.NotifyFilter = NotifyFilters.LastWrite;
-		watcher.IncludeSubdirectories = true;
-		watcher.EnableRaisingEvents = true;
+	//	var parse_settings = new JsonDocumentOptions();
+	//	parse_settings.CommentHandling = JsonCommentHandling.Skip;
+	//	JsonNode json = JsonNode.Parse(ts_config, documentOptions: parse_settings);
 
-		var copy_over_file = (object sender, FileSystemEventArgs e) => {
+	//	json["compilerOptions"]["outDir"] = client_side_dest;
 
-			string relative_path = e.FullPath.Split(client_side_src)[1];
-			string dest_filepath = Path.Join(client_side_dest, relative_path);
+	//	File.WriteAllText(ts_config_path, json.ToJsonString());
+	//}
 
-			switch (Path.GetExtension(e.FullPath)) {
-			case ".ts": {
+	public static void initTypeScriptHotReload()
+	{
+		string input_files = "";
+		{
+			void addInputFiles(string dir_path)
+			{
+				foreach (var file_path in Directory.GetFiles(dir_path)) {
 
-				var process = new System.Diagnostics.Process();
-				process.StartInfo.FileName = "CMD.exe";
-				process.StartInfo.Arguments = $"/c tsc --outFile \"bundle.js\"";
-				process.StartInfo.CreateNoWindow = true;
-				process.StartInfo.WorkingDirectory = client_side_src;
-				process.StartInfo.RedirectStandardOutput = true;
-				process.OutputDataReceived += (sender, e) =>
-				{
-					if (e.Data != null) {
-						System.Diagnostics.Debug.WriteLine(e.Data);
+					if (Path.GetExtension(file_path) == ".ts") {
+
+						string relative_path = file_path.Split(client_side_src + "\\")[1];
+						input_files += $"\"{relative_path}\" ";
 					}
-				};
+				}
 
-				process.Start();
-				process.BeginOutputReadLine();
-
-				process.WaitForExit();
-
-				string src = Path.Join(client_side_src, "bundle.js");
-				string dest = Path.Join(client_side_dest, "bundle.js");
-				File.Copy(src, dest, true);
-				break;
-			}
-			case ".html":
-			case ".css": {
-				File.Copy(e.FullPath, dest_filepath, true);
-				break;
-			}
-			case ".js": break;
-			default: {
-				System.Diagnostics.Debugger.Break();
-				break;
-			}
+				foreach (var child_dir in Directory.GetDirectories(dir_path)) {
+					addInputFiles(child_dir);
+				}
 			}
 
-			main_window.DispatcherQueue.TryEnqueue(() => {
-				main_webview.Reload();
-			});
-		};
+			addInputFiles(client_side_src);
+		}
 
-		watcher.Changed += new FileSystemEventHandler(copy_over_file);
+		var process = new System.Diagnostics.Process();
+		process.StartInfo.FileName = "CMD.exe";
+		process.StartInfo.Arguments =$"/c tsc " + input_files +
+			"--target es2021 " +
+			"--module es2020 " +
+			$"--outDir \"{client_side_dest}\" " +
+			"--forceConsistentCasingInFileNames true " +
+			"--strict true " +
+			"--skipLibCheck true " +
+			"--watch";
+		process.StartInfo.CreateNoWindow = false;
+		process.StartInfo.WorkingDirectory = client_side_src;
+		//process.StartInfo.RedirectStandardOutput = true;
+		//process.OutputDataReceived += (sender, e) =>
+		//{
+		//	if (e.Data != null || e.Data != "") {
+		//		System.Diagnostics.Debug.WriteLine(e.Data);
+		//	}
+		//};
 
-		watcher.EndInit();
+		process.Start();
+		// process.BeginOutputReadLine();
+
+		// process.WaitForExit();
+	}
+
+	class FileCopyStatus
+	{
+		public DateTime last_copied;
+	}
+
+	public static void initHtmlCssHotReload()
+	{
+		hot_reload_thread = new Thread(() =>
+		{
+			while (true) {
+
+				bool were_files_copied = false;
+
+				void addInputFiles(string dir_path)
+				{
+					foreach (var src_filepath in Directory.GetFiles(dir_path)) {
+
+						string relative_path = src_filepath.Split(client_side_src + "\\")[1];
+						string dest_filepath = Path.Join(client_side_dest, relative_path);
+
+						switch (Path.GetExtension(src_filepath)) {
+						case ".html":
+						case ".css": {
+
+							FileCopyStatus status;
+							if (copied_files.TryGetValue(src_filepath, out status)) {
+
+								// file was updated
+								var last_write_time = File.GetLastWriteTimeUtc(src_filepath);
+								if (status.last_copied < last_write_time) {
+									File.Copy(src_filepath, dest_filepath, true);
+									were_files_copied = true;
+								}
+							}
+							// file never copied over
+							else {
+								copied_files.Add(src_filepath, new FileCopyStatus {
+									last_copied = DateTime.UtcNow
+								});
+
+								File.Copy(src_filepath, dest_filepath, true);
+								were_files_copied = true;
+							}
+							break;
+						}
+						}
+					}
+
+					foreach (var child_dir in Directory.GetDirectories(dir_path)) {
+						addInputFiles(child_dir);
+					}
+				}
+
+				addInputFiles(client_side_src);
+
+				if (were_files_copied) {
+					// reloadWebView();
+				}
+
+				Thread.Sleep(1000 * 2);
+			}
+		});
+
+		hot_reload_thread.Start();
 	}
 }

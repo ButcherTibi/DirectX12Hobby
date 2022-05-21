@@ -10,6 +10,5 @@
   SizeChanged="windowSizeChanged">
   <Canvas>
     <WebView2 Name="webview" />
-    <!--<Button Name="myButton" Click="myButton_Click">Click Me</Button>-->
   </Canvas>
 </Window>

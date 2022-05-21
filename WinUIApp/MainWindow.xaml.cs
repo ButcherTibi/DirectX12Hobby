@@ -28,13 +28,10 @@ namespace WinUIApp
 	{
 		bool is_webview_init = false;
 
+
 		public MainWindow()
 		{
 			this.InitializeComponent();
-
-#if DEBUG
-			DevGlobals.initHotReload(this, webview);
-#endif
 		}
 
 		async void windowSizeChanged(object sender, WindowSizeChangedEventArgs e)
@@ -44,14 +41,21 @@ namespace WinUIApp
 
 			if (is_webview_init == false) {
 
+				// it ain't doing jack shit, still crash when call from separate thread to early
 				await webview.EnsureCoreWebView2Async();
+#if DEBUG
+				DevGlobals.init(this, webview);
+				DevGlobals.initHtmlCssHotReload();
+				DevGlobals.initTypeScriptHotReload();
+#endif
 				webViewInit();
+
 				is_webview_init = true;
 			}
 		}
 
 		private void webViewInit()
-		{
+		{		
 			webview.CoreWebView2.SetVirtualHostNameToFolderMapping(
 				"app.invalid", "./ClientSide/", Microsoft.Web.WebView2.Core.CoreWebView2HostResourceAccessKind.Allow
 			);
@@ -62,10 +66,5 @@ namespace WinUIApp
 
 			webview.Source = new Uri("http://app.invalid/index.html");
 		}
-
-		//private void myButton_Click(object sender, RoutedEventArgs e)
-		//{
-		//	myButton.Content = "Clicked";
-		//}
 	}
 }
