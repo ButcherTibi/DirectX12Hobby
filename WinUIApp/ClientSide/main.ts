@@ -1,7 +1,14 @@
 import MainMenu, { MenuItem } from "./MainMenu/MainMenu.js"
 
 
+class Globals {
+    static main_menu: MainMenu;
+}
+
+
 function main() {
+    Globals.main_menu = new MainMenu();
+
 	let items: MenuItem[] = [
 		{
 			name: "Scene",
@@ -102,8 +109,7 @@ function main() {
 			]
 		}
 	];
-	let menu = new MainMenu();
-	menu.render("main_menu_root", items);
+	Globals.main_menu.render("main_menu_root", items);
 }
 
 main();

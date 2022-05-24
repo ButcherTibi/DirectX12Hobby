@@ -6,39 +6,83 @@ export class MenuItem {
 
 export default class MainMenu {
 	private items: MenuItem[] = [];
-	private static is_mouse_inside: boolean = false;
+    private close_timer_id: number = Number.NaN;
 
+	// private static title_item_class = "title-item";
+	// private static normal_item_class = "normal-item";
+
+
+	private _hideDescedants = (menu: HTMLMenuElement, except: HTMLMenuElement | null) => {
+		if (menu != except) {
+
+			if (menu.classList.contains("hide") === false) {
+				menu.classList.add("hide");
+			}
+			
+			for (let item of menu.children) {
 	
-	static showMenu = (e: MouseEvent) => {
-		let li_elem: HTMLElement = e.target as HTMLElement;
-
-		let title_menu: HTMLMenuElement = li_elem.children[1] as HTMLMenuElement;
-		if (title_menu === undefined) {
-			return;
+				let child_menu: HTMLMenuElement = item.children[1] as HTMLMenuElement;
+				if (child_menu !== undefined) {
+					this._hideDescedants(child_menu, except);
+				}
+			}
 		}
-
-		title_menu.classList.remove("hide");
 	}
 
-	static hideMenu = (e: MouseEvent) => {
+	private hideDescedants = (menu: HTMLMenuElement, except: HTMLMenuElement | null) => {
+		for (let item of menu.children) {
+	
+			let child_menu: HTMLMenuElement = item.children[1] as HTMLMenuElement;
+			if (child_menu !== undefined) {
+				this._hideDescedants(child_menu, except);
+			}
+		}
+	}
+	
+	showMenu(e: MouseEvent) {
 		let li_elem: HTMLElement = e.target as HTMLElement;
 
-		let title_menu: HTMLMenuElement = li_elem.children[1] as HTMLMenuElement;
-		if (title_menu === undefined) {
-			return;
-		}
+		let menu: HTMLMenuElement = li_elem.children[1] as HTMLMenuElement;
+		let parent_menu: HTMLMenuElement = li_elem.parentElement as HTMLMenuElement;
+		clearTimeout(this.close_timer_id);
 
-		if (title_menu.classList.contains("hide") === false) {
-			title_menu.classList.add("hide");
-		}
+		if (menu !== undefined) {
+			this.hideDescedants(parent_menu, menu);
+			menu.classList.remove("hide");
 
-		// setTimeout()
+			if (parent_menu.classList.contains("main-menu") === false) {
+				let menu_width: number = parent_menu.getBoundingClientRect().width;
+				menu.style.top = `-2px`;
+				menu.style.left = `${menu_width - 4}px`;
+			}
+		}
+		else {
+			this.hideDescedants(parent_menu, null);
+		}
+	}
+
+	scheduleHidingMenu(e: MouseEvent) {
+		let li_elem: HTMLElement = e.target as HTMLElement;
+
+		let menu: HTMLMenuElement = li_elem.children[1] as HTMLMenuElement;
+		if (menu !== undefined) {
+
+			let hideMenu = (menu: HTMLMenuElement) => {
+				if (menu.classList.contains("hide") === false) {
+					menu.classList.add("hide");
+				}
+			};
+
+			// Reschedule hiding the menu
+			clearTimeout(this.close_timer_id);
+			this.close_timer_id = setTimeout(hideMenu, 1000, menu);
+		}
 	}
 
 	private _render = (parent_elem: HTMLElement, item: MenuItem, level: number) => {
 		let li_elem = document.createElement("li");
-		li_elem.onmouseenter = MainMenu.showMenu;
-		li_elem.onmouseleave = MainMenu.hideMenu;
+		li_elem.onmouseenter = (e) => this.showMenu(e);
+		// li_elem.onmouseleave = (e) => this.scheduleHidingMenu(e);
 
 		if (level === 0) {
 			li_elem.classList.add("title-item");
@@ -46,6 +90,8 @@ export default class MainMenu {
 		else {
 			li_elem.classList.add("normal-item");
 		}
+
+		li_elem.classList.add("menu-item");
 
 		let label = document.createElement("label");
 		label.textContent = item.name;
@@ -67,7 +113,7 @@ export default class MainMenu {
 		parent_elem.appendChild(li_elem);
 	}
 
-	render = (element_id: string, new_items: MenuItem[]) => {
+	render = (new_container_id: string, new_items: MenuItem[]) => {
 		this.items = new_items;
 
 		let menu_elem = document.createElement("menu");
@@ -77,7 +123,12 @@ export default class MainMenu {
 			this._render(menu_elem, item, 0);
 		}
 
-		let root = document.getElementById(element_id) as HTMLElement;
+		let root = document.getElementById(new_container_id) as HTMLElement;
 		root.appendChild(menu_elem);
+
+		// for checking outside
+		// document.addEventListener("click", (e) => {
+			
+		// });
 	}
 }

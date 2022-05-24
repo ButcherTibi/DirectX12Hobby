@@ -93,8 +93,9 @@ public static class DevGlobals
 			"--target es2021 " +
 			"--module es2020 " +
 			$"--outDir \"{client_side_dest}\" " +
-			"--forceConsistentCasingInFileNames true " +
 			"--strict true " +
+			"--sourceMap true " +
+			"--forceConsistentCasingInFileNames true " +
 			"--skipLibCheck true " +
 			"--watch";
 		process.StartInfo.CreateNoWindow = false;
@@ -143,6 +144,8 @@ public static class DevGlobals
 								// file was updated
 								var last_write_time = File.GetLastWriteTimeUtc(src_filepath);
 								if (status.last_copied < last_write_time) {
+
+									status.last_copied = last_write_time;
 									File.Copy(src_filepath, dest_filepath, true);
 									were_files_copied = true;
 								}
