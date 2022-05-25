@@ -18,14 +18,22 @@ html {
 	);
 }
 
-body {
+/* Style Reset *********************************************/
+
+body, menu, label, p {
+	padding: 0px;
 	margin: 0px;
 }
 
-h1 {
-	color: blue;
+
+/***********************************************************/
+
+body {
+	display: flex;
+	flex-direction: column;
 }
 
 .bar {
 	background-color: var(--theme_backgrd_color);
 }
+

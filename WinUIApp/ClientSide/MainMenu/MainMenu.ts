@@ -1,12 +1,17 @@
 
+import { isElementInDescendants } from "../Utils.js"
+
+
 export class MenuItem {
 	name: string = "";
 	children?: MenuItem[] = [];
 }
 
 export default class MainMenu {
+	private container_id: string = "";
 	private items: MenuItem[] = [];
     private close_timer_id: number = Number.NaN;
+	private outside_click_handler: any = null;
 
 	// private static title_item_class = "title-item";
 	// private static normal_item_class = "normal-item";
@@ -82,7 +87,7 @@ export default class MainMenu {
 	private _render = (parent_elem: HTMLElement, item: MenuItem, level: number) => {
 		let li_elem = document.createElement("li");
 		li_elem.onmouseenter = (e) => this.showMenu(e);
-		// li_elem.onmouseleave = (e) => this.scheduleHidingMenu(e);
+		li_elem.onmouseleave = (e) => this.scheduleHidingMenu(e);
 
 		if (level === 0) {
 			li_elem.classList.add("title-item");
@@ -113,7 +118,17 @@ export default class MainMenu {
 		parent_elem.appendChild(li_elem);
 	}
 
+	private closeMenuIfClickedOutside = (e: MouseEvent) => {
+		let container_elem = document.getElementById(this.container_id) as HTMLElement;
+		let menu = container_elem.children[0] as HTMLMenuElement;
+		
+		if (isElementInDescendants(menu, e.target as HTMLElement) === false) {
+			this.hideDescedants(menu, null);
+		}
+	}
+
 	render = (new_container_id: string, new_items: MenuItem[]) => {
+		this.container_id = new_container_id;
 		this.items = new_items;
 
 		let menu_elem = document.createElement("menu");
@@ -126,9 +141,7 @@ export default class MainMenu {
 		let root = document.getElementById(new_container_id) as HTMLElement;
 		root.appendChild(menu_elem);
 
-		// for checking outside
-		// document.addEventListener("click", (e) => {
-			
-		// });
+		document.removeEventListener("click", this.closeMenuIfClickedOutside);
+		document.addEventListener("click", this.closeMenuIfClickedOutside);
 	}
 }
