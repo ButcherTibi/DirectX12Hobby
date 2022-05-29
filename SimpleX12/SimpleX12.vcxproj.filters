@@ -29,4 +29,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="dxil.dll" />
+  </ItemGroup>
 </Project>

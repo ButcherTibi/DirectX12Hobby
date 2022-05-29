@@ -6,6 +6,13 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Platforms>x64</Platforms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CefSharp.Wpf.NETCore" Version="101.0.180" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1210.39" />
+  </ItemGroup>
 
 </Project>

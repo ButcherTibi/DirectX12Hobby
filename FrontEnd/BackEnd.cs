@@ -2,6 +2,26 @@
 using System.Runtime.InteropServices;
 
 
+public class Win32
+{
+	[DllImport("user32.dll", EntryPoint = "CreateWindowEx", CharSet = CharSet.Unicode)]
+	internal static extern IntPtr CreateWindowEx(
+		int dwExStyle,
+		string lpszClassName,
+		string lpszWindowName,
+		int style,
+		int x, int y,
+		int width, int height,
+		IntPtr hwndParent,
+		IntPtr hMenu,
+		IntPtr hInstance,
+		IntPtr lpParam
+	);
+
+	[DllImport("user32.dll", EntryPoint = "DestroyWindow", CharSet = CharSet.Unicode)]
+	internal static extern bool DestroyWindow(IntPtr hwnd);
+}
+
 public class BackEnd {
 
 	[DllImport("BackEnd.dll")]

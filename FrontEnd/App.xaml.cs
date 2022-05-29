@@ -11,5 +11,24 @@ namespace FrontEnd {
 	/// Interaction logic for App.xaml
 	/// </summary>
 	public partial class App : Application {
+
+		App()
+		{
+			// Browser
+			{
+				var settings = new CefSharp.Wpf.CefSettings();
+
+				// Increase the log severity so CEF outputs detailed information, useful for debugging
+				settings.LogSeverity = CefSharp.LogSeverity.Verbose;
+
+				CefSharp.Cef.Initialize(settings);
+			}
+
+			// Backend
+			{
+				BackEnd.initPixDebugger();
+				BackEnd.init();
+			}
+		}
 	}
 }

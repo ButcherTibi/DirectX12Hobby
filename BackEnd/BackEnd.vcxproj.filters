@@ -71,7 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DLL Exports\DLL_Exports.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Math\Geometry.cpp">
       <Filter>Utils</Filter>
     </ClCompile>

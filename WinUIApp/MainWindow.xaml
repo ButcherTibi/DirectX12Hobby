@@ -10,5 +10,6 @@
   SizeChanged="windowSizeChanged">
   <Canvas>
     <WebView2 Name="webview" />
+    <Button>FFFFFFFFFFFFFFFF</Button>
   </Canvas>
 </Window>

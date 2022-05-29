@@ -32,6 +32,8 @@ namespace WinUIApp
 		public MainWindow()
 		{
 			this.InitializeComponent();
+
+			BackEnd.initPixDebugger();
 		}
 
 		async void windowSizeChanged(object sender, WindowSizeChangedEventArgs e)

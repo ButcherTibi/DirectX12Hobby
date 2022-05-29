@@ -21,4 +21,3 @@ SimpleX12/x64/**
 
 packages/**
 x64/**
-!x64/Debug/dxil.dll

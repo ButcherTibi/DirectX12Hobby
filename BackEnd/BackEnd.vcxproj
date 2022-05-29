@@ -63,6 +63,8 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>kernel32.lib;shell32.lib;ole32.lib;SimpleX12.lib</AdditionalDependencies>
+      <EnableUAC>false</EnableUAC>
+      <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
@@ -116,7 +118,7 @@
     <ClCompile Include="Shaders\GPU_ShaderTYpes.cpp" />
     <ClCompile Include="Sculpt Mesh\LowLevelPrimitiveOperations.cpp" />
     <ClCompile Include="Sculpt Mesh\LowLevelPolyOperations.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Sculpt Mesh\MeshCreation.cpp" />
     <ClCompile Include="Sculpt Mesh\MeshUpdate.cpp" />
     <ClCompile Include="Sculpt Mesh\PolyOperations.cpp" />

@@ -11,7 +11,15 @@
     <UseWinUI>true</UseWinUI>
     <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
     <SupportedOSPlatformVersion>10.0.20348.0</SupportedOSPlatformVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <UseWPF>False</UseWPF>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Binaries\**" />
+    <EmbeddedResource Remove="Binaries\**" />
+    <None Remove="Binaries\**" />
+    <Page Remove="Binaries\**" />
+  </ItemGroup>
   <ItemGroup>
     <None Remove="ClientSide\main.css" />
   </ItemGroup>
@@ -52,7 +60,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="ClientSide\MainMenu\MainMenu.css">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Remove="Binaries\**" />
   </ItemGroup>
 </Project>

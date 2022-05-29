@@ -1,7 +1,0 @@
-﻿<UserControl x:Class="CustomControls.Viewport"
-  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <Canvas>
-    <Label Foreground="Aqua">Fooo</Label>
-  </Canvas>
-</UserControl>
