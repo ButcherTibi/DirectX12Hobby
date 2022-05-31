@@ -71,7 +71,7 @@
       <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)$(Platform)\$(Configuration)\" "$(SolutionDir)FrontEnd\bin\$(Configuration)\net6.0-windows\" /d /y</Command>
+      <Command>xcopy "$(SolutionDir)$(Platform)\$(Configuration)\" "$(SolutionDir)FrontEnd\bin\$(Platform)\$(Configuration)\net6.0-windows\" /d /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -106,15 +106,20 @@
     <ClInclude Include="CommonTypes.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
     <ClInclude Include="Math\Geometry.hpp" />
+    <ClInclude Include="Sculpt Mesh\InstanceTypes.hpp" />
     <ClInclude Include="Shaders\GPU_ShaderTypes.hpp" />
     <ClInclude Include="DLL Exports\DLL_Exports.hpp" />
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="Sculpt Mesh\SculptMesh.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App\App.cpp" />
     <ClCompile Include="App\AppSyncMethods.cpp" />
+    <ClCompile Include="Renderer\GenerateGPU_Data.cpp" />
     <ClCompile Include="Sculpt Mesh\EdgeOperations.cpp" />
     <ClCompile Include="Math\Geometry.cpp" />
+    <ClCompile Include="Sculpt Mesh\InstanceOperations.cpp" />
+    <ClCompile Include="Sculpt Mesh\MeshUpdates.cpp" />
     <ClCompile Include="Shaders\GPU_ShaderTYpes.cpp" />
     <ClCompile Include="Sculpt Mesh\LowLevelPrimitiveOperations.cpp" />
     <ClCompile Include="Sculpt Mesh\LowLevelPolyOperations.cpp" />
@@ -133,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Shaders\Math.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\pixel.hlsl">
@@ -150,6 +156,21 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\compute.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\IndexUpdate.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <Text Include="Shaders\InstanceUpdate.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

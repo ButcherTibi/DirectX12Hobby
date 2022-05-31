@@ -68,6 +68,7 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="CommonTypes.hpp" />
+    <ClInclude Include="Sculpt Mesh\InstanceTypes.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DLL Exports\DLL_Exports.cpp" />
@@ -111,9 +112,14 @@
     <ClCompile Include="Renderer\Renderer.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="App\App.cpp" />
+    <ClCompile Include="Renderer\GenerateGPU_Data.cpp" />
+    <ClCompile Include="Sculpt Mesh\MeshUpdates.cpp" />
+    <ClCompile Include="Sculpt Mesh\InstanceOperations.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Shaders\Math.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\pixel.hlsl" />
@@ -121,5 +127,9 @@
       <Filter>Shaders</Filter>
     </Text>
     <Text Include="Shaders\compute.hlsl" />
+    <Text Include="Shaders\InstanceUpdate.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\IndexUpdate.hlsl" />
   </ItemGroup>
 </Project>

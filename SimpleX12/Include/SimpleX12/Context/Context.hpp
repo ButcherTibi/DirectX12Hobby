@@ -58,6 +58,7 @@ public:
 
 	// HLSL
 	ComPtr<IDxcUtils> hlsl_utils;
+	ComPtr<IDxcIncludeHandler> hlsl_include_handler;
 	ComPtr<IDxcCompiler3> hlsl_compiler;
 
 public:
@@ -81,4 +82,16 @@ public:
 	/* Debug */
 	
 	void reportLiveObjects();
+};
+
+class ScopedFrameCapture {
+public:
+	ScopedFrameCapture()
+	{
+		Context::beginPixCapture();
+	}
+
+	~ScopedFrameCapture() {
+		Context::endPixCapture();
+	}
 };

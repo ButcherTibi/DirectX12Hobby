@@ -159,6 +159,34 @@ void Resource::upload(void* mem, size_t size)
 	}
 }
 
+void Resource::mapNoRead()
+{
+	D3D12_RANGE no_read = {};
+	no_read.Begin = 0;
+	no_read.End = 0;
+
+	checkDX12(resource->Map(0, &no_read, &mapped_mem));
+}
+
+void Resource::unmap()
+{
+	D3D12_RANGE write_all = {};
+	write_all.Begin = 0;
+	write_all.End = desc.Width;
+	resource->Unmap(0, &write_all);
+
+	mapped_mem = nullptr;
+}
+
+void Resource::update(uint32_t index, void* element, size_t element_size)
+{
+	std::memcpy(
+		((byte*)mapped_mem) + (element_size * index),
+		element,
+		element_size
+	);	
+}
+
 //size_t Resource::download(void* r_mem)
 //{
 //	size_t download_size = mem_size();
@@ -288,11 +316,11 @@ size_t Resource::mem_size()
 //	resource = nullptr;
 //}
 
-void IndexBuffer::create(Context* new_context)
+void IndexBuffer::create(Context* new_context, D3D12_HEAP_TYPE heap_type)
 {
 	context = new_context;
 
-	heap_props.Type = D3D12_HEAP_TYPE_DEFAULT;
+	heap_props.Type = heap_type;
 	heap_props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 	heap_props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 
@@ -308,6 +336,16 @@ void IndexBuffer::create(Context* new_context)
 	desc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 	states = D3D12_RESOURCE_STATE_COMMON;
+}
+
+void IndexBuffer::resize(uint32_t new_count)
+{
+	Resource::resize(new_count * sizeof(uint32_t));
+}
+
+void IndexBuffer::update(uint32_t index, uint32_t element)
+{
+	Resource::update(index, &element, sizeof(uint32_t));
 }
 
 uint32_t IndexBuffer::count()

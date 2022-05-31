@@ -8,15 +8,11 @@ App app;
 
 void App::init()
 {
-	// Default state
-	{
-		
-	}
-
 	prev_state = state;
 	next_state = state;
 
 	renderer.init();
+	this->_addTriangleMesh();
 }
 
 void App::phase_1_runCPU()
@@ -27,6 +23,15 @@ void App::phase_1_runCPU()
 		prev_state = state;
 		state = next_state;
 	}
+
+	for (auto& request : requests) {
+
+		if (std::holds_alternative<AddTriangleMesh>(request)) {
+			_addTriangleMesh();
+		}
+	}
+
+	requests.clear();
 
 	// CPU stuff here
 }
@@ -57,4 +62,10 @@ void App::captureFrame()
 {
 	std::scoped_lock guard(state_swap_lock);
 	next_state.capture_frame = true;
+}
+
+void App::addTriangleMesh()
+{
+	std::scoped_lock _(requests_mutex);
+	requests.emplace_back().emplace<AddTriangleMesh>();
 }

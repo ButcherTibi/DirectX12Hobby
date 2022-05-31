@@ -13,6 +13,8 @@
 #include <Math/Geometry.hpp>
 #include <SimpleX12/Resource/Resource.hpp>
 #include <Shaders/GPU_ShaderTypes.hpp>
+#include <SimpleX12/Drawcall/Drawcall.hpp>
+#include "./InstanceTypes.hpp"
 
 
 // Needs:
@@ -35,6 +37,7 @@ namespace scme {
 	typedef uint32_t VertexIndex;
 	typedef uint32_t EdgeIndex;
 	typedef uint32_t PolyIndex;
+	typedef u32 InstanceIndex;
 
 
 	enum class ModifiedVertexState {
@@ -210,13 +213,42 @@ namespace scme {
 		Poly() {};  // suppress initialization
 	};
 
+	enum class TesselationModificationBasis {
+		MODIFIED_POLYS,  // update the tesselation for each polygon
+
+		// update the tesselation for each polygon around a modified vertex
+		// this is slower and is used only when vertices are modified
+		MODIFIED_VERTICES
+	};
+
+
+	enum class ModifiedInstanceType {
+		UPDATE,
+		DELETED
+	};
+
+	// What instance was modified and what was modified
+	struct ModifiedInstance {
+		uint32_t idx;
+
+		ModifiedInstanceType state;
+	};
+
+	struct Instance {
+		Transform transform;
+		PhysicalBasedMaterial material;
+		WireframeColors wireframe_colors;
+
+		Instance() {};  // suppress initialization
+	};
+
 
 	class SculptMesh {
 	public:
 		// Vertex
 		SparseVector<Vertex> verts;
 		std::vector<ModifiedVertex> modified_verts;
-		StorageBuffer<GPU_Vertex> vertex_sbuff;
+		StorageBuffer<GPU_Vertex> gpu_verts;
 
 		// Edge
 		SparseVector<Edge> edges;
@@ -224,8 +256,31 @@ namespace scme {
 		// Poly
 		SparseVector<Poly> polys;
 		std::vector<ModifiedPoly> modified_polys;
+		StorageBuffer<GPU_MeshTriangle> gpu_triangles;
+
+		// Instances
+		SparseVector<Instance> instances;
+		std::vector<ModifiedInstance> modified_instances;
+		StorageBuffer<GPU_Instance> gpu_instances;
+		// ComPtr<ID3D11ShaderResourceView> gpu_instances_srv;
+
+		// Settings
+		uint32_t max_vertices_in_AABB;
+
+		// Vertex Updates
+		std::vector<GPU_VertexPositionUpdateGroup> vert_pos_updates;  // remove this and just use the GPU mapped memory
+		StorageBuffer<GPU_VertexPositionUpdateGroup> gpu_vert_pos_updates;
+
+		// Poly Updates
+		StorageBuffer<GPU_IndexUpdateGroup> gpu_index_updates;
+		IndexBuffer gpu_indexes;
+
+		// Instance Updates
+		StorageBuffer<GPU_InstanceUpdateGroup> gpu_instance_updates;
 
 	private:
+		void _init();
+
 
 		/* Low Level ****************************************************/
 		// These methods may not leave the mesh in a coherent state
@@ -269,7 +324,6 @@ namespace scme {
 		/// </summary>
 		void _setTris(PolyIndex new_poly_idx, VertexIndex v0, VertexIndex v1, VertexIndex v2);
 		void _setQuad(PolyIndex new_quad_idx, VertexIndex v0, VertexIndex v1, VertexIndex v2, VertexIndex v3);
-
 
 	public:
 		/* Creation *****************************************************/
@@ -328,18 +382,47 @@ namespace scme {
 		void deletePoly(PolyIndex delete_poly_idx);
 
 
+		/* Instance *****************************************************/
+
+		InstanceIndex addInstance();
+
+
 		/* Updates ******************************************************/
 
-		void markVertexFullUpdate(VertexIndex vertex);
-		void markVertexMoved(VertexIndex vertex);
+		// schedule a vertex to have it's data updated on the GPU side
+		void markVertexFullUpdate(uint32_t vertex);
+
+		void markVertexMoved(uint32_t vertex);
+
+		// schedule a poly to have it's data updated on the GPU side
 		void markPolyFullUpdate(uint32_t poly);
 
-		// @TODO: not intuitive
-		bool dirty_vertex_list = false;
-		bool dirty_vertex_pos = false;
-		bool dirty_vertex_normals = false;
-		bool dirty_tess_tris = false;
-		bool dirty_index_buff = false;
+		// used changing the mesh shading mode
+		void markAllVerticesForNormalUpdate();
+
+		void markInstanceUpdate(InstanceIndex instance);
+
+		// upload vertex additions and removals to GPU
+		void uploadVertexAddsRemoves();
+
+		// upload vertex positions changes to GPU
+		void uploadVertexPositions();
+
+		// upload vertex normals changes to GPU
+		void uploadVertexNormals();
+
+		// upload poly additions and removals to GPU
+		void uploadIndexBufferChanges();
+
+		// uploads which tesselation triangles have changed
+		// computes on the GPU normals for polygons
+		// downloads the results and applies them
+		// 
+		// the based_on parameter is used to determine on what basis should the tesselation be updated
+		void uploadTesselationTriangles(
+			TesselationModificationBasis based_on = TesselationModificationBasis::MODIFIED_POLYS);
+
+		void uploadInstances();
 
 
 		/* Debug ********************************************************/

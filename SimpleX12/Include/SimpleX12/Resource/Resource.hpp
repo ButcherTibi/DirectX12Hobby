@@ -15,6 +15,8 @@ protected:
 	D3D12_HEAP_PROPERTIES heap_props = {};
 	D3D12_HEAP_FLAGS heap_flags = D3D12_HEAP_FLAG_NONE;
 
+	void* mapped_mem = nullptr;
+
 public:
 	D3D12_RESOURCE_DESC desc = {};
 	D3D12_RESOURCE_STATES states;
@@ -44,13 +46,25 @@ public:
 	/// <remarks>Will use upload buffer if heap is default.</remarks>
 	void upload(void* mem, size_t size);
 
-	template<typename T>
-	void upload(std::span<T> mem)
+	template<typename GPU_T>
+	void upload(std::span<GPU_T> mem)
 	{
 		upload(mem.data(), mem.size_bytes());
 	}
 
+	template<typename GPU_T>
+	void upload(std::vector<GPU_T>& elements)
+	{
+		upload(elements.data(), elements.size() * sizeof(GPU_T));
+	}
+
 	virtual void download(uint8_t* r_mem);
+
+	void mapNoRead();
+
+	void update(uint32_t index, void* element, size_t element_size);
+
+	void unmap();
 
 	/// <summary>
 	/// Transitions the resource to a new state.
@@ -73,7 +87,11 @@ public:
 
 class IndexBuffer : public Resource {
 public:
-	void create(Context* new_context);
+	void create(Context* new_context, D3D12_HEAP_TYPE heap_type = D3D12_HEAP_TYPE_DEFAULT);
+
+	void resize(uint32_t new_count);
+
+	void update(uint32_t index, uint32_t element);
 
 	uint32_t count();
 };
@@ -82,11 +100,11 @@ public:
 template<typename GPU_T = float>
 class StorageBuffer : public Resource {
 public:
-	void create(Context* new_context, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE)
+	void create(Context* new_context, D3D12_HEAP_TYPE heap_type = D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE)
 	{
 		context = new_context;
 
-		heap_props.Type = D3D12_HEAP_TYPE_DEFAULT;
+		heap_props.Type = heap_type;
 		heap_props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 		heap_props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 
@@ -101,13 +119,28 @@ public:
 		desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		desc.Flags = flags;
 
-		states = D3D12_RESOURCE_STATE_COMMON;
+		if (heap_type == D3D12_HEAP_TYPE_DEFAULT) {
+			states = D3D12_RESOURCE_STATE_COMMON;
+		}
+		else if (heap_type == D3D12_HEAP_TYPE_UPLOAD) {
+			states = D3D12_RESOURCE_STATE_GENERIC_READ;
+		}
 	}
 
 	/*void upload(std::vector<GPU_T>& content)
 	{
 		Resource::upload(content.data(), content.size() * sizeof(GPU_T));
 	}*/
+
+	void resize(uint32_t new_count)
+	{
+		Resource::resize(new_count * sizeof(GPU_T));
+	}
+
+	void update(uint32_t index, GPU_T& element)
+	{
+		Resource::update(index, &element, sizeof(GPU_T));
+	}
 
 	uint32_t count()
 	{

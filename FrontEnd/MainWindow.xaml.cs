@@ -77,7 +77,7 @@ namespace FrontEnd {
 			};
 		}
 
-		void capture(object sender, RoutedEventArgs e)
+		void captureFrame(object sender, RoutedEventArgs e)
 		{
 			BackEnd.captureFrame();
 		}

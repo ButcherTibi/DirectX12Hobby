@@ -1,57 +1,28 @@
 
 // Header
 #include "SculptMesh.hpp"
+#include <Renderer/Renderer.hpp>
 
 
 using namespace scme;
 
-//
-//void SculptMesh::init()
-//{
-//	auto& r = renderer;
-//
-//	// GPU Verts
-//	{
-//		D3D11_BUFFER_DESC desc = {};
-//		desc.Usage = D3D11_USAGE_DEFAULT;
-//		desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
-//		desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-//
-//		gpu_verts.create(r.dev5, r.im_ctx3, desc);
-//	}
-//
-//	// GPU Index Buffer
-//	{
-//		D3D11_BUFFER_DESC desc = {};
-//		desc.Usage = D3D11_USAGE_DEFAULT;
-//		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-//
-//		gpu_indexes.create(r.dev5, r.im_ctx3, desc);
-//	}
-//
-//	// GPU Tesselation Triangles
-//	{
-//		D3D11_BUFFER_DESC desc = {};
-//		desc.Usage = D3D11_USAGE_DEFAULT;
-//		desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
-//		desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-//
-//		gpu_triangles.create(r.dev5, r.im_ctx3, desc);
-//	}
-//
-//	// GPU Debug Octree Verts
-//	{
-//		D3D11_BUFFER_DESC desc = {};
-//		desc.Usage = D3D11_USAGE_DEFAULT;
-//		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-//		desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-//
-//		gpu_aabb_verts.create(r.dev5, r.im_ctx3, desc);
-//	}
-//}
+
+void SculptMesh::_init()
+{
+	gpu_verts.create(&renderer.context);
+	gpu_indexes.create(&renderer.context);
+	gpu_triangles.create(&renderer.context);
+	gpu_instances.create(&renderer.context);
+
+	gpu_vert_pos_updates.create(&renderer.context);
+	gpu_index_updates.create(&renderer.context, D3D12_HEAP_TYPE_UPLOAD);
+	gpu_instance_updates.create(&renderer.context, D3D12_HEAP_TYPE_UPLOAD);
+}
 
 void SculptMesh::createAsTriangle(float size)
 {
+	_init();
+
 	verts.resize(3);
 
 	float half = size / 2;

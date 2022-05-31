@@ -133,7 +133,7 @@ public:
 
 	uint32_t capacity()
 	{
-		return nodes.capacity();
+		return (uint32_t)nodes.capacity();
 	}
 
 

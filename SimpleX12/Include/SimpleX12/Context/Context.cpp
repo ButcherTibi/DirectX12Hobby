@@ -98,6 +98,9 @@ void Context::create()
 	// HLSL Compiler
 	{
 		checkDX12(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&hlsl_utils)));
+
+		checkDX12(hlsl_utils->CreateDefaultIncludeHandler(hlsl_include_handler.ReleaseAndGetAddressOf()));
+
 		checkDX12(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&hlsl_compiler)));
 	}
 }

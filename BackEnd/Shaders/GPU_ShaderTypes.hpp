@@ -9,6 +9,9 @@
 #include "glm/mat4x4.hpp"
 #include "glm/gtc/quaternion.hpp"
 
+// Mine
+#include <CommonTypes.hpp>
+
 
 DirectX::XMFLOAT3 dxConvert(glm::vec3& value);
 DirectX::XMFLOAT3 dxConvert(float x, float y, float z);
@@ -32,24 +35,6 @@ struct GPU_MeshTriangle {
 };
 
 
-struct GPU_MeshInstance {
-	DirectX::XMFLOAT3 pos;
-	DirectX::XMFLOAT4 rot;
-
-	DirectX::XMFLOAT3 albedo_color;
-	float roughness;
-	float metallic;
-	float specular;
-
-	DirectX::XMFLOAT3 wireframe_front_color;
-	DirectX::XMFLOAT4 wireframe_back_color;
-	DirectX::XMFLOAT3 wireframe_tess_front_color;
-	DirectX::XMFLOAT4 wireframe_tess_back_color;
-	float wireframe_tess_split_count;
-	float wireframe_tess_gap;
-};
-
-
 struct GPU_UnplacedVertexGroup {
 	uint32_t vert_idxs[21];
 };
@@ -57,6 +42,11 @@ struct GPU_UnplacedVertexGroup {
 struct GPU_PlacedVertexGroup {
 	// vertex ,axis, level
 	int32_t vert_idxs[21][3][5];
+};
+
+struct GPU_IndexUpdateGroup {
+	u32 poly_idx[12];
+	u32 new_vertex_idx[12][6];
 };
 
 struct GPU_VertexPositionUpdateGroup {

@@ -17,6 +17,9 @@
         <Separator />
         <MenuItem Header="Exit" />
       </MenuItem>
+      <MenuItem Header="Capture" Click="captureFrame">
+        
+      </MenuItem>
     </Menu>
     <Canvas Name="main_canvas">
       <wpf:ChromiumWebBrowser Name="browser" Address="www.google.com" />

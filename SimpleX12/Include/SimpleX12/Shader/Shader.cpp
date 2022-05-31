@@ -46,6 +46,105 @@ bool areErrorsSame(ComPtr<IDxcBlobUtf8>& last_error, ComPtr<IDxcBlobUtf8>& new_e
   filesys::File<>::write(pdb_dir, pdb->GetBufferSize(), pdb->GetBufferPointer());
 */
 
+class CustomIncludeHandler : public IDxcIncludeHandler {
+public:
+	Context* ctx = nullptr;
+	std::vector<ComPtr<IDxcBlobEncoding>> included_files;
+
+public:
+	HRESULT STDMETHODCALLTYPE LoadSource(_In_ LPCWSTR pFilename, _COM_Outptr_result_maybenull_ IDxcBlob** ppIncludeSource) override
+	{
+		auto& included_file = included_files.emplace_back();
+
+		auto hr = ctx->hlsl_utils->LoadFile(
+			LR"(G:\My work\DirectX12Hobby\BackEnd\Shaders\vertex.hlsl)",
+			nullptr,
+			included_file.GetAddressOf()
+		);
+
+		if (hr != S_OK) {
+			return hr;
+		}
+
+		*ppIncludeSource = included_file.Get();
+
+		return S_OK;
+
+		//ComPtr<IDxcBlobEncoding> pEncoding;
+		//std::string path = Paths::Normalize(UNICODE_TO_MULTIBYTE(pFilename));
+		//if (IncludedFiles.find(path) != IncludedFiles.end())
+		//{
+		//	// Return empty string blob if this file has been included before
+		//	static const char nullStr[] = " ";
+		//	pUtils->CreateBlob(nullStr, ARRAYSIZE(nullStr), CP_UTF8, pEncoding.GetAddressOf());
+		//	*ppIncludeSource = pEncoding.Detach();
+		//	return S_OK;
+		//}
+
+		//HRESULT hr = pUtils->LoadFile(pFilename, nullptr, pEncoding.GetAddressOf());
+		//if (SUCCEEDED(hr))
+		//{
+		//	IncludedFiles.insert(path);
+		//	*ppIncludeSource = pEncoding.Detach();
+		//}
+		//else
+		//{
+		//	*ppIncludeSource = nullptr;
+		//}
+		//return hr;
+
+		//return S_OK;
+	}
+
+	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, _COM_Outptr_ void __RPC_FAR* __RPC_FAR* ppvObject) override
+	{
+		return ctx->hlsl_include_handler->QueryInterface(riid, ppvObject);
+	}
+
+	ULONG STDMETHODCALLTYPE AddRef(void) override { return 0; }
+	ULONG STDMETHODCALLTYPE Release(void) override { return 0; }
+};
+
+std::string getParentDirectory(std::string& path)
+{
+	auto separator_pos = path.find_last_of('\\');
+	if (separator_pos != std::string::npos) {
+		return path.substr(0, separator_pos);
+	}
+	else {
+		return path;
+	}
+}
+
+bool skipTo(std::string& source_code, std::string target, uint32_t& idx)
+{
+	uint32_t target_idx = 0;
+
+	for (uint32_t i = idx; i < source_code.size(); i++) {
+
+		if (source_code[i] == target[target_idx]) {
+
+			target_idx++;
+			
+			if (target_idx == target.size()) {
+				idx = i - (uint32_t)target.size();
+				return true;
+			}
+		}
+		else {
+			target_idx = 0;
+		}
+	}
+
+	return false;
+}
+
+struct IncludeSelection {
+	uint32_t start;
+	uint32_t end;
+};
+
+
 
 bool Shader::reload(std::string& root_signature)
 {
@@ -55,6 +154,32 @@ bool Shader::reload(std::string& root_signature)
 
 		// Read source code
 		filesys::File<>::read(file_path, source_code);
+
+		//// Add Include Files
+		//{
+		//	std::string include_signature = "#include ";
+
+		//	while (true) {
+
+		//		uint32_t include_start = 0;
+
+		//		if (skipTo(source_code, include_signature, include_start)) {
+
+		//			uint32_t path_start = include_start + include_signature.size();
+		//			uint32_t include_end = path_start;
+
+		//			if (skipTo(source_code, "\"", include_end) == false) {
+		//				__debugbreak();
+		//			}
+
+		//			include_end += 1;
+
+		//			if (source_code[path_start + 1] == '.') {
+
+		//			}
+		//		}
+		//	}
+		//}
 
 		// Add Root Signature
 		{
@@ -70,6 +195,7 @@ bool Shader::reload(std::string& root_signature)
 			DxcBuffer buffer = {};
 			buffer.Ptr = source_code.data();
 			buffer.Size = source_code.size();
+			buffer.Encoding = DXC_CP_UTF8;
 
 			std::vector<const wchar_t*> arguments;
 			{
@@ -89,12 +215,19 @@ bool Shader::reload(std::string& root_signature)
 
 				// Code settings
 				arguments.push_back(DXC_ARG_WARNINGS_ARE_ERRORS);
+
+				// Include Directory
+				arguments.push_back(L"-I");
+				arguments.push_back(LR"(G:\My work\DirectX12Hobby\BackEnd\Shaders\)");
 			}
+
+			CustomIncludeHandler include_handler;
+			include_handler.ctx = ctx;
 
 			checkDX12(ctx->hlsl_compiler->Compile(
 				&buffer,
 				arguments.data(), (uint32_t)arguments.size(),
-				nullptr,
+				&include_handler,
 				IID_PPV_ARGS(&compilation_result)
 			));
 		}
@@ -103,7 +236,6 @@ bool Shader::reload(std::string& root_signature)
 		checkDX12(compilation_result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&new_errors), nullptr));
 
 		if (new_errors->GetStringLength() == 0) {
-
 			checkDX12(compilation_result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&bytecode), nullptr));
 		}
 		else if (last_errors == nullptr || areErrorsSame(last_errors, new_errors) == false) {
