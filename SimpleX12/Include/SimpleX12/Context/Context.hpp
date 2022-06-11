@@ -78,6 +78,7 @@ public:
 	void endAndWaitForCommandList();
 	void copyBuffer(ID3D12Resource* dest, ID3D12Resource* source);
 
+	
 
 	/* Debug */
 	

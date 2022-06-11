@@ -69,8 +69,7 @@ void Drawcall::create(Context* new_context)
 			blend.RenderTarget[0] = no_blend;
 		}
 
-		pipe_desc.NumRenderTargets = 1;
-		pipe_desc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		pipe_desc.NumRenderTargets = 0;
 		pipe_desc.DSVFormat = DXGI_FORMAT_UNKNOWN;
 		pipe_desc.NodeMask = 0;
 		pipe_desc.CachedPSO.pCachedBlob = nullptr;
@@ -107,6 +106,7 @@ void Drawcall::setPixelShader(PixelShader* new_pixel_shader)
 
 void Drawcall::setRenderTargetFormats(DXGI_FORMAT rtv_format_0)
 {
+	pipe_desc.NumRenderTargets = 1;
 	pipe_desc.RTVFormats[0] = rtv_format_0;
 }
 
@@ -144,22 +144,6 @@ void Drawcall::CMD_bind()
 	context->cmd_list->SetPipelineState(pipeline.Get());
 }
 
-void Drawcall::CMD_setShaderResourceView(uint32_t shader_register, Resource* resource)
-{
-	for (uint32_t i = 0; i < params.size(); i++) {
-		auto& param = params[i];
-
-		if (param.ParameterType == D3D12_ROOT_PARAMETER_TYPE_SRV &&
-			param.Descriptor.ShaderRegister == shader_register)
-		{
-			context->cmd_list->SetGraphicsRootShaderResourceView(i, resource->gpu_adress());
-			return;
-		}
-	}
-
-	__debugbreak();
-}
-
 void Drawcall::CMD_setIndexBuffer(IndexBuffer& index_buffer)
 {
 	D3D12_INDEX_BUFFER_VIEW view = {};
@@ -170,6 +154,56 @@ void Drawcall::CMD_setIndexBuffer(IndexBuffer& index_buffer)
 	context->cmd_list->IASetIndexBuffer(&view);
 
 	this->index_buff_count = index_buffer.count();
+}
+
+void Drawcall::CMD_setConstantBufferParam(uint32_t shader_register, ConstantBuffer& const_buffer)
+{
+	for (uint32_t i = 0; i < params.size(); i++) {
+		auto& param = params[i];
+
+		if (param.type == ShaderInputType::ConstantBuffer &&
+			param.shader_register == shader_register)
+		{
+			context->cmd_list->SetGraphicsRootConstantBufferView(i, const_buffer.gpu_adress());
+			return;
+		}
+	}
+
+	__debugbreak();
+}
+
+void Drawcall::CMD_setBufferParam(uint32_t shader_register, Buffer& buffer)
+{
+	for (uint32_t i = 0; i < params.size(); i++) {
+		auto& param = params[i];
+
+		if (param.type == ShaderInputType::Buffer &&
+			param.shader_register == shader_register)
+		{
+			context->cmd_list->SetGraphicsRootShaderResourceView(i, buffer.gpu_adress());
+			return;
+		}
+	}
+
+	__debugbreak();
+}
+
+void Drawcall::CMD_setTextureParam(uint32_t shader_register, SRV_DescriptorHandle& handle)
+{
+
+
+	for (uint32_t i = 0; i < params.size(); i++) {
+		auto& param = params[i];
+
+		if (param.type == ShaderInputType::Texture &&
+			param.shader_register == shader_register)
+		{
+			context->cmd_list->SetGraphicsRootDescriptorTable(i, handle.gpu_handle);
+			return;
+		}
+	}
+
+	__debugbreak();
 }
 
 void Drawcall::CMD_setViewportSize(float width, float height)

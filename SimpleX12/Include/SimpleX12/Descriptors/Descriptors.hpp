@@ -1,23 +1,22 @@
 #pragma once
 
-#include "../Resource/Resource.hpp"
+#include "../Buffer/StorageBuffer.hpp"
 #include "../Texture/Texture.hpp"
 
 
+class DescriptorHeap;
+
 struct DescriptorHandle {
+	DescriptorHeap* heap;
+
 	D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle;
 	D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle;
-
-	DescriptorHandle() = default;
-	DescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE);
 };
 
-struct SRV_DescriptorHandle : public DescriptorHandle {
-	SRV_DescriptorHandle() = default;
-	SRV_DescriptorHandle(DescriptorHandle);
-};
-
-struct RTV_DescriptorHandle : public DescriptorHandle { };
+struct CBV_DescriptorHandle : public DescriptorHandle {};
+struct SRV_DescriptorHandle : public DescriptorHandle {};
+struct UAV_DescriptorHandle : public DescriptorHandle {};
+struct RTV_DescriptorHandle : public DescriptorHandle {};
 
 
 class DescriptorHeap {
@@ -39,6 +38,7 @@ class CBV_SRV_UAV_DescriptorHeap : public DescriptorHeap {
 public:
 	void create(Context* context, uint32_t size = 128, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 
+
 	template<typename T>
 	SRV_DescriptorHandle createShaderResourceView(uint32_t index, StorageBuffer<T>& sbuff)
 	{
@@ -57,6 +57,8 @@ public:
 
 		return r_handle;
 	}
+
+	SRV_DescriptorHandle createTexture2D_SRV(uint32_t index, Texture& texture);
 };
 
 

@@ -47,15 +47,15 @@ void DispatchCall::CMD_bind()
 	context->cmd_list->SetPipelineState(pipeline.Get());
 }
 
-void DispatchCall::CMD_setShaderResourceView(uint32_t shader_register, Resource* resource)
+void DispatchCall::CMD_setBufferParam(uint32_t shader_register, Buffer& resource)
 {
 	for (uint32_t i = 0; i < params.size(); i++) {
 		auto& param = params[i];
 
-		if (param.ParameterType == D3D12_ROOT_PARAMETER_TYPE_SRV &&
-			param.Descriptor.ShaderRegister == shader_register)
+		if (param.type == ShaderInputType::Buffer &&
+			param.shader_register == shader_register)
 		{
-			context->cmd_list->SetComputeRootShaderResourceView(i, resource->gpu_adress());
+			context->cmd_list->SetComputeRootShaderResourceView(i, resource.gpu_adress());
 			return;
 		}
 	}
@@ -63,15 +63,15 @@ void DispatchCall::CMD_setShaderResourceView(uint32_t shader_register, Resource*
 	__debugbreak();
 }
 
-void DispatchCall::CMD_setUnorderedAccessView(uint32_t shader_register, Resource* resource)
+void DispatchCall::CMD_setUnorderedAccessResourceParam(uint32_t shader_register, Resource& resource)
 {
 	for (uint32_t i = 0; i < params.size(); i++) {
 		auto& param = params[i];
 
-		if (param.ParameterType == D3D12_ROOT_PARAMETER_TYPE_UAV &&
-			param.Descriptor.ShaderRegister == shader_register)
+		if (param.type == ShaderInputType::UnorderedAccessResource &&
+			param.shader_register == shader_register)
 		{
-			context->cmd_list->SetComputeRootUnorderedAccessView(i, resource->gpu_adress());
+			context->cmd_list->SetComputeRootUnorderedAccessView(i, resource.gpu_adress());
 			return;
 		}
 	}

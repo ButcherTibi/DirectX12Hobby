@@ -1,37 +1,67 @@
 #include "App.hpp"
 
-// Standard
-#include <thread>
-
 
 App app;
 
 void App::init()
 {
-	prev_state = state;
-	next_state = state;
+	state_update_lock.lock();
 
 	renderer.init();
-	this->_addTriangleMesh();
+
+	// Viewport
+	{
+		viewport.width = 800;
+		viewport.height = 600;
+
+		auto& lighting = viewport.lighting;
+		lighting.shading_normal = GPU_ShadingNormal::POLY;
+
+		lighting.lights[0].normal = toNormal(45, 45);
+		lighting.lights[0].color = { 1, 1, 1 };
+		lighting.lights[0].intensity = 1.f;
+
+		lighting.lights[1].normal = toNormal(-45, 45);
+		lighting.lights[1].color = { 1, 1, 1 };
+		lighting.lights[1].intensity = 1.f;
+
+		lighting.lights[2].normal = toNormal(45, -45);
+		lighting.lights[2].color = { 1, 1, 1 };
+		lighting.lights[2].intensity = 1.f;
+
+		lighting.lights[3].normal = toNormal(-45, -45);
+		lighting.lights[3].color = { 1, 1, 1 };
+		lighting.lights[3].intensity = 1.f;
+
+		lighting.lights[4].intensity = 0.f;
+		lighting.lights[5].intensity = 0.f;
+		lighting.lights[6].intensity = 0.f;
+		lighting.lights[7].intensity = 0.f;
+
+		lighting.ambient_intensity = 0.03f;
+
+		auto& camera = viewport.camera;
+		camera.focal_point = { 0.f, 0.f, 0.f };
+		camera.field_of_view = 15.f;
+		camera.z_near = 0.1f;
+		camera.z_far = 100'000.f;
+		camera.pos = { 0, 0, 10 };
+		camera.quat_inv = { 1, 0, 0, 0 };
+		camera.forward = { 0, 0, -1 };
+
+		camera.orbit_sensitivity = 0.1f;
+		camera.pan_sensitivity = 0.001f;
+		camera.dolly_sensitivity = 0.001f;
+	}
+
+	state_update_lock.unlock();
+
+	createTriangleInstance();
 }
 
 void App::phase_1_runCPU()
 {
-	// Swap the state
-	{
-		std::scoped_lock guard(state_swap_lock);
-		prev_state = state;
-		state = next_state;
-	}
-
-	for (auto& request : requests) {
-
-		if (std::holds_alternative<AddTriangleMesh>(request)) {
-			_addTriangleMesh();
-		}
-	}
-
-	requests.clear();
+	std::lock_guard lock{ state_update_lock };
 
 	// CPU stuff here
 }
@@ -48,24 +78,6 @@ bool App::phase_2X_tryDownloadRender(u32 width, u32 height, byte* r_pixels)
 
 void App::phase_3_render()
 {
-	RenderWorkload workload;
-	workload.width = state.render_width;
-	workload.height = state.render_height;
-	workload.capture_frame = state.capture_frame;
-	renderer.render(workload);
-
-	// End frame capture
-	next_state.capture_frame = false;
-}
-
-void App::captureFrame()
-{
-	std::scoped_lock guard(state_swap_lock);
-	next_state.capture_frame = true;
-}
-
-void App::addTriangleMesh()
-{
-	std::scoped_lock _(requests_mutex);
-	requests.emplace_back().emplace<AddTriangleMesh>();
+	std::lock_guard lock{ state_update_lock };
+	renderer.render();
 }

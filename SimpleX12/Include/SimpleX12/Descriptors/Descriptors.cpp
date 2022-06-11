@@ -1,18 +1,6 @@
 #include "Descriptors.hpp"
 
 
-DescriptorHandle::DescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE new_cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE new_gpu_handle)
-{
-	this->cpu_handle = new_cpu_handle;
-	this->gpu_handle = new_gpu_handle;
-}
-
-SRV_DescriptorHandle::SRV_DescriptorHandle(DescriptorHandle new_handle)
-{
-	this->cpu_handle = new_handle.cpu_handle;
-	this->gpu_handle = new_handle.gpu_handle;
-}
-
 void DescriptorHeap::create(Context* new_context, D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t size, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
 {
 	context = new_context;
@@ -32,20 +20,42 @@ ID3D12DescriptorHeap* DescriptorHeap::get()
 
 DescriptorHandle DescriptorHeap::at(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t index)
 {
+	DescriptorHandle result;
 	uint32_t size = context->dev->GetDescriptorHandleIncrementSize(type);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle = heap->GetCPUDescriptorHandleForHeapStart();
-	cpu_handle.ptr += size * index;
+	result.cpu_handle = heap->GetCPUDescriptorHandleForHeapStart();
+	result.cpu_handle.ptr += size * index;
 
-	D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle = heap->GetGPUDescriptorHandleForHeapStart();
-	gpu_handle.ptr += size * index;
+	result.gpu_handle = heap->GetGPUDescriptorHandleForHeapStart();
+	result.gpu_handle.ptr += size * index;
 
-	return DescriptorHandle(cpu_handle, gpu_handle);
+	return result;
 }
 
 void CBV_SRV_UAV_DescriptorHeap::create(Context* new_context, uint32_t size, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
 {
 	DescriptorHeap::create(new_context, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, size, flags);
+}
+
+SRV_DescriptorHandle CBV_SRV_UAV_DescriptorHeap::createTexture2D_SRV(uint32_t index, Texture& texture)
+{
+	D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
+	desc.Format = texture.desc.Format;
+	desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	desc.Texture2D.MostDetailedMip = 0;
+	desc.Texture2D.MipLevels = 1;
+	desc.Texture2D.PlaneSlice = 0;
+	desc.Texture2D.ResourceMinLODClamp = 0;
+	desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+	SRV_DescriptorHandle r_handle;
+	r_handle.heap = this;
+	r_handle.cpu_handle = at(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, index).cpu_handle;
+	r_handle.gpu_handle = at(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, index).gpu_handle;
+	context->dev->CreateShaderResourceView(
+		texture.get(), &desc, r_handle.cpu_handle);
+
+	return r_handle;
 }
 
 void RTV_DescriptorHeap::create(Context* new_context, uint32_t size)
@@ -62,9 +72,9 @@ RTV_DescriptorHandle RTV_DescriptorHeap::createRenderTargetView(uint32_t index, 
 	desc.Texture2D.PlaneSlice = 0;
 
 	RTV_DescriptorHandle rtv_handle;
+	rtv_handle.heap = this;
 	rtv_handle.cpu_handle = at(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, index).cpu_handle;
 	rtv_handle.gpu_handle = at(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, index).gpu_handle;
-	// rtv_handle.format = tex.desc.Format;
 	context->dev->CreateRenderTargetView(tex.get(), &desc, rtv_handle.cpu_handle);
 
 	return rtv_handle;

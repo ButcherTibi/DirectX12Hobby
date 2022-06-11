@@ -69,6 +69,7 @@
     </ClInclude>
     <ClInclude Include="CommonTypes.hpp" />
     <ClInclude Include="Sculpt Mesh\InstanceTypes.hpp" />
+    <ClInclude Include="ButchersToolbox\DebugUtils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DLL Exports\DLL_Exports.cpp" />
@@ -116,20 +117,23 @@
     <ClCompile Include="Renderer\GenerateGPU_Data.cpp" />
     <ClCompile Include="Sculpt Mesh\MeshUpdates.cpp" />
     <ClCompile Include="Sculpt Mesh\InstanceOperations.cpp" />
+    <ClCompile Include="App\Camera.cpp" />
+    <ClCompile Include="App\Instance.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Shaders\Math.hlsli" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Shaders\pixel.hlsl" />
-    <Text Include="Shaders\vertex.hlsl">
+    <None Include="Shaders\SpatialMath.hlsli" />
+    <None Include="Shaders\Shaders.code-workspace" />
+    <None Include="Shaders\CommonTypes.hlsli" />
+    <None Include="Shaders\ColorMath.hlsli" />
+    <None Include="Shaders\compute.hlsl" />
+    <None Include="Shaders\FullScreenVS.hlsl" />
+    <None Include="Shaders\InstanceUpdate.hlsl" />
+    <None Include="Shaders\IndexUpdate.hlsl" />
+    <None Include="Shaders\pixel.hlsl" />
+    <None Include="Shaders\vertex.hlsl">
       <Filter>Shaders</Filter>
-    </Text>
-    <Text Include="Shaders\compute.hlsl" />
-    <Text Include="Shaders\InstanceUpdate.hlsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Shaders\IndexUpdate.hlsl" />
+    </None>
   </ItemGroup>
 </Project>

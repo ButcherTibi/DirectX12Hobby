@@ -1,22 +1,43 @@
 #pragma once
 
-#include "../Shader/Shader.hpp"
 #include "../Descriptors/Descriptors.hpp"
+#include "../Shader/Shader.hpp"
+#include "../Buffer/IndexBuffer.hpp"
+#include "../Buffer/ConstantBuffer.hpp"
 
+
+enum class ShaderInputType {
+	ConstantBuffer,
+	Buffer,
+	Texture,
+	UnorderedAccessResource
+};
+
+struct ShaderParameter {
+	ShaderInputType type;
+	uint32_t shader_register;
+	D3D12_SHADER_VISIBILITY shader_visibility;
+};
 
 class CallBase {
 protected:
 	Context* context = nullptr;
-	std::vector<D3D12_ROOT_PARAMETER> params;
+	std::vector<ShaderParameter> params;
+
 	ComPtr<ID3D12RootSignature> root_signature;
 	std::string hlsl_root_signature;
+
+	// Command State
+	std::vector<DescriptorHeap*> used_heaps;
 
 protected:
 	std::string buildRootSiganture();
 
 public:
-	void setShaderResourceViewParam(uint32_t shader_register, D3D12_SHADER_VISIBILITY shader_visibility = D3D12_SHADER_VISIBILITY_ALL);
-	void setUnorderedAccessViewParam(uint32_t shader_register, D3D12_SHADER_VISIBILITY shader_visibility = D3D12_SHADER_VISIBILITY_ALL);
+	void setConstantBufferParam(uint32_t b_register, D3D12_SHADER_VISIBILITY shader_visibility = D3D12_SHADER_VISIBILITY_ALL);
+	void setBufferParam(uint32_t t_register, D3D12_SHADER_VISIBILITY shader_visibility = D3D12_SHADER_VISIBILITY_ALL);
+	void setTextureParam(uint32_t t_register, D3D12_SHADER_VISIBILITY = D3D12_SHADER_VISIBILITY_ALL);
+	void setUnorderedAccessResourceParam(uint32_t u_register, D3D12_SHADER_VISIBILITY shader_visibility = D3D12_SHADER_VISIBILITY_ALL);
 };
 
 
@@ -49,9 +70,11 @@ public:
 
 	void CMD_bind();
 
-	void CMD_setShaderResourceView(uint32_t shader_register, Resource* resource);
-
 	void CMD_setIndexBuffer(IndexBuffer& index_buffer);
+	
+	void CMD_setConstantBufferParam(uint32_t b_register, ConstantBuffer& const_buffer);
+	void CMD_setBufferParam(uint32_t t_register, Buffer& buffer);
+	void CMD_setTextureParam(uint32_t t_register, SRV_DescriptorHandle& texture_handle);
 
 	void CMD_setViewportSize(float width, float height);
 	void CMD_setViewportSize(uint32_t width, uint32_t height);
@@ -60,7 +83,7 @@ public:
 
 	void CMD_clearRenderTarget(RTV_DescriptorHandle render_target, float red = 0, float green = 0, float blue = 0, float alpha = 0);
 
-	void CMD_draw(uint32_t vertex_count, uint32_t instance_count = 1);
+	void CMD_draw(uint32_t vertex_count = 3, uint32_t instance_count = 1);
 	void CMD_drawIndexed(uint32_t instance_count = 1);
 };
 
@@ -82,9 +105,8 @@ public:
 
 	void CMD_bind();
 
-	void CMD_setShaderResourceView(uint32_t shader_register, Resource* resource);
-
-	void CMD_setUnorderedAccessView(uint32_t shader_register, Resource* resource);
+	void CMD_setBufferParam(uint32_t t_register, Buffer& resource);
+	void CMD_setUnorderedAccessResourceParam(uint32_t u_register, Resource& resource);
 
 	void CMD_dispatch(uint32_t thread_group_count_x = 1, uint32_t thread_group_count_y = 1, uint32_t thread_group_count_z = 1);
 };

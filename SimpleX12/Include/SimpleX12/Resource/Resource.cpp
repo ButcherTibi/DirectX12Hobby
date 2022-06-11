@@ -15,6 +15,8 @@ void Resource::resizeDiscard(size_t new_size)
 			nullptr,
 			IID_PPV_ARGS(resource.GetAddressOf()))
 		);
+
+		resource->SetName(name.c_str());
 	}
 	else if (new_size > desc.Width) {
 
@@ -30,6 +32,8 @@ void Resource::resizeDiscard(size_t new_size)
 			nullptr,
 			IID_PPV_ARGS(resource.GetAddressOf()))
 		);
+
+		resource->SetName(name.c_str());
 	}
 }
 
@@ -48,6 +52,8 @@ void Resource::resize(size_t new_size)
 			nullptr,
 			IID_PPV_ARGS(resource.GetAddressOf()))
 		);
+
+		resource->SetName(name.c_str());
 	}
 	// copy existing data
 	else if (new_size > desc.Width) {
@@ -73,6 +79,8 @@ void Resource::resize(size_t new_size)
 		resource = new_resource;
 
 		desc.Width = new_size;
+
+		resource->SetName(name.c_str());
 	}
 }
 
@@ -269,9 +277,10 @@ void Resource::download(uint8_t*)
 	__debugbreak();
 }
 
-void Resource::transitionTo(D3D12_RESOURCE_STATES new_state, bool transition_now)
+void Resource::transitionTo(D3D12_RESOURCE_STATES new_state)
 {
-	if (transition_now) {
+	bool run_now = !context->is_cmd_list_recording;
+	if (run_now) {
 		context->beginCommandList();
 	}
 
@@ -283,11 +292,34 @@ void Resource::transitionTo(D3D12_RESOURCE_STATES new_state, bool transition_now
 	barrier.Transition.StateAfter = new_state;
 	context->cmd_list->ResourceBarrier(1, &barrier);
 
-	if (transition_now) {
+	if (run_now) {
 		context->endAndWaitForCommandList();
 	}
 
 	states = new_state;
+}
+
+void Resource::copy(Resource& dest)
+{
+	bool run_now = !context->is_cmd_list_recording;
+	if (run_now) {
+		context->beginCommandList();
+	}
+
+	auto src_states = states;
+	auto dest_states = dest.states;
+
+	this->transitionTo(D3D12_RESOURCE_STATE_COPY_SOURCE);
+	dest.transitionTo(D3D12_RESOURCE_STATE_COPY_DEST);
+
+	context->cmd_list->CopyResource(dest.get(), this->get());
+
+	this->transitionTo(src_states);
+	dest.transitionTo(dest_states);
+
+	if (run_now) {
+		context->endAndWaitForCommandList();
+	}
 }
 
 ID3D12Resource* Resource::get()
@@ -311,44 +343,16 @@ size_t Resource::mem_size()
 	return r_size;
 }
 
+void Resource::setName(std::wstring new_name)
+{
+	name = new_name;
+
+	if (resource != nullptr) {
+		resource->SetName(name.c_str());
+	}
+}
+
 //Resource::~Resource()
 //{
 //	resource = nullptr;
 //}
-
-void IndexBuffer::create(Context* new_context, D3D12_HEAP_TYPE heap_type)
-{
-	context = new_context;
-
-	heap_props.Type = heap_type;
-	heap_props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	heap_props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-
-	desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	desc.Width = 0;
-	desc.Height = 1;
-	desc.DepthOrArraySize = 1;
-	desc.MipLevels = 1;
-	desc.Format = DXGI_FORMAT_UNKNOWN;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-	states = D3D12_RESOURCE_STATE_COMMON;
-}
-
-void IndexBuffer::resize(uint32_t new_count)
-{
-	Resource::resize(new_count * sizeof(uint32_t));
-}
-
-void IndexBuffer::update(uint32_t index, uint32_t element)
-{
-	Resource::update(index, &element, sizeof(uint32_t));
-}
-
-uint32_t IndexBuffer::count()
-{
-	return (uint32_t)(desc.Width / sizeof(uint32_t));
-}

@@ -17,6 +17,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleX12", "SimpleX12\Simp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinUIApp", "WinUIApp\WinUIApp.csproj", "{258F2EE1-C972-4CE1-8327-9755EEB50C21}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Back", "Back", "{ED2EBDCB-0C26-45D0-848A-EF0B7FF2E909}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Front", "Front", "{FF1DF880-8DD6-4782-8A87-CACB26123A7A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,6 +100,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0E98357B-92C4-4B33-A6E2-23E58D7EB53A} = {ED2EBDCB-0C26-45D0-848A-EF0B7FF2E909}
+		{33805908-0B79-419A-8936-50E5C65DB483} = {FF1DF880-8DD6-4782-8A87-CACB26123A7A}
+		{BF78222C-62D5-4075-BE8A-E853FCB29890} = {ED2EBDCB-0C26-45D0-848A-EF0B7FF2E909}
+		{258F2EE1-C972-4CE1-8327-9755EEB50C21} = {FF1DF880-8DD6-4782-8A87-CACB26123A7A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B2FCC138-452B-416A-84ED-4AF35A626640}

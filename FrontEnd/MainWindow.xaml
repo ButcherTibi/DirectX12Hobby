@@ -7,7 +7,7 @@
   xmlns:local="clr-namespace:FrontEnd"
   mc:Ignorable="d"
         
-  Height="450" Width="800">
+  Width="1240" Height="720" >
   <DockPanel>
     <Menu DockPanel.Dock="Top">
       <MenuItem Header="File">
@@ -18,12 +18,12 @@
         <MenuItem Header="Exit" />
       </MenuItem>
       <MenuItem Header="Capture" Click="captureFrame">
-        
+
       </MenuItem>
     </Menu>
     <Canvas Name="main_canvas">
       <wpf:ChromiumWebBrowser Name="browser" Address="www.google.com" />
-      <Image Name="viewport_img" Width="486" Height="290" Canvas.Left="157" Canvas.Top="72" HorizontalAlignment="Left" VerticalAlignment="Top" />
+      <Image Name="viewport_img" Width="800" Height="600" Canvas.Left="0" Canvas.Top="0" HorizontalAlignment="Left" VerticalAlignment="Top" />
     </Canvas>
   </DockPanel>
 </Window>

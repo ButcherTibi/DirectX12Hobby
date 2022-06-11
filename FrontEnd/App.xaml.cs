@@ -14,6 +14,12 @@ namespace FrontEnd {
 
 		App()
 		{
+			// Backend
+			{
+				BackEnd.initPixDebugger();
+				BackEnd.init();
+			}
+
 			// Browser
 			{
 				var settings = new CefSharp.Wpf.CefSettings();
@@ -22,12 +28,6 @@ namespace FrontEnd {
 				settings.LogSeverity = CefSharp.LogSeverity.Verbose;
 
 				CefSharp.Cef.Initialize(settings);
-			}
-
-			// Backend
-			{
-				BackEnd.initPixDebugger();
-				BackEnd.init();
 			}
 		}
 	}

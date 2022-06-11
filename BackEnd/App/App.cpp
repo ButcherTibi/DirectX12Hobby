@@ -1,14 +1,8 @@
 #include "./App.hpp"
 
 
-void App::_addTriangleMesh()
+void App::captureFrame()
 {
-	auto& mesh = meshes.emplace_back();
-	mesh.createAsTriangle(1);
-
-	auto instance_idx = mesh.addInstance();
-	auto& instance = mesh.instances[instance_idx];
-	instance.transform = {};
-	instance.material = {};
-	instance.wireframe_colors = {};
+	std::lock_guard guard(state_update_lock);
+	debug.capture_frame = true;
 }

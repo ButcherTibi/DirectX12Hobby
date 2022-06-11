@@ -9,37 +9,61 @@ void Renderer::init()
 {
 	context.create();
 
-	std::wstring root = L"G:/My work/DirectX12Hobby/BackEnd/Shaders/";
-
-	// Shaders
-	{
-		vertex_shader.createFromSourceCodeFile(&context, L"G:/My work/DirectX12Hobby/BackEnd/Shaders/vertex.hlsl");
-		pixel_shader.createFromSourceCodeFile(&context, L"G:/My work/DirectX12Hobby/BackEnd/Shaders/pixel.hlsl");
-	}
-
 	// Descriptor Heaps
 	{
 		cbv_srv_uav_heap.create(&context);
 		rtv_heap.create(&context);
 	}
 
+	std::wstring root = L"G:/MyWork/DirectX12Hobby/BackEnd/Shaders/";
+
+	// Common
+	{
+		fullscreen_vs.createFromSourceCodeFile(&context, root + L"FullScreenVS.hlsl");
+	}
+
+	// Shaders
+	{
+		vertex_shader.createFromSourceCodeFile(&context, root + L"vertex.hlsl");
+		pixel_shader.createFromSourceCodeFile(&context, root + L"pixel.hlsl");
+	}
+
+	// Frame Uniform Buffer
+	{
+		frame_cbuff.create(&context);
+		frame_cbuff.setName(L"Frame");
+		
+		// Viewport
+
+		// Camera
+		frame_cbuff.addFloat4();
+		frame_cbuff.addFloat4();
+		frame_cbuff.addFloat4();
+		frame_cbuff.addMatrix();
+		frame_cbuff.addFloat();
+		frame_cbuff.addFloat();
+	}
+
 	// Drawcall
 	{
 		drawcall.create(&context);
-		drawcall.setShaderResourceViewParam(0);
+		drawcall.setConstantBufferParam(0);
+		drawcall.setBufferParam(0);
+		drawcall.setBufferParam(1);
 		drawcall.setVertexShader(&vertex_shader);
 		drawcall.setPixelShader(&pixel_shader);
 		drawcall.setRenderTargetFormats(DXGI_FORMAT_B8G8R8A8_UNORM);
+		drawcall.rebuild();
 	}
 
 	// Vertex Position Update
 	{
-		vert_pos_update_shader.createFromSourceCodeFile(&context, L"G:/My work/DirectX12Hobby/BackEnd/Shaders/compute.hlsl");
+		vert_pos_update_shader.createFromSourceCodeFile(&context, root + L"compute.hlsl");
 
 		auto& call = vert_pos_update_call;
 		call.create(&context);
-		call.setShaderResourceViewParam(0);
-		call.setUnorderedAccessViewParam(0);
+		call.setBufferParam(0);
+		call.setUnorderedAccessResourceParam(0);
 		call.setComputeShader(&vert_pos_update_shader);
 		call.rebuild();
 	}
@@ -50,8 +74,8 @@ void Renderer::init()
 
 		auto& call = index_update_call;
 		call.create(&context);
-		call.setShaderResourceViewParam(0);
-		call.setUnorderedAccessViewParam(0);
+		call.setBufferParam(0);
+		call.setUnorderedAccessResourceParam(0);
 		call.setComputeShader(&index_update_shader);
 		call.rebuild();
 	}
@@ -62,10 +86,23 @@ void Renderer::init()
 
 		auto& call = instance_update_call;
 		call.create(&context);
-		call.setShaderResourceViewParam(0);
-		call.setUnorderedAccessViewParam(0);
+		call.setBufferParam(0);
+		call.setUnorderedAccessResourceParam(0);
 		call.setComputeShader(&instance_update_shader);
 		call.rebuild();
+	}
+
+	// Background
+	{
+		background_ps.createFromSourceCodeFile(&context, root + L"Background/BackgroundPS.hlsl");
+
+		background_call.create(&context);
+		background_call.setVertexShader(&fullscreen_vs);
+		background_call.setConstantBufferParam(0);
+		background_call.setTextureParam(0);
+		background_call.setPixelShader(&background_ps);
+		background_call.setRenderTargetFormats(DXGI_FORMAT_B8G8R8A8_UNORM);
+		background_call.rebuild();
 	}
 }
 
@@ -84,46 +121,83 @@ bool Renderer::tryDownloadRender(u32 dest_width, u32 dest_height, byte* r_pixels
 	return true;
 }
 
-void Renderer::render(RenderWorkload& w)
+void Renderer::render()
 {
-	if (w.capture_frame) {
+	if (app.debug.capture_frame) {
 		Context::beginPixCapture();
 	}
 
 	// Change Resolution
-	if (render_width != w.width || render_height != w.height) {
+	{
+		auto& viewport_width = app.viewport.width;
+		auto& viewport_height = app.viewport.height;
 
-		// Final texture
-		final_rt.createRenderTarget(&context, w.width, w.height, DXGI_FORMAT_B8G8R8A8_UNORM);
-		final_rtv = rtv_heap.createRenderTargetView(0, final_rt);
+		if (render_width != viewport_width || render_height != viewport_height) {
 
-		render_width = w.width;
-		render_height = w.height;
+			std::array<float, 4> transparent = { 0, 0, 0, 0 };
+
+			// Background Input Texture
+			backgroud_input_tex.createTexture(&context, viewport_width, viewport_height,
+				DXGI_FORMAT_B8G8R8A8_UNORM,
+				D3D12_RESOURCE_FLAG_NONE,
+				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+				transparent, 0, 0
+			);
+			backgroud_input_srv = cbv_srv_uav_heap.createTexture2D_SRV(0, backgroud_input_tex);
+
+			// Final texture
+			final_rt.createRenderTarget(&context, viewport_width, viewport_height, DXGI_FORMAT_B8G8R8A8_UNORM);		
+			final_rtv = rtv_heap.createRenderTargetView(0, final_rt);
+
+			render_width = viewport_width;
+			render_height = viewport_height;
+		}
 	}
 
 	generateGPU_Data();
 
-	// Build the objects
+	// Hot Reloading
 	drawcall.rebuild();
+	background_call.rebuild();
 
 	// Command List
 	context.beginCommandList();
 	{
+		{
+			auto f = cbv_srv_uav_heap.get();
+			context.cmd_list->SetDescriptorHeaps(1, &f);
+		}
+
+		drawcall.CMD_clearRenderTarget(final_rtv);
+
 		for (auto& mesh : app.meshes) {
 
 			drawcall.CMD_bind();
 			drawcall.CMD_setIndexBuffer(mesh.gpu_indexes);
-			drawcall.CMD_setShaderResourceView(0, &mesh.gpu_verts);
-			drawcall.CMD_setViewportSize(render_width, render_height);
-			drawcall.CMD_clearRenderTarget(final_rtv);
+			drawcall.CMD_setConstantBufferParam(0, frame_cbuff);
+			drawcall.CMD_setBufferParam(0, mesh.gpu_verts);
+			drawcall.CMD_setBufferParam(1, mesh.gpu_instances);
+			drawcall.CMD_setViewportSize(render_width, render_height);		
 			drawcall.CMD_setRenderTargets({ final_rtv });
 			drawcall.CMD_drawIndexed();
 		}
+
+		final_rt.copy(backgroud_input_tex);
+
+		background_call.CMD_bind();
+		background_call.CMD_setConstantBufferParam(0, frame_cbuff);
+		background_call.CMD_setTextureParam(0, backgroud_input_srv);
+		background_call.CMD_setViewportSize(render_width, render_height);
+		background_call.CMD_setRenderTargets({ final_rtv });
+		background_call.CMD_draw();
 	}
 	context.endCommandList();
 
-	if (w.capture_frame) {
+	if (app.debug.capture_frame) {
+
 		waitForRendering();
 		Context::endPixCapture();
+
+		app.debug.capture_frame = false;
 	}
 }

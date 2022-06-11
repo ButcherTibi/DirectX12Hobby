@@ -12,6 +12,7 @@ class Shader {
 
 	Context* ctx = nullptr;
 	std::wstring file_path;
+	std::wstring shaders_folder_path;
 	std::wstring hlsl_target;  // vs_6_0, ps_6_0, cs_6_0
 
 	ComPtr<IDxcBlob> bytecode = nullptr;
@@ -21,8 +22,18 @@ class Shader {
 	TimePoint last_check = TimePoint::min();
 	TimePoint modified_time = TimePoint::min();
 
+private:
+	void loadAndCompile(std::string& root_signature);
+
 protected:
-	void createFromSourceCodeFile(Context* context, std::wstring file_path, std::wstring hlsl_target);
+	// Since DXC is based on LLVM it does NOT accept filesystem paths with spaces.
+	// It does not work on the command line.
+	// It won't work even if you supply your own include handler.
+	// Will give out strange infinite recursion error (include path nested too deply).
+	// Using any relative includes in HLSL will throw a hlsl::Exception that does
+	// nothing, the compilation will be succesfull with no errors.
+	void createFromSourceCodeFile(Context* context,
+		std::wstring file_path, std::wstring shaders_folder_path, std::wstring hlsl_target);
 	
 public:
 	bool reload(std::string& root_signature);
@@ -33,15 +44,18 @@ public:
 
 class VertexShader : public Shader {
 public:
-	void createFromSourceCodeFile(Context* context, std::wstring file_path);
+	void createFromSourceCodeFile(Context* context,
+		std::wstring file_path, std::wstring shaders_folder_path = L"");
 };
 
 class PixelShader : public Shader {
 public:
-	void createFromSourceCodeFile(Context* context, std::wstring file_path);
+	void createFromSourceCodeFile(Context* context,
+		std::wstring file_path, std::wstring shaders_folder_path = L"");
 };
 
 class ComputeShader : public Shader {
 public:
-	void createFromSourceCodeFile(Context* context, std::wstring file_path);
+	void createFromSourceCodeFile(Context* context,
+		std::wstring file_path, std::wstring shaders_folder_path = L"");
 };

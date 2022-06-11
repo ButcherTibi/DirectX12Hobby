@@ -262,7 +262,6 @@ namespace scme {
 		SparseVector<Instance> instances;
 		std::vector<ModifiedInstance> modified_instances;
 		StorageBuffer<GPU_Instance> gpu_instances;
-		// ComPtr<ID3D11ShaderResourceView> gpu_instances_srv;
 
 		// Settings
 		uint32_t max_vertices_in_AABB;

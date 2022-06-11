@@ -103,8 +103,8 @@ void SculptMesh::uploadVertexPositions()
 		ctx.beginCommandList();
 
 		r.vert_pos_update_call.CMD_bind();
-		r.vert_pos_update_call.CMD_setShaderResourceView(0, &gpu_vert_pos_updates);
-		r.vert_pos_update_call.CMD_setUnorderedAccessView(0, &gpu_verts);
+		r.vert_pos_update_call.CMD_setBufferParam(0, gpu_vert_pos_updates);
+		r.vert_pos_update_call.CMD_setUnorderedAccessResourceParam(0, gpu_verts);
 		r.vert_pos_update_call.CMD_dispatch(
 			(u32)vert_pos_updates.size(), 1, 1);
 
@@ -324,8 +324,8 @@ void SculptMesh::uploadIndexBufferChanges()
 		ctx.beginCommandList();
 
 		r.index_update_call.CMD_bind();
-		r.index_update_call.CMD_setShaderResourceView(0, &gpu_index_updates);
-		r.index_update_call.CMD_setUnorderedAccessView(0, &gpu_indexes);
+		r.index_update_call.CMD_setBufferParam(0, gpu_index_updates);
+		r.index_update_call.CMD_setUnorderedAccessResourceParam(0, gpu_indexes);
 		r.index_update_call.CMD_dispatch(
 			(u32)gpu_index_updates.count(), 1, 1);
 
@@ -619,8 +619,8 @@ void SculptMesh::uploadInstances()
 		ctx.beginCommandList();
 
 		r.instance_update_call.CMD_bind();
-		r.instance_update_call.CMD_setShaderResourceView(0, &gpu_instance_updates);
-		r.instance_update_call.CMD_setUnorderedAccessView(0, &gpu_instances);
+		r.instance_update_call.CMD_setBufferParam(0, gpu_instance_updates);
+		r.instance_update_call.CMD_setUnorderedAccessResourceParam(0, gpu_instances);
 		r.instance_update_call.CMD_dispatch(
 			(u32)gpu_instance_updates.count(), 1, 1);
 

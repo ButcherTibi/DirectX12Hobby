@@ -167,6 +167,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Include\SimpleX12\Buffer\ConstantBuffer.hpp" />
+    <ClInclude Include="Include\SimpleX12\Buffer\IndexBuffer.hpp" />
+    <ClInclude Include="Include\SimpleX12\Buffer\StorageBuffer.hpp" />
+    <ClInclude Include="Include\SimpleX12\ButchersToolbox\DebugUtils.hpp" />
     <ClInclude Include="Include\SimpleX12\ButchersToolbox\Filesys\Filesys.hpp" />
     <ClInclude Include="Include\SimpleX12\ButchersToolbox\Windows\WindowsSpecific.hpp" />
     <ClInclude Include="Include\SimpleX12\Context\Context.hpp" />
@@ -178,6 +182,9 @@
     <ClInclude Include="Include\SimpleX12\Texture\Texture.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Include\SimpleX12\Buffer\ConstantBuffer.cpp" />
+    <ClCompile Include="Include\SimpleX12\Buffer\IndexBuffer.cpp" />
+    <ClCompile Include="Include\SimpleX12\Buffer\StorageBuffer.cpp" />
     <ClCompile Include="Include\SimpleX12\ButchersToolbox\Filesys\Filesys.cpp" />
     <ClCompile Include="Include\SimpleX12\ButchersToolbox\Windows\WindowsSpecific.cpp" />
     <ClCompile Include="Include\SimpleX12\Context\Context.cpp" />

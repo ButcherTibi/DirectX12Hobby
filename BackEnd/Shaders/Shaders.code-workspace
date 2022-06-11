@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"editor.detectIndentation": false,
+		"[hlsl]": {
+			"editor.insertSpaces": false,
+			"editor.tabSize": 4
+		},
+        "[hlsli]": {
+			"editor.insertSpaces": false,
+			"editor.tabSize": 4
+		}
+	}
+}

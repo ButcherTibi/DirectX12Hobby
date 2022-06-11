@@ -204,4 +204,4 @@ public:
 
 float toRad(float degree);
 
-// glm::vec3 toNormal(float nord, float east);
+glm::vec3 toNormal(float nord, float east);

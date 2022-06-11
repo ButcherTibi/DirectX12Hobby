@@ -1,11 +1,8 @@
-struct VertexOut
-{
-    float4 position : SV_POSITION;
-    float4 color : COLOR;
-};
+#include "CommonTypes.hlsli"
+
 
 //RootSignature
 float4 main(VertexOut input) : SV_TARGET
 {
-    return input.color;
+    return float4(1.0f, 0.0f, 0.0f, 1.0f);;
 }

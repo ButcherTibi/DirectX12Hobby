@@ -24,22 +24,33 @@ void Texture::createTexture(Context* new_context, uint32_t width, uint32_t heigh
 
 	states = state;
 
-	D3D12_CLEAR_VALUE clear_value = {};
-	clear_value.Format = format;
-	clear_value.Color[0] = new_clear_color[0];
-	clear_value.Color[1] = new_clear_color[1];
-	clear_value.Color[2] = new_clear_color[2];
-	clear_value.Color[3] = new_clear_color[3];
-	clear_value.DepthStencil.Depth = new_clear_depth;
-	clear_value.DepthStencil.Stencil = new_clear_stencil;
+	if (flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) {
+		D3D12_CLEAR_VALUE clear_value = {};
+		clear_value.Format = format;
+		clear_value.Color[0] = new_clear_color[0];
+		clear_value.Color[1] = new_clear_color[1];
+		clear_value.Color[2] = new_clear_color[2];
+		clear_value.Color[3] = new_clear_color[3];
+		clear_value.DepthStencil.Depth = new_clear_depth;
+		clear_value.DepthStencil.Stencil = new_clear_stencil;
 
-	checkDX12(context->dev->CreateCommittedResource(
-		&heap_props,
-		heap_flags,
-		&desc,
-		states,
-		&clear_value,
-		IID_PPV_ARGS(&resource)));
+		checkDX12(context->dev->CreateCommittedResource(
+			&heap_props,
+			heap_flags,
+			&desc,
+			states,
+			&clear_value,
+			IID_PPV_ARGS(&resource)));
+	}
+	else {
+		checkDX12(context->dev->CreateCommittedResource(
+			&heap_props,
+			heap_flags,
+			&desc,
+			states,
+			nullptr,
+			IID_PPV_ARGS(&resource)));
+	}
 }
 
 void Texture::createRenderTarget(Context* new_context,

@@ -23,12 +23,20 @@ using CefSharp;
 
 namespace FrontEnd {
 
+	public class MousePan
+	{
+		public Cursor cursor = Cursors.Arrow;
+	}
+
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
 	public partial class MainWindow : Window {
 
 		WriteableBitmap viewport_bitmap;
+
+		bool mouse_pannig_started;
+		MousePan mouse_pan;
 
 
 		public MainWindow()
@@ -37,7 +45,7 @@ namespace FrontEnd {
 
 			// Viewport
 			{
-				viewport_bitmap = new WriteableBitmap(250, 250, 0, 0, PixelFormats.Bgra32, null);
+				viewport_bitmap = new WriteableBitmap(800, 600, 0, 0, PixelFormats.Bgra32, null);
 				viewport_img.Source = viewport_bitmap;
 
 				CompositionTarget.Rendering += (object? sender, EventArgs e) =>
@@ -63,6 +71,16 @@ namespace FrontEnd {
 				};
 			}
 
+			// Camera
+			{
+				mouse_pannig_started = false;
+				mouse_pan = new MousePan();
+
+				// Pan
+				viewport_img.MouseDown += beginCameraPan;
+				viewport_img.MouseUp += endCameraPan;
+			}
+
 			main_canvas.SizeChanged += (object? sender, SizeChangedEventArgs e) =>
 			{
 				browser.Width = e.NewSize.Width;
@@ -75,6 +93,57 @@ namespace FrontEnd {
 					browser.ShowDevTools();
 				}
 			};
+		}
+
+		public void setMousePosition(Point new_mouse_pos)
+		{
+			var screen_space_pos = PointToScreen(new_mouse_pos);
+			Win32.SetCursorPos((int)screen_space_pos.X, (int)screen_space_pos.Y);
+		}
+
+		public void trapMouse(Point point)
+		{
+			unsafe {
+				var screen_space_pos = PointToScreen(point);
+
+				var rect = new Win32.Rect();
+				rect.left = (int)screen_space_pos.X;
+				rect.top = (int)screen_space_pos.Y;
+				rect.right = rect.left + 1;
+				rect.bottom = rect.top + 1;
+
+				Win32.ClipCursor(&rect);
+			}
+		}
+
+		public static void untrapMouse()
+		{
+			unsafe {
+				Win32.ClipCursor(null);
+			}
+		}
+
+		private void beginCameraPan(object sender, MouseButtonEventArgs e)
+		{
+			if (mouse_pannig_started == false && e.MiddleButton == MouseButtonState.Pressed) {
+
+				mouse_pannig_started = true;
+				mouse_pan.cursor = Cursor;
+
+				trapMouse(e.GetPosition(this));
+				Cursor = Cursors.None;
+			}
+		}
+
+		private void endCameraPan(object sender, MouseButtonEventArgs e)
+		{
+			if (mouse_pannig_started && e.MiddleButton == MouseButtonState.Released) {
+
+				untrapMouse();
+				Cursor = mouse_pan.cursor;
+
+				mouse_pannig_started = false;
+			}
 		}
 
 		void captureFrame(object sender, RoutedEventArgs e)
