@@ -1,7 +1,8 @@
 #pragma once
 
-#include <SimpleX12/SimpleX12.hpp>
+#include <SimpleX12/Drawcall/Drawcall.hpp>
 #include <SimpleX12/Buffer/ConstantBuffer.hpp>
+#include <SimpleX12/Swapchain/Swapchain.hpp>
 
 #include <Shaders/GPU_ShaderTypes.hpp>
 #include <CommonTypes.hpp>
@@ -43,8 +44,12 @@ public:
 	PixelShader background_ps;
 	Drawcall background_call;
 
-	Texture final_rt;
-	RTV_DescriptorHandle final_rtv;
+	Texture compose_rt;
+	RTV_DescriptorHandle compose_rtv;
+
+	Swapchain swapchain;
+	std::array<RTV_DescriptorHandle, 2> swapchain_rtvs;
+	RTV_DescriptorHandle swapchain_rtv;
 
 	uint32_t render_width = 0;
 	uint32_t render_height = 0;
@@ -53,7 +58,7 @@ private:
 	void generateGPU_Data();
 
 public:
-	void init();
+	void init(bool enable_pix_debugger);
 
 	void waitForRendering();
 

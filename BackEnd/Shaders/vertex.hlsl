@@ -22,9 +22,12 @@ VertexOut main(uint vertex_id : SV_VertexID, uint instance_id : SV_InstanceID)
 
     // World Position
 	float3 pos = vertex.pos;
+	pos = quatRotate(pos, instance.rot);
+	pos += instance.pos;
 
     // Camera Position
 	pos -= frame.camera_pos;
+	pos = quatRotate(pos, frame.camera_quat_inv);
 
     // Viewport Position
 	float4 persp = mul(frame.perspective, float4(pos, 1.f));  // perspective transform

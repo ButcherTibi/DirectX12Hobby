@@ -16,8 +16,7 @@ namespace FrontEnd {
 		{
 			// Backend
 			{
-				BackEnd.initPixDebugger();
-				BackEnd.init();
+				BackEnd.init(true);
 			}
 
 			// Browser

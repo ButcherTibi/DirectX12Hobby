@@ -70,6 +70,9 @@
     <ClInclude Include="CommonTypes.hpp" />
     <ClInclude Include="Sculpt Mesh\InstanceTypes.hpp" />
     <ClInclude Include="ButchersToolbox\DebugUtils.hpp" />
+    <ClInclude Include="App\Input.hpp" />
+    <ClInclude Include="App\Window\Window.hpp" />
+    <ClInclude Include="App\Camera\Camera.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DLL Exports\DLL_Exports.cpp" />
@@ -117,8 +120,9 @@
     <ClCompile Include="Renderer\GenerateGPU_Data.cpp" />
     <ClCompile Include="Sculpt Mesh\MeshUpdates.cpp" />
     <ClCompile Include="Sculpt Mesh\InstanceOperations.cpp" />
-    <ClCompile Include="App\Camera.cpp" />
+    <ClCompile Include="App\Camera\Camera.cpp" />
     <ClCompile Include="App\Instance.cpp" />
+    <ClCompile Include="App\Window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

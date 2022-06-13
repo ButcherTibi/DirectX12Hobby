@@ -1,9 +1,10 @@
 #include "Texture.hpp"
 
+#include "../Descriptors/Descriptors.hpp"
+
 
 void Texture::createTexture(Context* new_context, uint32_t width, uint32_t height, DXGI_FORMAT format,
-	D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state,
-	std::array<float, 4>& new_clear_color, float new_clear_depth, uint8_t new_clear_stencil)
+	D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state)
 {
 	context = new_context;
 	resource = nullptr;
@@ -24,43 +25,90 @@ void Texture::createTexture(Context* new_context, uint32_t width, uint32_t heigh
 
 	states = state;
 
-	if (flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) {
-		D3D12_CLEAR_VALUE clear_value = {};
-		clear_value.Format = format;
-		clear_value.Color[0] = new_clear_color[0];
-		clear_value.Color[1] = new_clear_color[1];
-		clear_value.Color[2] = new_clear_color[2];
-		clear_value.Color[3] = new_clear_color[3];
-		clear_value.DepthStencil.Depth = new_clear_depth;
-		clear_value.DepthStencil.Stencil = new_clear_stencil;
-
-		checkDX12(context->dev->CreateCommittedResource(
-			&heap_props,
-			heap_flags,
-			&desc,
-			states,
-			&clear_value,
-			IID_PPV_ARGS(&resource)));
-	}
-	else {
-		checkDX12(context->dev->CreateCommittedResource(
-			&heap_props,
-			heap_flags,
-			&desc,
-			states,
-			nullptr,
-			IID_PPV_ARGS(&resource)));
-	}
+	checkDX12(context->dev->CreateCommittedResource(
+		&heap_props,
+		heap_flags,
+		&desc,
+		states,
+		nullptr,
+		IID_PPV_ARGS(&resource)));
 }
 
 void Texture::createRenderTarget(Context* new_context,
 	uint32_t width, uint32_t height, DXGI_FORMAT format,
 	std::array<float, 4> new_clear_color, float new_clear_depth, uint8_t new_clear_stencil)
 {
-	createTexture(new_context, width, height, format,
-		D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
-		D3D12_RESOURCE_STATE_RENDER_TARGET,
-		new_clear_color, new_clear_depth, new_clear_stencil);
+	context = new_context;
+	resource = nullptr;
+
+	heap_props.Type = D3D12_HEAP_TYPE_DEFAULT;
+	heap_props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heap_props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+
+	desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	desc.Width = width;
+	desc.Height = height;
+	desc.DepthOrArraySize = 1;
+	desc.MipLevels = 1;
+	desc.Format = format;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+
+	states = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+	D3D12_CLEAR_VALUE clear_value = {};
+	clear_value.Format = format;
+	clear_value.Color[0] = new_clear_color[0];
+	clear_value.Color[1] = new_clear_color[1];
+	clear_value.Color[2] = new_clear_color[2];
+	clear_value.Color[3] = new_clear_color[3];
+	clear_value.DepthStencil.Depth = new_clear_depth;
+	clear_value.DepthStencil.Stencil = new_clear_stencil;
+
+	checkDX12(context->dev->CreateCommittedResource(
+		&heap_props,
+		heap_flags,
+		&desc,
+		states,
+		&clear_value,
+		IID_PPV_ARGS(&resource)));
+
+	for (auto& rtv : rtvs) {
+		context->dev->CreateRenderTargetView(get(), &rtv.desc, rtv.cpu_handle);
+	}
+}
+
+void Texture::createSwapchainRenderTarget(Context* new_context, ID3D12Resource* swapchain_backbuffer)
+{
+	context = new_context;
+	resource = swapchain_backbuffer;
+
+	heap_props.Type = D3D12_HEAP_TYPE_DEFAULT;
+	heap_props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heap_props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+
+	desc = swapchain_backbuffer->GetDesc();
+
+	states = D3D12_RESOURCE_STATE_PRESENT;
+}
+
+RTV_DescriptorHandle Texture::createRenderTargetView(uint32_t index, RTV_DescriptorHeap& rtv_heap)
+{
+	auto& rtv = rtvs.emplace_back();
+	rtv.desc = {};
+	rtv.desc.Format = desc.Format;
+	rtv.desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	rtv.desc.Texture2D.MipSlice = 0;
+	rtv.desc.Texture2D.PlaneSlice = 0;
+	rtv.heap = &rtv_heap;
+	rtv.idx = index;
+	rtv.cpu_handle = rtv_heap.at(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, rtv.idx).cpu_handle;
+	rtv.gpu_handle = rtv_heap.at(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, rtv.idx).gpu_handle;
+
+	context->dev->CreateRenderTargetView(get(), &rtv.desc, rtv.cpu_handle);
+
+	return rtv;
 }
 
 void Texture::download(byte* r_mem)

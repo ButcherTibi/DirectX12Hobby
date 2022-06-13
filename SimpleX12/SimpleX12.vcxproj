@@ -176,6 +176,7 @@
     <ClInclude Include="Include\SimpleX12\Context\Context.hpp" />
     <ClInclude Include="Include\SimpleX12\Descriptors\Descriptors.hpp" />
     <ClInclude Include="Include\SimpleX12\Drawcall\Drawcall.hpp" />
+    <ClInclude Include="Include\SimpleX12\Swapchain\Swapchain.hpp" />
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="Include\SimpleX12\Resource\Resource.hpp" />
     <ClInclude Include="Include\SimpleX12\Shader\Shader.hpp" />
@@ -193,6 +194,7 @@
     <ClCompile Include="Include\SimpleX12\Drawcall\CallBase.cpp" />
     <ClCompile Include="Include\SimpleX12\Drawcall\DispatchCall.cpp" />
     <ClCompile Include="Include\SimpleX12\Drawcall\Drawcall.cpp" />
+    <ClCompile Include="Include\SimpleX12\Swapchain\Swapchain.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

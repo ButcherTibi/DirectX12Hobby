@@ -50,24 +50,24 @@ namespace FrontEnd {
 
 				CompositionTarget.Rendering += (object? sender, EventArgs e) =>
 				{
-					BackEnd.phase_1_runCPU();
-					BackEnd.phase_2_waitForRendering();
+					//BackEnd.phase_1_runCPU();
+					//BackEnd.phase_2_waitForRendering();
 
-					// Set Viewport Image
-					viewport_bitmap.Lock();
+					//// Set Viewport Image
+					//viewport_bitmap.Lock();
 
-					unsafe {
-						BackEnd.phase_2X_tryDownloadRender(
-							(uint)viewport_bitmap.PixelWidth,
-							(uint)viewport_bitmap.PixelHeight,
-							(byte*)viewport_bitmap.BackBuffer.ToPointer()
-						);
-					}
+					//unsafe {
+					//	BackEnd.phase_2X_tryDownloadRender(
+					//		(uint)viewport_bitmap.PixelWidth,
+					//		(uint)viewport_bitmap.PixelHeight,
+					//		(byte*)viewport_bitmap.BackBuffer.ToPointer()
+					//	);
+					//}
 
-					viewport_bitmap.AddDirtyRect(new Int32Rect(0, 0, viewport_bitmap.PixelWidth, viewport_bitmap.PixelHeight));
-					viewport_bitmap.Unlock();
+					//viewport_bitmap.AddDirtyRect(new Int32Rect(0, 0, viewport_bitmap.PixelWidth, viewport_bitmap.PixelHeight));
+					//viewport_bitmap.Unlock();
 
-					BackEnd.phase_3_render();
+					//BackEnd.phase_3_render();
 				};
 			}
 

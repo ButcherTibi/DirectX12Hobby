@@ -37,6 +37,7 @@ public:
 	inline static bool pix_capture_started = false;
 
 	// DirectX 12
+	ComPtr<IDXGIFactory6> factory;
 	std::vector<Adapter> adapters;
 	ComPtr<ID3D12Device> dev = nullptr;
 	ComPtr<ID3D12DebugDevice> debug_device;
@@ -70,7 +71,7 @@ public:
 
 	/* API */
 
-	void create();
+	void init();
 
 	void beginCommandList();
 	void endCommandList();

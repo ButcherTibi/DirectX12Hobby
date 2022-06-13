@@ -9,8 +9,9 @@
 void Context::initPix()
 {
 	if (PIXLoadLatestWinPixGpuCapturerLibrary() == nullptr) {
-		std::wstring last_error = win32::getLastError();
 		is_pix_debugger_enabled = false;
+		win32::printToOutput(win32::getLastError());
+		__debugbreak();
 	}
 	else {
 		is_pix_debugger_enabled = true;

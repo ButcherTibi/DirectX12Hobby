@@ -8,6 +8,7 @@ class DescriptorHeap;
 
 struct DescriptorHandle {
 	DescriptorHeap* heap;
+	uint32_t idx;
 
 	D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle;
 	D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle;
@@ -16,19 +17,21 @@ struct DescriptorHandle {
 struct CBV_DescriptorHandle : public DescriptorHandle {};
 struct SRV_DescriptorHandle : public DescriptorHandle {};
 struct UAV_DescriptorHandle : public DescriptorHandle {};
-struct RTV_DescriptorHandle : public DescriptorHandle {};
+
+struct RTV_DescriptorHandle : public DescriptorHandle {
+	D3D12_RENDER_TARGET_VIEW_DESC desc;
+};
 
 
 class DescriptorHeap {
-protected:
+public:
 	Context* context = nullptr;
 	ComPtr<ID3D12DescriptorHeap> heap;
 
-protected:
-	DescriptorHandle at(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t index);
-
 public:
 	void create(Context* context, D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t size = 128, D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+
+	DescriptorHandle at(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t index);
 
 	ID3D12DescriptorHeap* get();
 };
@@ -65,6 +68,4 @@ public:
 class RTV_DescriptorHeap : public DescriptorHeap {
 public:
 	void create(Context* context, uint32_t size = 128);
-
-	RTV_DescriptorHandle createRenderTargetView(uint32_t index, Texture& texture);
 };

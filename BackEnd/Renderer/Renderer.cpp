@@ -5,9 +5,13 @@
 
 Renderer renderer;
 
-void Renderer::init()
+void Renderer::init(bool enable_pix_debugger)
 {
-	context.create();
+	if (enable_pix_debugger) {
+		Context::initPix();
+	}
+
+	context.init();
 
 	// Descriptor Heaps
 	{
@@ -104,6 +108,11 @@ void Renderer::init()
 		background_call.setRenderTargetFormats(DXGI_FORMAT_B8G8R8A8_UNORM);
 		background_call.rebuild();
 	}
+
+	// Swapchain
+	{
+		swapchain.create(&context, app.window.hwnd);
+	}
 }
 
 void Renderer::waitForRendering()
@@ -113,46 +122,57 @@ void Renderer::waitForRendering()
 
 bool Renderer::tryDownloadRender(u32 dest_width, u32 dest_height, byte* r_pixels)
 {
-	if (final_rt.desc.Width != dest_width || final_rt.desc.Height != dest_height) {
+	if (compose_rt.desc.Width != dest_width || compose_rt.desc.Height != dest_height) {
 		return false;
 	}
 
-	final_rt.download(r_pixels);
+	compose_rt.download(r_pixels);
 	return true;
 }
 
 void Renderer::render()
 {
+	// Is even possible to render
+	if (app.window.win_messages.is_minimized ||
+		app.viewport.width < 8 || app.viewport.height < 8) {
+		return;
+	}
+
 	if (app.debug.capture_frame) {
 		Context::beginPixCapture();
 	}
 
 	// Change Resolution
 	{
-		auto& viewport_width = app.viewport.width;
-		auto& viewport_height = app.viewport.height;
+		auto viewport_width = app.viewport.width;
+		auto viewport_height = app.viewport.height;
 
 		if (render_width != viewport_width || render_height != viewport_height) {
-
-			std::array<float, 4> transparent = { 0, 0, 0, 0 };
 
 			// Background Input Texture
 			backgroud_input_tex.createTexture(&context, viewport_width, viewport_height,
 				DXGI_FORMAT_B8G8R8A8_UNORM,
 				D3D12_RESOURCE_FLAG_NONE,
-				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-				transparent, 0, 0
+				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
 			);
 			backgroud_input_srv = cbv_srv_uav_heap.createTexture2D_SRV(0, backgroud_input_tex);
 
-			// Final texture
-			final_rt.createRenderTarget(&context, viewport_width, viewport_height, DXGI_FORMAT_B8G8R8A8_UNORM);		
-			final_rtv = rtv_heap.createRenderTargetView(0, final_rt);
+			// Compose texture
+			compose_rt.createRenderTarget(&context, viewport_width, viewport_height, DXGI_FORMAT_B8G8R8A8_UNORM);
+			compose_rtv = compose_rt.createRenderTargetView(0, rtv_heap);
+
+			// Swapchain
+			swapchain.resize(viewport_width, viewport_height);
+			swapchain_rtvs[0] = swapchain.backbuffers[0].createRenderTargetView(1, rtv_heap);
+			swapchain_rtvs[1] = swapchain.backbuffers[1].createRenderTargetView(2, rtv_heap);
 
 			render_width = viewport_width;
 			render_height = viewport_height;
 		}
 	}
+
+	// Choose swapchain image
+	swapchain_rtv = swapchain_rtvs[swapchain.getBackbufferIndex()];
 
 	generateGPU_Data();
 
@@ -163,12 +183,14 @@ void Renderer::render()
 	// Command List
 	context.beginCommandList();
 	{
+		swapchain.transitionToRenderTarget();
+
 		{
 			auto f = cbv_srv_uav_heap.get();
 			context.cmd_list->SetDescriptorHeaps(1, &f);
 		}
 
-		drawcall.CMD_clearRenderTarget(final_rtv);
+		drawcall.CMD_clearRenderTarget(compose_rtv);
 
 		for (auto& mesh : app.meshes) {
 
@@ -178,20 +200,24 @@ void Renderer::render()
 			drawcall.CMD_setBufferParam(0, mesh.gpu_verts);
 			drawcall.CMD_setBufferParam(1, mesh.gpu_instances);
 			drawcall.CMD_setViewportSize(render_width, render_height);		
-			drawcall.CMD_setRenderTargets({ final_rtv });
+			drawcall.CMD_setRenderTargets({ compose_rtv });
 			drawcall.CMD_drawIndexed();
 		}
 
-		final_rt.copy(backgroud_input_tex);
+		compose_rt.copy(backgroud_input_tex);	
 
 		background_call.CMD_bind();
 		background_call.CMD_setConstantBufferParam(0, frame_cbuff);
 		background_call.CMD_setTextureParam(0, backgroud_input_srv);
 		background_call.CMD_setViewportSize(render_width, render_height);
-		background_call.CMD_setRenderTargets({ final_rtv });
+		background_call.CMD_setRenderTargets({ swapchain_rtv });
 		background_call.CMD_draw();
+
+		swapchain.transitionToPresentation();
 	}
 	context.endCommandList();
+
+	swapchain.present();
 
 	if (app.debug.capture_frame) {
 

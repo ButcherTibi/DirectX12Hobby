@@ -16,22 +16,22 @@ void Renderer::generateGPU_Data()
 	{
 		frame_cbuff.setFloat4(
 			(u32)FrameBufferField::camera_pos,
-			app.viewport.camera.pos.x,
-			app.viewport.camera.pos.y,
-			app.viewport.camera.pos.z
+			app.camera.pos.x,
+			app.camera.pos.y,
+			app.camera.pos.z
 		);
 
 		frame_cbuff.setFloat4(
 			(u32)FrameBufferField::camera_quat,
-			app.viewport.camera.quat_inv.x,
-			app.viewport.camera.quat_inv.y,
-			app.viewport.camera.quat_inv.z
+			app.camera.quat_inv.x,
+			app.camera.quat_inv.y,
+			app.camera.quat_inv.z
 		);
 
 		auto perspective_matrix = DirectX::XMMatrixPerspectiveFovRH(
-			toRad(app.viewport.camera.field_of_view),
+			toRad(app.camera.field_of_view),
 			(float)app.viewport.width / (float)app.viewport.height,
-			app.viewport.camera.z_near, app.viewport.camera.z_far
+			app.camera.z_near, app.camera.z_far
 		);
 		frame_cbuff.setMatrix(
 			(u32)FrameBufferField::perspective_matrix,
@@ -40,12 +40,12 @@ void Renderer::generateGPU_Data()
 
 		frame_cbuff.setFloat(
 			(u32)FrameBufferField::camera_z_near,
-			app.viewport.camera.z_near
+			app.camera.z_near
 		);
 
 		frame_cbuff.setFloat(
 			(u32)FrameBufferField::camera_z_far,
-			app.viewport.camera.z_far
+			app.camera.z_far
 		);
 	}
 
@@ -141,8 +141,7 @@ void Renderer::generateGPU_Data()
 				sculpt_mesh.uploadTesselationTriangles(scme::TesselationModificationBasis::MODIFIED_POLYS);
 			}
 
-			if (app.viewport.lighting.shading_normal == GPU_ShadingNormal::VERTEX && dirty_vertex_pos)
-			{
+			if (dirty_vertex_pos && app.lighting.shading_normal == GPU_ShadingNormal::VERTEX) {
 				sculpt_mesh.uploadVertexNormals();
 			}
 

@@ -62,7 +62,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;shell32.lib;ole32.lib;SimpleX12.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;shell32.lib;ole32.lib;User32.lib;SimpleX12.lib</AdditionalDependencies>
       <EnableUAC>false</EnableUAC>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -102,9 +102,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="App\App.hpp" />
+    <ClInclude Include="App\Camera\Camera.hpp" />
+    <ClInclude Include="App\Window\Window.hpp" />
     <ClInclude Include="ButchersToolbox\DebugUtils.hpp" />
     <ClInclude Include="ButchersToolbox\SparseVector.hpp" />
     <ClInclude Include="CommonTypes.hpp" />
+    <ClInclude Include="App\Input.hpp" />
     <ClInclude Include="Renderer\Renderer.hpp" />
     <ClInclude Include="Math\Geometry.hpp" />
     <ClInclude Include="Sculpt Mesh\InstanceTypes.hpp" />
@@ -116,8 +119,9 @@
   <ItemGroup>
     <ClCompile Include="App\App.cpp" />
     <ClCompile Include="App\AppSyncMethods.cpp" />
-    <ClCompile Include="App\Camera.cpp" />
+    <ClCompile Include="App\Camera\Camera.cpp" />
     <ClCompile Include="App\Instance.cpp" />
+    <ClCompile Include="App\Window\Window.cpp" />
     <ClCompile Include="Renderer\GenerateGPU_Data.cpp" />
     <ClCompile Include="Sculpt Mesh\EdgeOperations.cpp" />
     <ClCompile Include="Math\Geometry.cpp" />

@@ -279,6 +279,10 @@ void Resource::download(uint8_t*)
 
 void Resource::transitionTo(D3D12_RESOURCE_STATES new_state)
 {
+	if (states == new_state) {
+		return;
+	}
+
 	bool run_now = !context->is_cmd_list_recording;
 	if (run_now) {
 		context->beginCommandList();

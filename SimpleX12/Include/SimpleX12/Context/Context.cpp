@@ -12,7 +12,7 @@ void checkDX12(HRESULT result)
 	}
 }
 
-void Context::create()
+void Context::init()
 {
 	// Debug Controller
 	ComPtr<ID3D12Debug> debug_controller;
@@ -25,7 +25,6 @@ void Context::create()
 	}
 
 	// Factory
-	ComPtr<IDXGIFactory6> factory;
 	{
 		ComPtr<IDXGIFactory2> factory_2;
 		if (CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(factory_2.GetAddressOf())) != S_OK) {

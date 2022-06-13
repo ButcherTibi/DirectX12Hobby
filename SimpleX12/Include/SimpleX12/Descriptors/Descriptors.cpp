@@ -62,20 +62,3 @@ void RTV_DescriptorHeap::create(Context* new_context, uint32_t size)
 {
 	DescriptorHeap::create(new_context, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, size, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 }
-
-RTV_DescriptorHandle RTV_DescriptorHeap::createRenderTargetView(uint32_t index, Texture& tex)
-{
-	D3D12_RENDER_TARGET_VIEW_DESC desc = {};
-	desc.Format = tex.desc.Format;
-	desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-	desc.Texture2D.MipSlice = 0;
-	desc.Texture2D.PlaneSlice = 0;
-
-	RTV_DescriptorHandle rtv_handle;
-	rtv_handle.heap = this;
-	rtv_handle.cpu_handle = at(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, index).cpu_handle;
-	rtv_handle.gpu_handle = at(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, index).gpu_handle;
-	context->dev->CreateRenderTargetView(tex.get(), &desc, rtv_handle.cpu_handle);
-
-	return rtv_handle;
-}

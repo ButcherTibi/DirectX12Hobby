@@ -1,12 +1,12 @@
-#include "./App.hpp"
+#include "./Camera.hpp"
+#include "../App.hpp"
 
 // #include <glm/common.hpp>
 
 
-void App::setCameraFocalPoint(glm::vec3& focal_point)
+void Camera::setCameraFocalPoint(glm::vec3& new_focal_point)
 {
-	std::lock_guard lock{ state_update_lock };
-	viewport.camera.focal_point = focal_point;
+	focal_point = new_focal_point;
 }
 
 // TODO: ask stack exchange about below
@@ -51,14 +51,12 @@ mesh.rot = glm::normalize(mesh.rot);*/
 
 // if I rotate a quaternion by position then clusterfuck
 
-void App::arcballOrbitCamera(float deg_x, float deg_y)
+void Camera::arcballOrbitCamera(float deg_x, float deg_y)
 {
-	std::lock_guard lock{ state_update_lock };
-
-	auto& camera_quat_inv = viewport.camera.quat_inv;
-	auto& camera_focus = viewport.camera.focal_point;
-	auto& camera_pos = viewport.camera.pos;
-	auto& camera_forward = viewport.camera.forward;
+	auto& camera_quat_inv = quat_inv;
+	auto& camera_focus = focal_point;
+	auto& camera_pos = pos;
+	auto& camera_forward = forward;
 
 	glm::vec3 camera_right = glm::normalize(glm::vec3{ 1, 0, 0 } * camera_quat_inv);
 	glm::vec3 camera_up = glm::normalize(glm::vec3{ 0, 1, 0 } * camera_quat_inv);
@@ -80,13 +78,11 @@ void App::arcballOrbitCamera(float deg_x, float deg_y)
 	camera_forward = glm::normalize(glm::vec3{ 0, 0, -1 } * camera_quat_inv);
 }
 
-void App::panCamera(float amount_x, float amount_y)
+void Camera::panCamera(float amount_x, float amount_y)
 {
-	std::lock_guard lock{ state_update_lock };
-
-	auto& camera_quat_inv = viewport.camera.quat_inv;
-	auto& camera_focus = viewport.camera.focal_point;
-	auto& camera_pos = viewport.camera.pos;
+	auto& camera_quat_inv = quat_inv;
+	auto& camera_focus = focal_point;
+	auto& camera_pos = pos;
 
 	glm::vec3 camera_right = glm::normalize(glm::vec3{ 1, 0, 0 } * camera_quat_inv);
 	glm::vec3 camera_up = glm::normalize(glm::vec3{ 0, 1, 0 } * camera_quat_inv);
@@ -99,36 +95,25 @@ void App::panCamera(float amount_x, float amount_y)
 	camera_pos += amount_x * dist * camera_right + (-amount_y) * dist * camera_up;
 }
 
-void App::dollyCamera(float amount)
+void Camera::dollyCamera(float amount)
 {
-	std::lock_guard lock{ state_update_lock };
-
-	auto& camera_focus = viewport.camera.focal_point;
-	auto& camera_pos = viewport.camera.pos;
-	auto& camera_forward = viewport.camera.forward;
-
-	// glm::vec3 camera_forward_axis = glm::normalize(glm::vec3{ 0, 0, -1 } * camera_quat_inv);
-
-	float dist = glm::distance(camera_focus, camera_pos);
-	if (!dist) {
+	float dist = glm::distance(focal_point, pos);
+	if (dist == 0) {
 		dist = 1;
 	}
 
-	camera_pos += amount * dist * camera_forward;
+	pos += (amount * dist) * forward;
 }
 
-void App::setCameraPosition(float x, float y, float z)
+void Camera::setCameraPosition(float x, float y, float z)
 {
-	std::lock_guard lock{ state_update_lock };
-	viewport.camera.pos = { x, y, z };
+	pos = { x, y, z };
 }
 
-void App::setCameraRotation(float x, float y, float z)
+void Camera::setCameraRotation(float x, float y, float z)
 {
-	std::lock_guard lock{ state_update_lock };
-
-	auto& camera_quat_inv = viewport.camera.quat_inv;
-	auto& camera_forward = viewport.camera.forward;
+	auto& camera_quat_inv = quat_inv;
+	auto& camera_forward = forward;
 
 	glm::quat x_rot = glm::rotate(glm::quat{ 1, 0, 0, 0 }, x, { 1, 0, 0 });
 	glm::quat y_rot = glm::rotate(glm::quat{ 1, 0, 0, 0 }, y, { 0, 1, 0 });
