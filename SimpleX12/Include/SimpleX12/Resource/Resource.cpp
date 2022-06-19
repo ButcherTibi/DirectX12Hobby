@@ -1,7 +1,7 @@
 #include "Resource.hpp"
 
 
-void Resource::resizeDiscard(size_t new_size)
+bool Resource::resizeDiscard(size_t new_size)
 {
 	if (resource == nullptr) {
 
@@ -17,6 +17,8 @@ void Resource::resizeDiscard(size_t new_size)
 		);
 
 		resource->SetName(name.c_str());
+
+		return true;
 	}
 	else if (new_size > desc.Width) {
 
@@ -34,7 +36,11 @@ void Resource::resizeDiscard(size_t new_size)
 		);
 
 		resource->SetName(name.c_str());
+
+		return true;
 	}
+
+	return false;
 }
 
 void Resource::resize(size_t new_size)
@@ -303,7 +309,7 @@ void Resource::transitionTo(D3D12_RESOURCE_STATES new_state)
 	states = new_state;
 }
 
-void Resource::copy(Resource& dest)
+void Resource::copyResource(Resource& dest)
 {
 	bool run_now = !context->is_cmd_list_recording;
 	if (run_now) {

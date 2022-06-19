@@ -11,9 +11,13 @@
 
 // Mine
 #include <Math/Geometry.hpp>
+
 #include <SimpleX12/Resource/Resource.hpp>
-#include <Shaders/GPU_ShaderTypes.hpp>
+#include <SimpleX12/Buffer/IndexBuffer.hpp>
+#include <SimpleX12/Buffer/StorageBuffer.hpp>
 #include <SimpleX12/Drawcall/Drawcall.hpp>
+
+#include <Shaders/GPU_ShaderTypes.hpp>
 #include "./InstanceTypes.hpp"
 
 

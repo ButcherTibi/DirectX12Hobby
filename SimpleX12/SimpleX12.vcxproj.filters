@@ -18,6 +18,8 @@
     <ClCompile Include="Include\SimpleX12\Buffer\IndexBuffer.cpp" />
     <ClCompile Include="Include\SimpleX12\Buffer\StorageBuffer.cpp" />
     <ClCompile Include="Include\SimpleX12\Swapchain\Swapchain.cpp" />
+    <ClCompile Include="Include\SimpleX12\Context\CommandList.cpp" />
+    <ClCompile Include="Include\SimpleX12\Buffer\Buffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.hpp" />
@@ -34,6 +36,7 @@
     <ClInclude Include="Include\SimpleX12\Buffer\IndexBuffer.hpp" />
     <ClInclude Include="Include\SimpleX12\Buffer\StorageBuffer.hpp" />
     <ClInclude Include="Include\SimpleX12\Swapchain\Swapchain.hpp" />
+    <ClInclude Include="Include\SimpleX12\Buffer\Buffer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

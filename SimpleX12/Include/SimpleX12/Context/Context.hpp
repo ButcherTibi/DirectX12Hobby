@@ -3,7 +3,6 @@
 // Standard
 #include <string>
 #include <vector>
-#include <array>
 
 // Windows
 #include <wrl/client.h>
@@ -17,8 +16,12 @@ using Microsoft::WRL::ComPtr;
 #include <d3d12.h>
 
 // HLSL Compiler
-// #include <DXC/include/dxcapi.h>
 #include <dxcapi.h>
+
+
+class Context;
+class DescriptorHeap;
+struct RTV_DescriptorHandle;
 
 
 void checkDX12(HRESULT result);
@@ -28,6 +31,33 @@ struct Adapter {
 
 	ComPtr<IDXGIAdapter> adapter;
 	DXGI_ADAPTER_DESC desc;
+};
+
+class CommandList {
+protected:
+	Context* context = nullptr;
+
+public:
+	void setDescriptorHeaps(DescriptorHeap& heap_0);
+
+	void clearRenderTarget(RTV_DescriptorHandle render_target,
+		float red = 0.f, float green = 0.f, float blue = 0.f, float alpha = 0.f);
+};
+
+class RecordCommandList : public CommandList {
+public:
+	RecordCommandList() = default;
+	RecordCommandList(Context* context);
+
+	~RecordCommandList();
+};
+
+class RecordAndWaitCommandList : public CommandList {
+public:
+	RecordAndWaitCommandList() = default;
+	RecordAndWaitCommandList(Context* context);	
+
+	~RecordAndWaitCommandList();
 };
 
 class Context {
@@ -79,6 +109,8 @@ public:
 	void endAndWaitForCommandList();
 	void copyBuffer(ID3D12Resource* dest, ID3D12Resource* source);
 
+	RecordCommandList recordCommandList();
+	RecordAndWaitCommandList recordAndWaitCommandList();
 	
 
 	/* Debug */

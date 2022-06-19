@@ -3,7 +3,8 @@
 #include "../Descriptors/Descriptors.hpp"
 
 
-void Texture::createTexture(Context* new_context, uint32_t width, uint32_t height, DXGI_FORMAT format,
+void Texture::createTexture2D(Context* new_context,
+	uint32_t width, uint32_t height, DXGI_FORMAT format,
 	D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state)
 {
 	context = new_context;
@@ -35,8 +36,7 @@ void Texture::createTexture(Context* new_context, uint32_t width, uint32_t heigh
 }
 
 void Texture::createRenderTarget(Context* new_context,
-	uint32_t width, uint32_t height, DXGI_FORMAT format,
-	std::array<float, 4> new_clear_color, float new_clear_depth, uint8_t new_clear_stencil)
+	uint32_t width, uint32_t height, DXGI_FORMAT format)
 {
 	context = new_context;
 	resource = nullptr;
@@ -57,26 +57,13 @@ void Texture::createRenderTarget(Context* new_context,
 
 	states = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
-	D3D12_CLEAR_VALUE clear_value = {};
-	clear_value.Format = format;
-	clear_value.Color[0] = new_clear_color[0];
-	clear_value.Color[1] = new_clear_color[1];
-	clear_value.Color[2] = new_clear_color[2];
-	clear_value.Color[3] = new_clear_color[3];
-	clear_value.DepthStencil.Depth = new_clear_depth;
-	clear_value.DepthStencil.Stencil = new_clear_stencil;
-
 	checkDX12(context->dev->CreateCommittedResource(
 		&heap_props,
 		heap_flags,
 		&desc,
 		states,
-		&clear_value,
+		nullptr,
 		IID_PPV_ARGS(&resource)));
-
-	for (auto& rtv : rtvs) {
-		context->dev->CreateRenderTargetView(get(), &rtv.desc, rtv.cpu_handle);
-	}
 }
 
 void Texture::createSwapchainRenderTarget(Context* new_context, ID3D12Resource* swapchain_backbuffer)
@@ -93,25 +80,96 @@ void Texture::createSwapchainRenderTarget(Context* new_context, ID3D12Resource* 
 	states = D3D12_RESOURCE_STATE_PRESENT;
 }
 
+SRV_DescriptorHandle Texture::createShaderResourceView(uint32_t index, CBV_SRV_UAV_DescriptorHeap& heap)
+{
+	D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
+	srv_desc.Format = desc.Format;
+	srv_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srv_desc.Texture2D.MostDetailedMip = 0;
+	srv_desc.Texture2D.MipLevels = 1;
+	srv_desc.Texture2D.PlaneSlice = 0;
+	srv_desc.Texture2D.ResourceMinLODClamp = 0;
+	srv_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+	SRV_DescriptorHandle srv;
+	srv.heap = &heap;
+	srv.idx = index;
+	srv.cpu_handle = heap.at(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, index).cpu_handle;
+	srv.gpu_handle = heap.at(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, index).gpu_handle;
+	
+	context->dev->CreateShaderResourceView(get(), &srv_desc, srv.cpu_handle);
+
+	return srv;
+}
+
 RTV_DescriptorHandle Texture::createRenderTargetView(uint32_t index, RTV_DescriptorHeap& rtv_heap)
 {
-	auto& rtv = rtvs.emplace_back();
-	rtv.desc = {};
-	rtv.desc.Format = desc.Format;
-	rtv.desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-	rtv.desc.Texture2D.MipSlice = 0;
-	rtv.desc.Texture2D.PlaneSlice = 0;
+	D3D12_RENDER_TARGET_VIEW_DESC rtv_desc = {};
+	rtv_desc.Format = desc.Format;
+	rtv_desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	rtv_desc.Texture2D.MipSlice = 0;
+	rtv_desc.Texture2D.PlaneSlice = 0;
+
+	RTV_DescriptorHandle rtv;
 	rtv.heap = &rtv_heap;
 	rtv.idx = index;
 	rtv.cpu_handle = rtv_heap.at(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, rtv.idx).cpu_handle;
 	rtv.gpu_handle = rtv_heap.at(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, rtv.idx).gpu_handle;
 
-	context->dev->CreateRenderTargetView(get(), &rtv.desc, rtv.cpu_handle);
+	context->dev->CreateRenderTargetView(get(), &rtv_desc, rtv.cpu_handle);
 
 	return rtv;
 }
 
-void Texture::download(byte* r_mem)
+bool Texture::copyToBuffer(Buffer& dest_buff)
+{
+	// GPU likes to round up textures so it may copy
+	// with extra padding added to the row size
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT dest_footprint;
+	size_t row_size;
+	size_t download_size;
+	{
+		context->dev->GetCopyableFootprints(
+			&desc, 0, 1, 0,
+			&dest_footprint, nullptr, &row_size, &download_size
+		);
+	}
+
+	bool dest_resized = dest_buff.resizeDiscard(download_size);
+
+	// Copy to destination buffer
+	{
+		RecordAndWaitCommandList r;
+		if (context->is_cmd_list_recording == false) {
+			r = context->recordAndWaitCommandList();
+		}
+
+		auto prev_state = states;
+		transitionTo(D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+		D3D12_TEXTURE_COPY_LOCATION dest = {};
+		dest.pResource = dest_buff.get();
+		dest.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+		dest.PlacedFootprint = dest_footprint;
+
+		D3D12_TEXTURE_COPY_LOCATION src = {};
+		src.pResource = resource.Get();
+		src.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+
+		context->cmd_list->CopyTextureRegion(
+			&dest,
+			0, 0, 0,
+			&src,
+			nullptr
+		);
+
+		transitionTo(prev_state);
+	}
+
+	return dest_resized;
+}
+
+void Texture::copyToCPUMemory(byte* r_mem)
 {
 	// GPU likes to round up textures so it may copy
 	// with extra padding added to the row size

@@ -24,6 +24,7 @@ void Renderer::init(bool enable_pix_debugger)
 	// Common
 	{
 		fullscreen_vs.createFromSourceCodeFile(&context, root + L"FullScreenVS.hlsl");
+		world_pos_readback.create(&context, D3D12_HEAP_TYPE_READBACK);
 	}
 
 	// Shaders
@@ -56,7 +57,7 @@ void Renderer::init(bool enable_pix_debugger)
 		drawcall.setBufferParam(1);
 		drawcall.setVertexShader(&vertex_shader);
 		drawcall.setPixelShader(&pixel_shader);
-		drawcall.setRenderTargetFormats(DXGI_FORMAT_B8G8R8A8_UNORM);
+		drawcall.setRenderTargetFormats(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_B8G8R8A8_UNORM);
 		drawcall.rebuild();
 	}
 
@@ -100,13 +101,13 @@ void Renderer::init(bool enable_pix_debugger)
 	{
 		background_ps.createFromSourceCodeFile(&context, root + L"Background/BackgroundPS.hlsl");
 
-		background_call.create(&context);
-		background_call.setVertexShader(&fullscreen_vs);
-		background_call.setConstantBufferParam(0);
-		background_call.setTextureParam(0);
-		background_call.setPixelShader(&background_ps);
-		background_call.setRenderTargetFormats(DXGI_FORMAT_B8G8R8A8_UNORM);
-		background_call.rebuild();
+		bckgrd_call.create(&context);
+		bckgrd_call.setVertexShader(&fullscreen_vs);
+		bckgrd_call.setConstantBufferParam(0);
+		bckgrd_call.setTextureParam(0);
+		bckgrd_call.setPixelShader(&background_ps);
+		bckgrd_call.setRenderTargetFormats(DXGI_FORMAT_B8G8R8A8_UNORM);
+		bckgrd_call.rebuild();
 	}
 
 	// Swapchain
@@ -149,22 +150,33 @@ void Renderer::render()
 
 		if (render_width != viewport_width || render_height != viewport_height) {
 
-			// Background Input Texture
-			backgroud_input_tex.createTexture(&context, viewport_width, viewport_height,
-				DXGI_FORMAT_B8G8R8A8_UNORM,
+			// Background Input
+			backgroud_input_tex.createTexture2D(&context,
+				viewport_width, viewport_height, DXGI_FORMAT_B8G8R8A8_UNORM,
 				D3D12_RESOURCE_FLAG_NONE,
 				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
 			);
-			backgroud_input_srv = cbv_srv_uav_heap.createTexture2D_SRV(0, backgroud_input_tex);
+			backgroud_input_srv = backgroud_input_tex.createShaderResourceView(
+				(u32)ShaderResourceViews::background_input, cbv_srv_uav_heap);
 
-			// Compose texture
+			// Compose
 			compose_rt.createRenderTarget(&context, viewport_width, viewport_height, DXGI_FORMAT_B8G8R8A8_UNORM);
-			compose_rtv = compose_rt.createRenderTargetView(0, rtv_heap);
+			compose_rtv = compose_rt.createRenderTargetView((u32)RenderTargets::compose, rtv_heap);
+
+			// World Position
+			{
+				world_pos_rt.createRenderTarget(&context,
+					viewport_width, viewport_height, DXGI_FORMAT_R8G8B8A8_UNORM
+				);
+				world_pos_rtv = world_pos_rt.createRenderTargetView((u32)RenderTargets::world_pos, rtv_heap);
+			}
 
 			// Swapchain
 			swapchain.resize(viewport_width, viewport_height);
-			swapchain_rtvs[0] = swapchain.backbuffers[0].createRenderTargetView(1, rtv_heap);
-			swapchain_rtvs[1] = swapchain.backbuffers[1].createRenderTargetView(2, rtv_heap);
+			swapchain_rtvs[0] = swapchain.backbuffers[0].createRenderTargetView(
+				(u32)RenderTargets::swapchain_0, rtv_heap);
+			swapchain_rtvs[1] = swapchain.backbuffers[1].createRenderTargetView(
+				(u32)RenderTargets::swapchain_1, rtv_heap);
 
 			render_width = viewport_width;
 			render_height = viewport_height;
@@ -177,20 +189,19 @@ void Renderer::render()
 	generateGPU_Data();
 
 	// Hot Reloading
+#if _DEBUG
 	drawcall.rebuild();
-	background_call.rebuild();
+	bckgrd_call.rebuild();
+#endif
 
 	// Command List
-	context.beginCommandList();
 	{
+		auto cmds = context.recordCommandList();
+
 		swapchain.transitionToRenderTarget();
-
-		{
-			auto f = cbv_srv_uav_heap.get();
-			context.cmd_list->SetDescriptorHeaps(1, &f);
-		}
-
-		drawcall.CMD_clearRenderTarget(compose_rtv);
+		cmds.setDescriptorHeaps(cbv_srv_uav_heap);
+		cmds.clearRenderTarget(world_pos_rtv, FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
+		cmds.clearRenderTarget(compose_rtv);
 
 		for (auto& mesh : app.meshes) {
 
@@ -200,22 +211,22 @@ void Renderer::render()
 			drawcall.CMD_setBufferParam(0, mesh.gpu_verts);
 			drawcall.CMD_setBufferParam(1, mesh.gpu_instances);
 			drawcall.CMD_setViewportSize(render_width, render_height);		
-			drawcall.CMD_setRenderTargets({ compose_rtv });
+			drawcall.CMD_setRenderTargets({ world_pos_rtv, compose_rtv });
 			drawcall.CMD_drawIndexed();
 		}
 
-		compose_rt.copy(backgroud_input_tex);	
+		compose_rt.copyToBuffer(world_pos_readback);
+		compose_rt.copyResource(backgroud_input_tex);	
 
-		background_call.CMD_bind();
-		background_call.CMD_setConstantBufferParam(0, frame_cbuff);
-		background_call.CMD_setTextureParam(0, backgroud_input_srv);
-		background_call.CMD_setViewportSize(render_width, render_height);
-		background_call.CMD_setRenderTargets({ swapchain_rtv });
-		background_call.CMD_draw();
+		bckgrd_call.CMD_bind();
+		bckgrd_call.CMD_setConstantBufferParam(0, frame_cbuff);
+		bckgrd_call.CMD_setTextureParam(0, backgroud_input_srv);
+		bckgrd_call.CMD_setViewportSize(render_width, render_height);
+		bckgrd_call.CMD_setRenderTargets({ swapchain_rtv });
+		bckgrd_call.CMD_draw();
 
 		swapchain.transitionToPresentation();
 	}
-	context.endCommandList();
 
 	swapchain.present();
 

@@ -1,5 +1,9 @@
 #include "Drawcall.hpp"
 
+#include "../Resource/Resource.hpp"
+#include "../Buffer/Buffer.hpp"
+#include "../Shader/Shader.hpp"
+
 
 void DispatchCall::create(Context* new_context)
 {

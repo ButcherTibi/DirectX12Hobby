@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SimpleX12/Shader/Shader.hpp>
+#include <SimpleX12/Descriptors/Descriptors.hpp>
 #include <SimpleX12/Drawcall/Drawcall.hpp>
 #include <SimpleX12/Buffer/ConstantBuffer.hpp>
 #include <SimpleX12/Swapchain/Swapchain.hpp>
@@ -7,6 +9,18 @@
 #include <Shaders/GPU_ShaderTypes.hpp>
 #include <CommonTypes.hpp>
 #include <App/App.hpp>
+
+
+enum class ShaderResourceViews : u32 {
+	background_input
+};
+
+enum class RenderTargets : u32 {
+	compose,
+	world_pos, 
+	swapchain_0,
+	swapchain_1
+};
 
 
 class Renderer {
@@ -42,10 +56,15 @@ public:
 	Texture backgroud_input_tex;
 	SRV_DescriptorHandle backgroud_input_srv;
 	PixelShader background_ps;
-	Drawcall background_call;
+	Drawcall bckgrd_call;
 
 	Texture compose_rt;
 	RTV_DescriptorHandle compose_rtv;
+
+	// @NOTE: the 32 bit alpha channel is unused for now
+	Texture world_pos_rt;
+	RTV_DescriptorHandle world_pos_rtv;
+	Buffer world_pos_readback;
 
 	Swapchain swapchain;
 	std::array<RTV_DescriptorHandle, 2> swapchain_rtvs;

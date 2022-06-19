@@ -164,18 +164,16 @@ void App::CPU_update()
 
 		// glm::vec3 f = { 0, 0, 0 };
 		// camera.setCameraFocalPoint(f);
+
+		window.setMouseVisibility(false);
+		window.trapMousePosition(input.mouse_x, input.mouse_y);
 	}
 	else if (input.key_list[VirtualKeys::RIGHT_MOUSE_BUTTON].is_down) {
-
-		int32_t delta_x = input.mouse_delta_x;
-		int32_t delta_y = input.mouse_delta_y;
-
-		float scaling = camera.orbit_sensitivity * delta_time;
-		camera.arcballOrbitCamera((float)delta_x * scaling, (float)delta_y * scaling);
-
+		camera.arcballOrbitCamera((float)input.mouse_delta_x, (float)input.mouse_delta_y);
 	}
 	else if (input.key_list[VirtualKeys::RIGHT_MOUSE_BUTTON].up_transition) {
-
+		window.untrapMousePosition();
+		window.setMouseVisibility(true);
 	}
 
 	// Camera Panning
@@ -184,11 +182,7 @@ void App::CPU_update()
 		window.trapMousePosition(input.mouse_x, input.mouse_y);
 	}
 	else if (input.key_list[VirtualKeys::MIDDLE_MOUSE_BUTTON].is_down) {
-		int32_t delta_x = input.mouse_delta_x;
-		int32_t delta_y = input.mouse_delta_y;
-
-		float scaling = camera.pan_sensitivity * delta_time;
-		camera.panCamera((float)-delta_x * scaling, (float)-delta_y * scaling);
+		camera.panCamera((float)-input.mouse_delta_x, (float)input.mouse_delta_y);
 	}
 	else if (input.key_list[VirtualKeys::MIDDLE_MOUSE_BUTTON].up_transition) {
 		window.untrapMousePosition();

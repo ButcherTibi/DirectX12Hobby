@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Resource/Resource.hpp"
+#include "./Buffer.hpp"
 #include "DirectXMath.h"
 
 

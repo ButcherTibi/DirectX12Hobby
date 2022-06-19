@@ -2,6 +2,8 @@
 
 #include "../Texture/Texture.hpp"
 
+#include <array>
+
 
 class Swapchain {
 	Context* ctx = nullptr;

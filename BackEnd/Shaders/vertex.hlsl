@@ -25,6 +25,8 @@ VertexOut main(uint vertex_id : SV_VertexID, uint instance_id : SV_InstanceID)
 	pos = quatRotate(pos, instance.rot);
 	pos += instance.pos;
 
+	output.world_pos = pos;
+
     // Camera Position
 	pos -= frame.camera_pos;
 	pos = quatRotate(pos, frame.camera_quat_inv);

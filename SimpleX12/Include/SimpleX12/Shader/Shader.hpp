@@ -1,10 +1,21 @@
 #pragma once
 
-#include "../Context/Context.hpp"
-#include "../ButchersToolbox/Filesys/Filesys.hpp"
+#include <string>
+#include <chrono>
+
+// Windows
+#include <wrl/client.h>
+using Microsoft::WRL::ComPtr;
+
+#include <d3d12.h>
+
+// HLSL Compiler
+#include <dxcapi.h>
 
 #undef min
 #undef max
+
+class Context;
 
 
 class Shader {

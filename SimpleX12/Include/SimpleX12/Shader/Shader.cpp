@@ -2,6 +2,9 @@
 
 #include <unordered_map>
 
+#include "../Context/Context.hpp"
+#include "../ButchersToolbox/Filesys/Filesys.hpp"
+
 
 void Shader::createFromSourceCodeFile(Context* new_context,
 	std::wstring new_file_path, std::wstring new_shaders_folder_path, std::wstring new_hlsl_target)

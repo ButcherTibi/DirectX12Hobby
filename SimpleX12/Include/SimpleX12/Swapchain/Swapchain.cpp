@@ -1,5 +1,7 @@
 #include "./Swapchain.hpp"
 
+#include "../Texture/Texture.hpp"
+
 
 void Swapchain::create(Context* new_context, HWND hwnd)
 {

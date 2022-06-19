@@ -1,9 +1,29 @@
 #pragma once
 
-#include "../Descriptors/Descriptors.hpp"
-#include "../Shader/Shader.hpp"
-#include "../Buffer/IndexBuffer.hpp"
-#include "../Buffer/ConstantBuffer.hpp"
+#include <cstdint>
+#include <vector>
+#include <string>
+
+// Windows
+#include <wrl/client.h>
+using Microsoft::WRL::ComPtr;
+
+#include <d3d12.h>
+
+class Context;
+
+class VertexShader;
+class PixelShader;
+class ComputeShader;
+
+class Resource;
+class Buffer;
+class ConstantBuffer;
+class IndexBuffer;
+
+class DescriptorHeap;
+struct SRV_DescriptorHandle;
+struct RTV_DescriptorHandle;
 
 
 enum class ShaderInputType {
@@ -62,6 +82,7 @@ public:
 	void setPixelShader(PixelShader* pixel_shader);
 
 	void setRenderTargetFormats(DXGI_FORMAT rtv_format_0);
+	void setRenderTargetFormats(DXGI_FORMAT rtv_format_0, DXGI_FORMAT rtv_format_1);
 
 	void rebuild();
 

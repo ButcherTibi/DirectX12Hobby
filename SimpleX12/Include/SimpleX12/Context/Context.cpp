@@ -1,7 +1,7 @@
 #include "Context.hpp"
 
 // Standard
-#include <algorithm>
+#include <array>
 #include <format>
 
 
@@ -63,6 +63,20 @@ void Context::init()
 		}
 		dev->SetName(L"Device");
 		dev->QueryInterface(IID_PPV_ARGS(&debug_device));
+
+		/*ComPtr<ID3D12InfoQueue> d3dInfoQueue;
+		auto hr = debug_controller.As(&d3dInfoQueue);
+		if (SUCCEEDED(hr))
+		{
+			std::array<D3D12_MESSAGE_ID, 1> hide =
+			{
+				D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,
+			};
+			D3D12_INFO_QUEUE_FILTER filter = {};
+			filter.DenyList.NumIDs = (uint32_t)hide.size();
+			filter.DenyList.pIDList = hide.data();
+			d3dInfoQueue->AddStorageFilterEntries(&filter);
+		}*/
 	}
 	
 	// Command Queue
@@ -157,6 +171,16 @@ void Context::copyBuffer(ID3D12Resource* dest, ID3D12Resource* source)
 		);
 	}
 	endAndWaitForCommandList();
+}
+
+RecordCommandList Context::recordCommandList()
+{
+	return RecordCommandList(this);
+}
+
+RecordAndWaitCommandList Context::recordAndWaitCommandList()
+{
+	return RecordAndWaitCommandList(this);
 }
 
 void Context::reportLiveObjects()

@@ -33,10 +33,10 @@ public:
 	void setCameraFocalPoint(glm::vec3& new_focus);
 
 	// orbit camera around focus
-	void arcballOrbitCamera(float deg_x, float deg_y);
+	void arcballOrbitCamera(float raw_x, float raw_y);
 
 	// moves the camera along the camera's up and right axes
-	void panCamera(float amount_x, float amount_y);
+	void panCamera(float raw_x, float raw_y);
 
 	// moves the camera along the camera's forward axis
 	void dollyCamera(float amount);

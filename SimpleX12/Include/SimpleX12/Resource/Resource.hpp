@@ -33,7 +33,7 @@ public:
 	/// <summary>
 	/// Resize the resource by increasing it's width, previous content is discarded.
 	/// </summary>
-	void resizeDiscard(size_t new_size);
+	bool resizeDiscard(size_t new_size);
 
 	/// <summary>
 	/// Resize the resource by increasing it's width, previous content is copied over.
@@ -71,12 +71,13 @@ public:
 	/// <summary>
 	/// Transitions the resource to a new state.
 	/// </summary>
-	/// <param name="transition_now">By default this method is used when recording command list,
-	/// set <c>transition_now</c> to true to execute the command now on the CPU.
-	/// </param>
 	void transitionTo(D3D12_RESOURCE_STATES new_state);
 
-	void copy(Resource& dest);
+	/// <summary>
+	/// Copies resource to the destination resource.
+	/// Destination must have the same size.
+	/// </summary>
+	void copyResource(Resource& dest);
 
 	ID3D12Resource* get();
 
@@ -89,6 +90,3 @@ public:
 
 	void setName(std::wstring name);
 };
-
-
-class Buffer : public Resource {};

@@ -25,7 +25,8 @@ void Renderer::generateGPU_Data()
 			(u32)FrameBufferField::camera_quat,
 			app.camera.quat_inv.x,
 			app.camera.quat_inv.y,
-			app.camera.quat_inv.z
+			app.camera.quat_inv.z,
+			app.camera.quat_inv.w
 		);
 
 		auto perspective_matrix = DirectX::XMMatrixPerspectiveFovRH(

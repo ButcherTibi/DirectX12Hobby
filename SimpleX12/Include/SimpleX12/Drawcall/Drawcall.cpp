@@ -1,6 +1,12 @@
 #include "Drawcall.hpp"
 
 #include <format>
+#include <array>
+
+#include "../Shader/Shader.hpp"
+#include "../Buffer/ConstantBuffer.hpp"
+#include "../Buffer/IndexBuffer.hpp"
+#include "../Descriptors/Descriptors.hpp"
 
 
 void Drawcall::create(Context* new_context)
@@ -108,6 +114,13 @@ void Drawcall::setRenderTargetFormats(DXGI_FORMAT rtv_format_0)
 {
 	pipe_desc.NumRenderTargets = 1;
 	pipe_desc.RTVFormats[0] = rtv_format_0;
+}
+
+void Drawcall::setRenderTargetFormats(DXGI_FORMAT rtv_format_0, DXGI_FORMAT rtv_format_1)
+{
+	pipe_desc.NumRenderTargets = 2;
+	pipe_desc.RTVFormats[0] = rtv_format_0;
+	pipe_desc.RTVFormats[1] = rtv_format_1;
 }
 
 void Drawcall::rebuild()
